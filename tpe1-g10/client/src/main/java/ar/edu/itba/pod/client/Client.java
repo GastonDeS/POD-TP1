@@ -1,4 +1,4 @@
-package PC.client;
+package ar.edu.itba.pod.client;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
