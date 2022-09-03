@@ -1,40 +1,39 @@
 package api.src.main.java.ar.edu.itba.pod.models;
 
-import api.src.main.java.ar.edu.itba.pod.constants.SeatCategory;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class Plane {
     private final String name;
-    private final int fileCount;
-    private final int columnCount;
-    private final List<List<Seat>> seats;
+    private final List<RowData> rowDataList;
+    private final int totalSeats;
 
-    public Plane(String name, int fileCount, int columnCount) {
+    public Plane(String name, List<RowData> rowDataList) {
         this.name = name;
-        this.fileCount = fileCount;
-        this.columnCount = columnCount;
-        this.seats = new ArrayList<>();
-        for (int i = 0; i < fileCount; i++) {
-            this.seats.set(i, new ArrayList<>());
-        }
-        //TODO create seats with categories
+        if (rowDataList.size() <= 0 || rowDataList.size() > 25) throw new IllegalArgumentException();
+        rowDataList.forEach(rowData -> { if (rowData.getColumns() <= 0) throw new IllegalArgumentException(); });
+        this.rowDataList = rowDataList;
+        this.totalSeats = rowDataList.stream().map(RowData::getColumns).reduce(0, Integer::sum);
     }
 
     public String getName() {
         return name;
     }
 
-    public int getFileCount() {
-        return fileCount;
+    public int getTotalSeats() {
+        return totalSeats;
     }
 
-    public int getColumnCount() {
-        return columnCount;
-    }
-
-    public List<List<Seat>> getSeats() {
+    public final List<List<Seat>> getSeats() {
+        List<List<Seat>> seats = new ArrayList<>();
+        rowDataList.forEach(rowData -> {
+            seats.add(new ArrayList<>());
+            for (int i = 0; i < rowData.getColumns(); i++) {
+                seats.get(seats.size()-1).add(new Seat(rowData.getSeatCategory(), ""+(seats.size())+""+Character.valueOf((char) (65+i)).toString()));
+            }
+        });
         return seats;
     }
+
 }
