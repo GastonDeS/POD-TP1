@@ -1,0 +1,104 @@
+package api.src.main.java.ar.edu.itba.pod.services;
+
+import api.src.main.java.ar.edu.itba.pod.constants.FlightStatus;
+import api.src.main.java.ar.edu.itba.pod.constants.SeatCategory;
+import api.src.main.java.ar.edu.itba.pod.models.Flight;
+import api.src.main.java.ar.edu.itba.pod.models.Plane;
+import api.src.main.java.ar.edu.itba.pod.models.Seat;
+import api.src.main.java.ar.edu.itba.pod.models.Ticket;
+
+import java.rmi.RemoteException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+public class FlightsAdminService {
+    private final Map<String, Plane> planes;
+    private final Map<String, Flight> flights;
+
+    public FlightsAdminService() {
+        this.planes = new HashMap<>();
+        this.flights = new HashMap<>();
+    }
+
+    private Flight getFlight(String code) throws RemoteException {
+        Flight flight = flights.get(code);
+        if (flight == null) throw new RemoteException();
+        return flight;
+    }
+
+    public void addPlaneModel(Plane plane) {
+        planes.put(plane.getName(), plane);
+    }
+
+    public void addFlight(Flight flight) {
+        flights.put(flight.getCode(), flight);
+    }
+
+    public FlightStatus checkFlightStatus(String code) throws RemoteException {
+        Flight flight = getFlight(code);
+        return flight.getStatus();
+    }
+
+    public void confirmPendingFlight(String code) throws RemoteException {
+        Flight flight = getFlight(code);
+        if (flight.getStatus() != FlightStatus.PENDING) throw new RemoteException();
+        flight.setStatus(FlightStatus.CONFIRMED);
+    }
+
+    public void cancelPendingFlight(String code) throws RemoteException {
+        Flight flight = getFlight(code);
+        if (flight.getStatus() != FlightStatus.PENDING) throw new RemoteException();
+        flight.setStatus(FlightStatus.CANCELLED);
+    }
+
+    public void findNewSeatsForCancelledFlights() throws RemoteException {
+        List<Flight> cancelledFlights = getCancelledFlights();
+        for (Flight flight:cancelledFlights) {
+            findNewSeatsForFlight(flight);
+            if (flight.getTicketList().isEmpty()) { // TODO validate if we need to remove it
+                flights.remove(flight.getCode());
+            }
+        }
+    }
+
+    private void findNewSeatsForFlight(Flight oldFlight) {
+        List<Flight> possibleFlights = flights.values().stream()
+                .filter(flight -> flight.getOrigin().equals(oldFlight.getOrigin()) &&
+                        flight.getDestination().equals(oldFlight.getDestination()) &&
+                                flight.getAvailableSeatsAmount() > 0 &&
+                                flight.getStatus() != FlightStatus.CANCELLED)
+                .collect(Collectors.toList());
+
+        List<Ticket> economyTickets = oldFlight.getTicketList().stream().filter(ticket -> ticket.getSeatCategory() == SeatCategory.ECONOMY).collect(Collectors.toList());
+        List<Ticket> premiumEconomyTickets = oldFlight.getTicketList().stream().filter(ticket -> ticket.getSeatCategory() == SeatCategory.PREMIUM_ECONOMY).collect(Collectors.toList());
+        List<Ticket> businessTickets = oldFlight.getTicketList().stream().filter(ticket -> ticket.getSeatCategory() == SeatCategory.BUSINESS).collect(Collectors.toList());
+
+        swapTickets(SeatCategory.ECONOMY, economyTickets, possibleFlights);
+        swapTickets(SeatCategory.PREMIUM_ECONOMY, premiumEconomyTickets, possibleFlights);
+        swapTickets(SeatCategory.BUSINESS, businessTickets, possibleFlights);
+    }
+
+    private void swapTickets(SeatCategory seatCategory, List<Ticket> oldTickets, List<Flight> flights) {
+        flights.forEach(flight -> {
+            long validSeatSize = flight.getAvailableSeats()
+                    .stream()
+                    .filter(seat -> seat.getSeatCategory() == seatCategory).count();
+            for (int i = 0; i < validSeatSize && !oldTickets.isEmpty(); i++) {
+                swapTicket(oldTickets.get(0), flight);
+                oldTickets.remove(0);
+            }
+        });
+    }
+
+    private void swapTicket(Ticket oldTicket, Flight flight) {
+        oldTicket.getFlight().removeTicketFromFlight(oldTicket);
+        oldTicket.setFlight(flight);
+        flight.addTicketToFlight(oldTicket);
+    }
+
+    private List<Flight> getCancelledFlights() {
+        return flights.values().stream().filter(flight -> flight.getStatus() == FlightStatus.CANCELLED ).collect(Collectors.toList());
+    }
+}

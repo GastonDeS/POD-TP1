@@ -2,7 +2,9 @@ package api.src.main.java.ar.edu.itba.pod.models;
 
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Plane {
     private final String name;
@@ -25,12 +27,12 @@ public class Plane {
         return totalSeats;
     }
 
-    public final List<List<Seat>> getSeats() {
-        List<List<Seat>> seats = new ArrayList<>();
+    public final Map<String, Seat> getSeats() {
+        Map<String, Seat> seats = new HashMap<>();
         rowDataList.forEach(rowData -> {
-            seats.add(new ArrayList<>());
             for (int i = 0; i < rowData.getColumns(); i++) {
-                seats.get(seats.size()-1).add(new Seat(rowData.getSeatCategory(), ""+(seats.size())+""+Character.valueOf((char) (65+i)).toString()));
+                String place = ""+(seats.size())+""+Character.valueOf((char) (65+i)).toString();
+                seats.put(place, new Seat(rowData.getSeatCategory(), place));
             }
         });
         return seats;
