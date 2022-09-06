@@ -29,12 +29,12 @@ public class Plane {
 
     public final Map<String, Seat> getSeats() {
         Map<String, Seat> seats = new HashMap<>();
-        rowDataList.forEach(rowData -> {
-            for (int i = 0; i < rowData.getColumns(); i++) {
-                String place = ""+(seats.size())+""+Character.valueOf((char) (65+i)).toString();
-                seats.put(place, new Seat(rowData.getSeatCategory(), place));
+        for (int j = 0; j < rowDataList.size() ; j++) {
+            for (int i = 0; i < rowDataList.get(j).getColumns(); i++) {
+                String place = "" + (j + 1) + "" + Character.valueOf((char) (65 + i)).toString();
+                seats.put(place, new Seat(rowDataList.get(j).getSeatCategory(), place));
             }
-        });
+        }
         return seats;
     }
 
