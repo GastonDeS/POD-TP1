@@ -14,12 +14,20 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class FlightsAdminService {
+    private static FlightsAdminService instance;
     private final Map<String, Plane> planes;
     private final Map<String, Flight> flights;
 
-    public FlightsAdminService() {
+    private FlightsAdminService() {
         this.planes = new HashMap<>();
         this.flights = new HashMap<>();
+    }
+
+    public static FlightsAdminService getInstance() {
+        if (FlightsAdminService.instance == null) {
+            FlightsAdminService.instance = new FlightsAdminService();
+        }
+        return FlightsAdminService.instance;
     }
 
     private Flight getFlight(String code) throws RemoteException {
