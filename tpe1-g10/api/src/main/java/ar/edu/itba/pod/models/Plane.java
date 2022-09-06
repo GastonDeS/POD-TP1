@@ -31,7 +31,7 @@ public class Plane {
         Map<String, Seat> seats = new HashMap<>();
         for (int j = 0; j < rowDataList.size() ; j++) {
             for (int i = 0; i < rowDataList.get(j).getColumns(); i++) {
-                String place = "" + (j + 1) + "" + Character.valueOf((char) (65 + i)).toString();
+                String place = "" + (j + 1) + (char) (65 + i);
                 seats.put(place, new Seat(rowDataList.get(j).getSeatCategory(), place));
             }
         }
