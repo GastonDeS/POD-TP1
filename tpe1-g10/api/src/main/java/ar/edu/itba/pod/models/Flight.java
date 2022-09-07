@@ -19,7 +19,10 @@ public class Flight {
     private final List<Ticket> ticketList;
     private final Map<String, Seat> planeSeats;
 
-    public Flight(Plane plane, String code, String origin, String destination) {
+    public Flight(Plane plane, String code, String origin, String destination) throws RemoteException {
+        if (plane == null) {
+            throw new RemoteException();
+        }
         this.plane = plane;
         this.code = code;
         this.origin = origin;
@@ -57,7 +60,7 @@ public class Flight {
         this.status = status;
     }
 
-    public void addTicketToFlight(Ticket ticket){
+    public void addTicketToFlight(Ticket ticket) {
         ticketList.add(ticket);
     }
 
