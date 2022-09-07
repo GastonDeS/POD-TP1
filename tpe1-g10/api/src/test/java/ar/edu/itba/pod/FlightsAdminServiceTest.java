@@ -4,6 +4,7 @@ import api.src.main.java.ar.edu.itba.pod.constants.SeatCategory;
 import api.src.main.java.ar.edu.itba.pod.models.Flight;
 import api.src.main.java.ar.edu.itba.pod.models.Plane;
 import api.src.main.java.ar.edu.itba.pod.models.RowData;
+import api.src.main.java.ar.edu.itba.pod.models.Ticket;
 import api.src.main.java.ar.edu.itba.pod.services.FlightsAdminService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -89,14 +90,17 @@ public class FlightsAdminServiceTest {
         rowData2.add(new RowData(SeatCategory.ECONOMY, 1));
         Plane plane2 = flightsAdminService.createPlane("PLANE_2", rowData2);
         Flight flight2 = flightsAdminService.createFlight(plane2, "AB", "mardel", "BA");
+        Flight flight4 = flightsAdminService.createFlight(plane2, "ABC", "mardel", "BA");
 
         Flight flight3 = flightsAdminService.createFlight(plane2, "AC", "mardel", "BA");
+
 
         flightsAdminService.cancelPendingFlight("AA");
         flightsAdminService.findNewSeatsForCancelledFlights();
 
         // Checks that all tickets has been swapped
-        Assertions.assertEquals(3, flight.getTicketList().size());
+        Assertions.assertEquals(2, flight.getTicketList().size());
+        Assertions.assertEquals(1, flight4.getTicketList().size());
         Assertions.assertEquals(1, flight2.getTicketList().size());
         Assertions.assertEquals(1, flight3.getTicketList().size());
     }

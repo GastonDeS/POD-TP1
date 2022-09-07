@@ -9,10 +9,7 @@ import api.src.main.java.ar.edu.itba.pod.models.RowData;
 import api.src.main.java.ar.edu.itba.pod.models.Ticket;
 
 import java.rmi.RemoteException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class FlightsAdminService implements FlightAdminServiceInterface {
@@ -112,18 +109,23 @@ public class FlightsAdminService implements FlightAdminServiceInterface {
                         flight.getStatus() != FlightStatus.CANCELLED)
                 .collect(Collectors.toList());
 
-        List<Ticket> economyTickets = oldFlight.getTicketList().stream().filter(ticket -> ticket.getSeatCategory() == SeatCategory.ECONOMY).collect(Collectors.toList());
-        List<Ticket> premiumEconomyTickets = oldFlight.getTicketList().stream().filter(ticket -> ticket.getSeatCategory() == SeatCategory.PREMIUM_ECONOMY).collect(Collectors.toList());
-        List<Ticket> businessTickets = oldFlight.getTicketList().stream().filter(ticket -> ticket.getSeatCategory() == SeatCategory.BUSINESS).collect(Collectors.toList());
+        List<Ticket> economyTickets = oldFlight.getTicketList().stream().filter(ticket -> ticket.getSeatCategory() == SeatCategory.ECONOMY).sorted(Comparator.comparing(Ticket::getName)).collect(Collectors.toList());
+        List<Ticket> premiumEconomyTickets = oldFlight.getTicketList().stream().filter(ticket -> ticket.getSeatCategory() == SeatCategory.PREMIUM_ECONOMY).sorted(Comparator.comparing(Ticket::getName)).collect(Collectors.toList());
+        List<Ticket> businessTickets = oldFlight.getTicketList().stream().filter(ticket -> ticket.getSeatCategory() == SeatCategory.BUSINESS).sorted(Comparator.comparing(Ticket::getName)).collect(Collectors.toList());
 
-        // Fist swap Bussiness because it can be lowered if not found of same Category
+
+        List<SeatCategory> seatCategories = Arrays.stream(SeatCategory.values()).sorted().collect(Collectors.toList());
+        for (int i =0 ; i < seatCategories.size() && businessTickets.size() > 0 ; i++) {
+            swapTickets(seatCategories.get(0), businessTickets, possibleFlights);
+        }
+        for (int i = 1  ; i < seatCategories.size() && premiumEconomyTickets.size() > 0 ; i++) {
+            swapTickets(seatCategories.get(i), premiumEconomyTickets, possibleFlights);
+        }
         swapTickets(SeatCategory.ECONOMY, economyTickets, possibleFlights);
-        swapTickets(SeatCategory.PREMIUM_ECONOMY, premiumEconomyTickets, possibleFlights);
-        swapTickets(SeatCategory.BUSINESS, businessTickets, possibleFlights);
     }
 
     private void swapTickets(SeatCategory seatCategory, List<Ticket> oldTickets, List<Flight> flights) {
-        flights.forEach(flight -> {
+        flights.stream().sorted(Comparator.comparing(Flight::getAvailableSeatsAmount).thenComparing(Flight::getCode)).forEach(flight -> {
             long validSeatSize = flight.getAvailableSeats()
                     .stream()
                     .filter(seat -> seat.getSeatCategory() == seatCategory).count();
