@@ -44,4 +44,5 @@ public class Plane implements Serializable {
         }
         return seats;
     }
+
 }
