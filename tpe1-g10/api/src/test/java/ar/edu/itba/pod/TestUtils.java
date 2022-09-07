@@ -13,7 +13,7 @@ public class TestUtils {
 
     public static Flight fillFlightWithPassengers(Flight flight) {
         flight.addTicketToFlight(new Ticket("Gaston", SeatCategory.ECONOMY, flight));
-        flight.addTicketToFlight(new Ticket("Brittu", SeatCategory.BUSINESS, flight));
+        flight.addTicketToFlight(new Ticket("Brittu", SeatCategory.PREMIUM_ECONOMY, flight));
         flight.addTicketToFlight(new Ticket("Flor", SeatCategory.ECONOMY, flight));
         flight.addTicketToFlight(new Ticket("Juanma", SeatCategory.ECONOMY, flight));
         flight.addTicketToFlight(new Ticket("Sol", SeatCategory.ECONOMY, flight));

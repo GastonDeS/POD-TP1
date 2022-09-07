@@ -48,7 +48,7 @@ public class SeatsAssignmentService {
                 .collect(Collectors.toList());
         Map<String, List<Seat>> availableFlights = new HashMap<>();
         similarFlights.forEach(flight -> {
-            availableFlights.put(flight.getCode(), flight.getPlaneSeats().values().stream().filter(Seat::isAvailable).collect(Collectors.toList()));
+            availableFlights.put(flight.getCode(), flight.getAvailableSeats());
         });
         return availableFlights;
     }

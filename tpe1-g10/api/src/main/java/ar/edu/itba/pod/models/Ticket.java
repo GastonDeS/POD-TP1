@@ -6,7 +6,7 @@ import java.io.Serializable;
 
 public class Ticket implements Serializable {
     private final String name;
-    private final SeatCategory seatCategory;
+    private SeatCategory seatCategory;
     private Seat seat;
     private Flight flight;
 
@@ -14,6 +14,10 @@ public class Ticket implements Serializable {
         this.name = name;
         this.seatCategory = seatCategory;
         this.flight = flight;
+    }
+
+    public void setSeatCategory(SeatCategory seatCategory) {
+        this.seatCategory = seatCategory;
     }
 
     public String getName() {

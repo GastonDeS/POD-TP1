@@ -5,9 +5,9 @@ import api.src.main.java.ar.edu.itba.pod.constants.SeatCategory;
 import java.io.Serializable;
 
 public class Seat implements Serializable {
-    final SeatCategory seatCategory;
-    boolean available;
-    final String place;
+    private final SeatCategory seatCategory;
+    private boolean available;
+    private final String place;
 
     public Seat(SeatCategory seatCategory, String place) {
         this.seatCategory = seatCategory;

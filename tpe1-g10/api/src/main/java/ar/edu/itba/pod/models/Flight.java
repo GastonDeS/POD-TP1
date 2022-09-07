@@ -1,7 +1,9 @@
 package api.src.main.java.ar.edu.itba.pod.models;
 
 import api.src.main.java.ar.edu.itba.pod.constants.FlightStatus;
+import api.src.main.java.ar.edu.itba.pod.constants.SeatCategory;
 import api.src.main.java.ar.edu.itba.pod.services.FlightsAdminService;
+import api.src.main.java.ar.edu.itba.pod.utils.SeatHelper;
 
 import java.io.Serializable;
 import java.rmi.RemoteException;
@@ -18,7 +20,7 @@ public class Flight implements Serializable {
     private final String destination;
     private FlightStatus status;
     private final List<Ticket> ticketList;
-    private final Map<String, Seat> planeSeats;
+    private final Map<String, Map<String, Seat>> planeSeats;
 
     public Flight(Plane plane, String code, String origin, String destination) throws RemoteException {
         if (plane == null || !FlightsAdminService.getInstance().getPlanes().containsKey(plane.getName())) {
@@ -53,7 +55,7 @@ public class Flight implements Serializable {
         return status;
     }
 
-    public Map<String, Seat> getPlaneSeats() {
+    public Map<String, Map<String, Seat>> getPlaneSeats() {
         return planeSeats;
     }
 
@@ -68,7 +70,8 @@ public class Flight implements Serializable {
     public void removeTicketFromFlight(Ticket ticket) {
         boolean removed = ticketList.remove(ticket);
         if (removed && ticket.getSeat() != null) {
-            planeSeats.get(ticket.getSeat().place).setAvailable(true);
+            String place = ticket.getSeat().getPlace();
+            planeSeats.get(SeatHelper.getRow(place)).get(SeatHelper.getColumn(place)).setAvailable(true);
         }
     }
 
@@ -79,13 +82,13 @@ public class Flight implements Serializable {
     }
 
     public Seat getSeat(int row, String column) throws RemoteException {
-        Seat seat = planeSeats.get("" + row + column);
+        Seat seat = planeSeats.get(""+row).get(column);
         if (seat == null) throw new RemoteException();
         return seat;
     }
 
     public void assignSeatToTicket(Ticket ticket, String seatCode) {
-        Seat seat = planeSeats.get(seatCode);
+        Seat seat = planeSeats.get(SeatHelper.getRow(seatCode)).get(SeatHelper.getColumn(seatCode));
         if (seat.isAvailable()) {
             seat.setAvailable(false);
             ticket.setSeat(seat);
@@ -98,10 +101,24 @@ public class Flight implements Serializable {
     }
 
     public List<Seat> getAvailableSeats() {
-        return planeSeats.values().stream().filter(Seat::isAvailable).collect(Collectors.toList());
+        List<Seat> availableSeats = new ArrayList<>();
+        planeSeats.values().forEach((map) -> map.values().stream().filter(Seat::isAvailable).forEach((availableSeats::add)));
+        return availableSeats;
     }
 
     public int getAvailableSeatsAmount() {
-        return planeSeats.size() - ticketList.size();
+        return (int) planeSeats.values().stream().map(Map::values).count() - ticketList.size();
+    }
+
+    public SeatCategory getRowCategory(int row) {
+        return planeSeats.get(""+row).get("A").getSeatCategory();
+    }
+
+    public int getAvailableSeatsAmountByCategory(SeatCategory category) {
+        int planeSeatsCount = (Integer.parseInt(planeSeats.values().stream().map((map) ->
+                        map.values().stream().filter(seat -> seat.getSeatCategory() == category).count())
+                        .reduce((long) 0, (acum, value) -> (long) acum + value).toString()));
+        int ticketListCategoryCount = (int) ticketList.stream().filter(ticket -> ticket.getSeatCategory() == category).count();
+        return planeSeatsCount - ticketListCategoryCount;
     }
 }

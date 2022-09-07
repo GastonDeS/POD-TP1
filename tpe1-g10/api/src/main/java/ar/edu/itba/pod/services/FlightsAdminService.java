@@ -116,7 +116,7 @@ public class FlightsAdminService implements FlightAdminServiceInterface {
 
         List<SeatCategory> seatCategories = Arrays.stream(SeatCategory.values()).sorted().collect(Collectors.toList());
         for (int i =0 ; i < seatCategories.size() && businessTickets.size() > 0 ; i++) {
-            swapTickets(seatCategories.get(0), businessTickets, possibleFlights);
+            swapTickets(seatCategories.get(i), businessTickets, possibleFlights);
         }
         for (int i = 1  ; i < seatCategories.size() && premiumEconomyTickets.size() > 0 ; i++) {
             swapTickets(seatCategories.get(i), premiumEconomyTickets, possibleFlights);
@@ -126,21 +126,20 @@ public class FlightsAdminService implements FlightAdminServiceInterface {
 
     private void swapTickets(SeatCategory seatCategory, List<Ticket> oldTickets, List<Flight> flights) {
         flights.stream().sorted(Comparator.comparing(Flight::getAvailableSeatsAmount).thenComparing(Flight::getCode)).forEach(flight -> {
-            long validSeatSize = flight.getAvailableSeats()
-                    .stream()
-                    .filter(seat -> seat.getSeatCategory() == seatCategory).count();
+            long validSeatSize = flight.getAvailableSeatsAmountByCategory(seatCategory);
             for (int i = 0; i < validSeatSize && !oldTickets.isEmpty(); i++) {
-                swapTicket(oldTickets.get(0), flight);
+                swapTicket(oldTickets.get(0), flight, seatCategory);
                 oldTickets.remove(0);
             }
         });
     }
 
     // TODO check if we need to change the seat
-    private void swapTicket(Ticket oldTicket, Flight flight) {
+    private void swapTicket(Ticket oldTicket, Flight flight, SeatCategory seatCategory) {
         oldTicket.getFlight().removeTicketFromFlight(oldTicket);
         oldTicket.setSeat(null); // this thing
         oldTicket.setFlight(flight);
+        oldTicket.setSeatCategory(seatCategory);
         flight.addTicketToFlight(oldTicket);
     }
 

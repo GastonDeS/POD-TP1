@@ -1,6 +1,8 @@
 package api.src.main.java.ar.edu.itba.pod.models;
 
 
+import api.src.main.java.ar.edu.itba.pod.utils.SeatHelper;
+
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
@@ -29,12 +31,15 @@ public class Plane implements Serializable {
         return totalSeats;
     }
 
-    public final Map<String, Seat> getSeats() {
-        Map<String, Seat> seats = new HashMap<>();
+    public final Map<String, Map<String, Seat>> getSeats() {
+        Map<String, Map<String, Seat>> seats = new HashMap<>();
         for (int j = 0; j < rowDataList.size(); j++) {
+            Map<String, Seat> rowHashMap = new HashMap<>();
+            String row = ""+(j+1);
+            seats.put(row, rowHashMap);
             for (int i = 0; i < rowDataList.get(j).getColumns(); i++) {
                 String place = "" + (j + 1) + (char) (65 + i);
-                seats.put(place, new Seat(rowDataList.get(j).getSeatCategory(), place));
+                seats.get(row).put(SeatHelper.getColumn(place), new Seat(rowDataList.get(j).getSeatCategory(), place));
             }
         }
         return seats;

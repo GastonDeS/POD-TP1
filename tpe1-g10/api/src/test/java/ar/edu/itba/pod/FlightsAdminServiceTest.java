@@ -74,8 +74,8 @@ public class FlightsAdminServiceTest {
         flightsAdminService.findNewSeatsForCancelledFlights();
 
         // Checks that all tickets has been swapped
-        Assertions.assertEquals(4, flight.getTicketList().size());
-        Assertions.assertEquals(1, flight2.getTicketList().size());
+        Assertions.assertEquals(5, flight.getTicketList().size());
+        Assertions.assertEquals(0, flight2.getTicketList().size());
     }
 
     @Test
@@ -83,23 +83,26 @@ public class FlightsAdminServiceTest {
         List<RowData> rowsData = TestUtils.getRowDataForFlight();
         Plane plane = flightsAdminService.createPlane("PLANE_1", rowsData);
 
-        Flight flight = flightsAdminService.createFlight(plane, "AA", "mardel", "BA");
-        TestUtils.fillFlightWithPassengers(flight);
+        Flight flight1 = flightsAdminService.createFlight(plane, "AA", "mardel", "BA");
+        TestUtils.fillFlightWithPassengers(flight1);
 
         List<RowData> rowData2 = new ArrayList<>();
         rowData2.add(new RowData(SeatCategory.ECONOMY, 1));
         Plane plane2 = flightsAdminService.createPlane("PLANE_2", rowData2);
         Flight flight2 = flightsAdminService.createFlight(plane2, "AB", "mardel", "BA");
-        Flight flight4 = flightsAdminService.createFlight(plane2, "ABC", "mardel", "BA");
+        Flight flight3 = flightsAdminService.createFlight(plane2, "ABC", "mardel", "BA");
 
-        Flight flight3 = flightsAdminService.createFlight(plane2, "AC", "mardel", "BA");
+        Flight flight4 = flightsAdminService.createFlight(plane2, "AC", "mardel", "BA");
 
+        Assertions.assertEquals(1,plane2.getTotalSeats());
+
+        Assertions.assertEquals(5, flight1.getTicketList().size());
 
         flightsAdminService.cancelPendingFlight("AA");
         flightsAdminService.findNewSeatsForCancelledFlights();
 
         // Checks that all tickets has been swapped
-        Assertions.assertEquals(2, flight.getTicketList().size());
+        Assertions.assertEquals(2, flight1.getTicketList().size());
         Assertions.assertEquals(1, flight4.getTicketList().size());
         Assertions.assertEquals(1, flight2.getTicketList().size());
         Assertions.assertEquals(1, flight3.getTicketList().size());
@@ -113,7 +116,7 @@ public class FlightsAdminServiceTest {
         TestUtils.fillFlightWithPassengers(flight);
 
         List<RowData> rowData2 = new ArrayList<>();
-        rowData2.add(new RowData(SeatCategory.PREMIUM_ECONOMY, 1));
+        rowData2.add(new RowData(SeatCategory.BUSINESS, 1));
         Plane plane2 = flightsAdminService.createPlane("PLANE_2", rowData2);
         Flight flight2 = flightsAdminService.createFlight(plane2, "AB", "mardel", "BA");
 

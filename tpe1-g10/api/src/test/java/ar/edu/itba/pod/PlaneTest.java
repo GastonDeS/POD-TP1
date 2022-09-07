@@ -19,10 +19,10 @@ public class PlaneTest {
         Plane plane = new Plane(PLANE_NAME, rowDataList);
 
         // Test seats name creation
-        Map<String, Seat> seats = plane.getSeats();
+        Map<String, Map<String, Seat>> seats = plane.getSeats();
         for (int j = 0 ; j < rowDataList.size() ; j++) {
             for (int i = 0; i < rowDataList.get(j).getColumns(); i++) {
-                Assertions.assertNotNull(seats.getOrDefault("" + (j + 1) + (char) (65 + i), null));
+                Assertions.assertNotNull(seats.get(""+(j+1)).getOrDefault(""+(char) (65 + i), null));
             }
         }
 
