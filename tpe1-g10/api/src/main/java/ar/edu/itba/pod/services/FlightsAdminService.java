@@ -7,6 +7,7 @@ import api.src.main.java.ar.edu.itba.pod.models.Plane;
 import api.src.main.java.ar.edu.itba.pod.models.Ticket;
 
 import java.rmi.RemoteException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +28,19 @@ public class FlightsAdminService {
             FlightsAdminService.instance = new FlightsAdminService();
         }
         return FlightsAdminService.instance;
+    }
+
+    // For test purposes
+    public void restart() {
+        List<String> planeModels = new ArrayList<>(this.planes.keySet());
+        for (String planeModel : planeModels) {
+            this.planes.remove(planeModel);
+        }
+
+        List<String> flightsList = new ArrayList<>(this.flights.keySet());
+        for (String flightCode : flightsList) {
+            this.flights.remove(flightCode);
+        }
     }
 
     public Flight getFlight(String code) throws RemoteException {
@@ -96,6 +110,7 @@ public class FlightsAdminService {
         List<Ticket> premiumEconomyTickets = oldFlight.getTicketList().stream().filter(ticket -> ticket.getSeatCategory() == SeatCategory.PREMIUM_ECONOMY).collect(Collectors.toList());
         List<Ticket> businessTickets = oldFlight.getTicketList().stream().filter(ticket -> ticket.getSeatCategory() == SeatCategory.BUSINESS).collect(Collectors.toList());
 
+        // Fist swap Bussiness because it can be lowered if not found of same Category
         swapTickets(SeatCategory.ECONOMY, economyTickets, possibleFlights);
         swapTickets(SeatCategory.PREMIUM_ECONOMY, premiumEconomyTickets, possibleFlights);
         swapTickets(SeatCategory.BUSINESS, businessTickets, possibleFlights);
@@ -113,8 +128,10 @@ public class FlightsAdminService {
         });
     }
 
+    // TODO check if we need to change the seat
     private void swapTicket(Ticket oldTicket, Flight flight) {
         oldTicket.getFlight().removeTicketFromFlight(oldTicket);
+        oldTicket.setSeat(null); // this thing
         oldTicket.setFlight(flight);
         flight.addTicketToFlight(oldTicket);
     }

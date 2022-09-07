@@ -20,10 +20,6 @@ public class TestUtils {
         return flight;
     }
 
-    public static Plane getPlane(List<RowData> rowsData) {
-        return new Plane("BOEING_747", rowsData);
-    }
-
     public static List<RowData> getRowDataForFlight() {
         List<RowData> rowData = new ArrayList<>();
         rowData.add(new RowData(SeatCategory.BUSINESS, 3));
