@@ -4,7 +4,6 @@ import api.src.main.java.ar.edu.itba.pod.constants.FlightStatus;
 import api.src.main.java.ar.edu.itba.pod.constants.SeatCategory;
 import api.src.main.java.ar.edu.itba.pod.models.Flight;
 import api.src.main.java.ar.edu.itba.pod.models.Plane;
-import api.src.main.java.ar.edu.itba.pod.models.Seat;
 import api.src.main.java.ar.edu.itba.pod.models.Ticket;
 
 import java.rmi.RemoteException;
@@ -40,7 +39,13 @@ public class FlightsAdminService {
         planes.put(plane.getName(), plane);
     }
 
-    public void addFlight(Flight flight) {
+    public void addFlight(Flight flight) throws RemoteException {
+        if (flight == null) {
+            throw new RemoteException();
+        }
+        if (flights.containsKey(flight.getCode())) {
+            throw new RemoteException();
+        }
         flights.put(flight.getCode(), flight);
     }
 
@@ -63,7 +68,7 @@ public class FlightsAdminService {
 
     public void findNewSeatsForCancelledFlights() throws RemoteException {
         List<Flight> cancelledFlights = getCancelledFlights();
-        for (Flight flight:cancelledFlights) {
+        for (Flight flight : cancelledFlights) {
             findNewSeatsForFlight(flight);
             if (flight.getTicketList().isEmpty()) { // TODO validate if we need to remove it
                 flights.remove(flight.getCode());
@@ -83,8 +88,8 @@ public class FlightsAdminService {
         List<Flight> possibleFlights = flights.values().stream()
                 .filter(flight -> flight.getOrigin().equals(oldFlight.getOrigin()) &&
                         flight.getDestination().equals(oldFlight.getDestination()) &&
-                                flight.getAvailableSeatsAmount() > 0 &&
-                                flight.getStatus() != FlightStatus.CANCELLED)
+                        flight.getAvailableSeatsAmount() > 0 &&
+                        flight.getStatus() != FlightStatus.CANCELLED)
                 .collect(Collectors.toList());
 
         List<Ticket> economyTickets = oldFlight.getTicketList().stream().filter(ticket -> ticket.getSeatCategory() == SeatCategory.ECONOMY).collect(Collectors.toList());
@@ -115,6 +120,6 @@ public class FlightsAdminService {
     }
 
     private List<Flight> getCancelledFlights() {
-        return flights.values().stream().filter(flight -> flight.getStatus() == FlightStatus.CANCELLED ).collect(Collectors.toList());
+        return flights.values().stream().filter(flight -> flight.getStatus() == FlightStatus.CANCELLED).collect(Collectors.toList());
     }
 }
