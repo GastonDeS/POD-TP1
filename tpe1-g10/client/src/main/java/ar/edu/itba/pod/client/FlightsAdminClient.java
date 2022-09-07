@@ -6,7 +6,6 @@ import api.src.main.java.ar.edu.itba.pod.interfaces.FlightAdminServiceInterface;
 import api.src.main.java.ar.edu.itba.pod.models.Flight;
 import api.src.main.java.ar.edu.itba.pod.models.Plane;
 import api.src.main.java.ar.edu.itba.pod.models.RowData;
-import api.src.main.java.ar.edu.itba.pod.services.FlightsAdminService;
 import client.src.main.java.ar.edu.itba.pod.constants.ActionsFlightsAdmin;
 import client.src.main.java.ar.edu.itba.pod.utils.ParseArgsHelper;
 
@@ -17,17 +16,17 @@ import java.util.List;
 
 public class FlightsAdminClient {
 
-    private void cancelMethod(FlightsAdminService service, String planeCode) {
+    private static void cancelMethod(FlightAdminServiceInterface service, String planeCode) {
         try {
             service.cancelPendingFlight(planeCode);
-        } catch (RemoteException ex){
+        } catch (RemoteException ex) {
             System.out.println("Flight" + planeCode + "does not exist");
             System.out.println("Flight" + planeCode + "was already CANCELLED");
         }
         System.out.println("Flight" + planeCode + "was CANCELLED");
     }
 
-    private void statusMethod(FlightsAdminService service, String planeCode){
+    private static void statusMethod(FlightAdminServiceInterface service, String planeCode) {
         FlightStatus flightStatus = FlightStatus.PENDING;
         try {
             flightStatus = service.checkFlightStatus(planeCode);
@@ -37,7 +36,7 @@ public class FlightsAdminClient {
         System.out.println("Flight" + planeCode + "new status is: " + flightStatus);
     }
 
-    private void confirmMethod(FlightsAdminService service, String planeCode){
+    private static void confirmMethod(FlightAdminServiceInterface service, String planeCode) {
         try {
             service.confirmPendingFlight(planeCode);
         } catch (RemoteException ex) {
@@ -47,8 +46,18 @@ public class FlightsAdminClient {
         System.out.println("Flight" + planeCode + "was CONFIRMED");
     }
 
-    private void callMethod(ActionsFlightsAdmin actionsFlightsAdmin, FlightsAdminService service, String planeCode) throws RemoteException {
-        switch (actionsFlightsAdmin){
+    private static void reticketingMethod(FlightAdminServiceInterface service) {
+        String answer = "";
+        try {
+            answer = service.findNewSeatsForCancelledFlights();
+        } catch (RemoteException ex) {
+            System.out.println("The reticketing could not be completed");
+        }
+        System.out.println(answer);
+    }
+
+    private static void callMethod(ActionsFlightsAdmin actionsFlightsAdmin, FlightAdminServiceInterface service, String planeCode) {
+        switch (actionsFlightsAdmin) {
             case CANCEL:
                 cancelMethod(service, planeCode);
                 break;
@@ -63,7 +72,7 @@ public class FlightsAdminClient {
                 confirmMethod(service, planeCode);
                 break;
             case RETICKETING:
-                service.findNewSeatsForCancelledFlights();
+                reticketingMethod(service);
                 break;
         }
     }
@@ -74,17 +83,11 @@ public class FlightsAdminClient {
 
             String serverAddress = ParseArgsHelper.getServerAdress(args[1]);
             ActionsFlightsAdmin actionsFlightsAdmin = ParseArgsHelper.getAction(args[2]);
+            String planeCode = "";
 
-            final FlightAdminServiceInterface service = (FlightAdminServiceInterface) Naming.lookup("//" + serverAddress+ "/flightAdminService");
+            final FlightAdminServiceInterface service = (FlightAdminServiceInterface) Naming.lookup("//" + serverAddress + "/flightAdminService");
 
-            List<RowData> rowData = new ArrayList<>();
-            rowData.add(new RowData(SeatCategory.BUSINESS, 3));
-            Plane plane = service.createPlane("Gasti plane", rowData);
-
-            Flight flight = service.createFlight(plane, "A", "A", "B");
-
-            Flight flight1 = service.getFlight("A");
-            System.out.println(flight1.getTicketList());
+            callMethod(actionsFlightsAdmin, service, planeCode);
 
             System.out.println("client started");
         } catch (Exception ex) {
