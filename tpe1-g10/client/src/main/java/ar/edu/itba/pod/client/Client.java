@@ -21,12 +21,10 @@ public class Client {
 
 
             List<RowData> rowData = new ArrayList<>();
-            rowData.add(new RowData(SeatCategory.BUSINESS,3));
-            Plane plane = new Plane("Gasti plane", rowData);
-            service.addPlaneModel(plane);
+            rowData.add(new RowData(SeatCategory.BUSINESS, 3));
+            Plane plane = service.createPlane("Gasti plane", rowData);
 
-            Flight flight = new Flight(plane, "A", "A", "B");
-            service.addFlight(flight);
+            Flight flight = service.createFlight(plane, "A", "A", "B");
 
             Flight flight1 = service.getFlight("A");
             System.out.println(flight1.getTicketList());

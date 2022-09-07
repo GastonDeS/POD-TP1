@@ -5,6 +5,7 @@ import api.src.main.java.ar.edu.itba.pod.constants.SeatCategory;
 import api.src.main.java.ar.edu.itba.pod.interfaces.FlightAdminServiceInterface;
 import api.src.main.java.ar.edu.itba.pod.models.Flight;
 import api.src.main.java.ar.edu.itba.pod.models.Plane;
+import api.src.main.java.ar.edu.itba.pod.models.RowData;
 import api.src.main.java.ar.edu.itba.pod.models.Ticket;
 
 import java.rmi.RemoteException;
@@ -50,18 +51,22 @@ public class FlightsAdminService implements FlightAdminServiceInterface {
         return flight;
     }
 
-    public void addPlaneModel(Plane plane) {
+    public Plane createPlane(String name, List<RowData> rowDataList) throws RemoteException {
+        if(planes.containsKey(name)){
+            throw new RemoteException();
+        }
+        Plane plane = new Plane(name, rowDataList);
         planes.put(plane.getName(), plane);
+        return plane;
     }
 
-    public void addFlight(Flight flight) throws RemoteException {
-        if (flight == null) {
+    public Flight createFlight(Plane plane, String code, String origin, String destination) throws RemoteException {
+        if (flights.containsKey(code)) {
             throw new RemoteException();
         }
-        if (flights.containsKey(flight.getCode())) {
-            throw new RemoteException();
-        }
+        Flight flight = new Flight(plane, code, origin, destination);
         flights.put(flight.getCode(), flight);
+        return flight;
     }
 
     public FlightStatus checkFlightStatus(String code) throws RemoteException {

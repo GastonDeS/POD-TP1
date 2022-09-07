@@ -1,6 +1,7 @@
 package api.src.main.java.ar.edu.itba.pod.models;
 
 import api.src.main.java.ar.edu.itba.pod.constants.FlightStatus;
+import api.src.main.java.ar.edu.itba.pod.services.FlightsAdminService;
 
 import java.io.Serializable;
 import java.rmi.RemoteException;
@@ -11,20 +12,19 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class Flight implements Serializable {
-    private final Plane plane;
+    private final String planeName;
     private final String code;
     private final String origin;
     private final String destination;
     private FlightStatus status;
-
     private final List<Ticket> ticketList;
     private final Map<String, Seat> planeSeats;
 
     public Flight(Plane plane, String code, String origin, String destination) throws RemoteException {
-        if (plane == null) {
+        if (plane == null || !FlightsAdminService.getInstance().getPlanes().containsKey(plane.getName())) {
             throw new RemoteException();
         }
-        this.plane = plane;
+        this.planeName = plane.getName();
         this.code = code;
         this.origin = origin;
         this.destination = destination;
@@ -33,8 +33,8 @@ public class Flight implements Serializable {
         this.planeSeats = plane.getSeats();
     }
 
-    public Plane getPlane() {
-        return plane;
+    public String getPlane() {
+        return planeName;
     }
 
     public String getCode() {
@@ -102,6 +102,6 @@ public class Flight implements Serializable {
     }
 
     public int getAvailableSeatsAmount() {
-        return plane.getTotalSeats() - ticketList.size();
+        return planeSeats.size() - ticketList.size();
     }
 }
