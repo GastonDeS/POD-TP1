@@ -2,10 +2,11 @@ package api.src.main.java.ar.edu.itba.pod.models;
 
 import api.src.main.java.ar.edu.itba.pod.constants.FlightStatus;
 
-import java.sql.Time;
+import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class Flight {
@@ -48,6 +49,10 @@ public class Flight {
         return status;
     }
 
+    public Map<String, Seat> getPlaneSeats() {
+        return planeSeats;
+    }
+
     public void setStatus(FlightStatus status) {
         this.status = status;
     }
@@ -61,6 +66,18 @@ public class Flight {
         if (removed && ticket.getSeat() != null) {
             planeSeats.get(ticket.getSeat().place).setAvailable(true);
         }
+    }
+
+    public Ticket getPassengerTicket(String name) throws RemoteException {
+        Optional<Ticket> ticket = ticketList.stream().filter(t -> t.getName().equals(name)).findFirst();
+        if (!ticket.isPresent()) throw new RemoteException();
+        return ticket.get();
+    }
+
+    public Seat getSeat(int row, String column) throws RemoteException {
+        Seat seat = planeSeats.get("" + row + column);
+        if (seat == null) throw new RemoteException();
+        return seat;
     }
 
     public void assignSeatToTicket(Ticket ticket, String seatCode) {

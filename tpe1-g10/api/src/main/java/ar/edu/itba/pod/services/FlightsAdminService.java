@@ -30,7 +30,7 @@ public class FlightsAdminService {
         return FlightsAdminService.instance;
     }
 
-    private Flight getFlight(String code) throws RemoteException {
+    public Flight getFlight(String code) throws RemoteException {
         Flight flight = flights.get(code);
         if (flight == null) throw new RemoteException();
         return flight;
@@ -69,6 +69,14 @@ public class FlightsAdminService {
                 flights.remove(flight.getCode());
             }
         }
+    }
+
+    public Map<String, Plane> getPlanes() {
+        return planes;
+    }
+
+    public Map<String, Flight> getFlights() {
+        return flights;
     }
 
     private void findNewSeatsForFlight(Flight oldFlight) {
