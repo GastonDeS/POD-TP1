@@ -83,14 +83,24 @@ public class FlightsAdminService implements FlightAdminServiceInterface {
         flight.setStatus(FlightStatus.CANCELLED);
     }
 
-    public void findNewSeatsForCancelledFlights() throws RemoteException {
+    public String findNewSeatsForCancelledFlights() throws RemoteException {
         List<Flight> cancelledFlights = getCancelledFlights();
+        Integer totalTickets = 0;
+        StringBuilder response = new StringBuilder();
         for (Flight flight : cancelledFlights) {
+            totalTickets += flight.getTicketList().size();
             findNewSeatsForFlight(flight);
+            totalTickets -= flight.getTicketList().size();
+            flight.getTicketList().forEach((ticket -> {
+                response.append("Cannot find alternative flight for ").append(ticket.getName()).append(" with Ticket ").append(ticket.getFlight().getCode()).append("\n");
+            }));
             if (flight.getTicketList().isEmpty()) { // TODO validate if we need to remove it
                 flights.remove(flight.getCode());
             }
         }
+        if (totalTickets > 0) response.insert(0,totalTickets+" tickets were changed\n");
+
+        return response.toString();
     }
 
     public Map<String, Plane> getPlanes() {

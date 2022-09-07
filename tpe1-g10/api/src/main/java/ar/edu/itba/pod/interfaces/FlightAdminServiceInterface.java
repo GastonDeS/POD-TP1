@@ -25,7 +25,7 @@ public interface FlightAdminServiceInterface extends Remote {
 
     public void cancelPendingFlight(String code) throws RemoteException;
 
-    public void findNewSeatsForCancelledFlights() throws RemoteException;
+    public String findNewSeatsForCancelledFlights() throws RemoteException;
 
     public Map<String, Plane> getPlanes() throws RemoteException;
 

@@ -71,7 +71,9 @@ public class FlightsAdminServiceTest {
         Flight flight2 = flightsAdminService.createFlight(plane2, "AB", "mardel", "BA");
 
         flightsAdminService.cancelPendingFlight("AA");
-        flightsAdminService.findNewSeatsForCancelledFlights();
+        String response = flightsAdminService.findNewSeatsForCancelledFlights();
+
+        System.out.println(response);
 
         // Checks that all tickets has been swapped
         Assertions.assertEquals(5, flight.getTicketList().size());
