@@ -1,6 +1,7 @@
 package api.src.test.java.ar.edu.itba.pod;
 
 import api.src.main.java.ar.edu.itba.pod.constants.SeatCategory;
+import api.src.main.java.ar.edu.itba.pod.interfaces.FlightAdminServiceInterface;
 import api.src.main.java.ar.edu.itba.pod.models.Flight;
 import api.src.main.java.ar.edu.itba.pod.models.Plane;
 import api.src.main.java.ar.edu.itba.pod.models.RowData;
@@ -14,7 +15,6 @@ import java.util.List;
 public class FlightsAdminServiceTest {
 
     FlightsAdminService flightsAdminService = FlightsAdminService.getInstance();
-
 
     @BeforeEach
     public void restartService() {

@@ -1,5 +1,7 @@
 package api.src.main.java.ar.edu.itba.pod.constants;
 
-public enum SeatCategory {
+import java.io.Serializable;
+
+public enum SeatCategory implements Serializable {
     BUSINESS, PREMIUM_ECONOMY, ECONOMY
 }

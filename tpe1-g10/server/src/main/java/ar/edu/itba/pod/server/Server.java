@@ -1,13 +1,32 @@
 package ar.edu.itba.pod.server;
 
-//import org.slf4j.Logger;
-//import org.slf4j.LoggerFactory;
+
+import api.src.main.java.ar.edu.itba.pod.interfaces.FlightAdminServiceInterface;
+import api.src.main.java.ar.edu.itba.pod.services.FlightsAdminService;
+
+import java.rmi.Remote;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
+import java.rmi.server.UnicastRemoteObject;
 
 public class Server {
-//    private static Logger logger = LoggerFactory.getLogger(Server.class);
 
     public static void main(String[] args) {
-//        logger.info("tpe1-g10 Server Starting ...");
-        System.out.println("server");
+        System.out.println("tpe1-g10 Server Starting ...");
+        try {
+            final FlightAdminServiceInterface flightsAdminService = FlightsAdminService.getInstance();
+
+            final Registry registry = LocateRegistry.createRegistry(1099);
+            final Remote remote = UnicastRemoteObject.exportObject(flightsAdminService, 0);
+
+            registry.rebind("flightAdminService", remote);
+            System.out.println("flightAdminService bound");
+
+
+            System.out.println("server online");
+        } catch (Exception ex ) {
+            System.out.println("An exception happened");
+            ex.printStackTrace();
+        }
     }
 }

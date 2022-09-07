@@ -11,8 +11,6 @@ import java.util.Map;
 
 public interface FlightAdminServiceInterface extends Remote {
 
-//    public static FlightAdminServiceInterface getInstance();
-
     public Flight getFlight(String code) throws RemoteException;
 
     public void addPlaneModel(Plane plane) throws RemoteException;
@@ -27,8 +25,8 @@ public interface FlightAdminServiceInterface extends Remote {
 
     public void findNewSeatsForCancelledFlights() throws RemoteException;
 
-    public Map<String, Plane> getPlanes();
+    public Map<String, Plane> getPlanes() throws RemoteException;
 
-    public Map<String, Flight> getFlights();
+    public Map<String, Flight> getFlights() throws RemoteException;
 }
 

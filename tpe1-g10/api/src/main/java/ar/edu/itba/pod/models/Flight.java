@@ -2,6 +2,7 @@ package api.src.main.java.ar.edu.itba.pod.models;
 
 import api.src.main.java.ar.edu.itba.pod.constants.FlightStatus;
 
+import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
@@ -9,7 +10,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class Flight {
+public class Flight implements Serializable {
     private final Plane plane;
     private final String code;
     private final String origin;

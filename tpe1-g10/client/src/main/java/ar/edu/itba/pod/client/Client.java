@@ -1,13 +1,40 @@
 package ar.edu.itba.pod.client;
 
-//import org.slf4j.Logger;
-//import org.slf4j.LoggerFactory;
+
+import api.src.main.java.ar.edu.itba.pod.constants.SeatCategory;
+import api.src.main.java.ar.edu.itba.pod.interfaces.FlightAdminServiceInterface;
+import api.src.main.java.ar.edu.itba.pod.models.Flight;
+import api.src.main.java.ar.edu.itba.pod.models.Plane;
+import api.src.main.java.ar.edu.itba.pod.models.RowData;
+
+import java.rmi.Naming;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Client {
-//    private static Logger logger = LoggerFactory.getLogger(Client.class);
 
     public static void main(String[] args) {
-//        logger.info("tpe1-g10 Client Starting ...");
-        System.out.println("client");
+        try {
+            System.out.println("tpe1-g10 Client Starting ...");
+
+            final FlightAdminServiceInterface service = (FlightAdminServiceInterface) Naming.lookup("//127.0.0.1:1099/flightAdminService");
+
+
+            List<RowData> rowData = new ArrayList<>();
+            rowData.add(new RowData(SeatCategory.BUSINESS,3));
+            Plane plane = new Plane("Gasti plane", rowData);
+            service.addPlaneModel(plane);
+
+            Flight flight = new Flight(plane, "A", "A", "B");
+            service.addFlight(flight);
+
+            Flight flight1 = service.getFlight("A");
+            System.out.println(flight1.getTicketList());
+
+            System.out.println("client started");
+        } catch (Exception ex) {
+            System.out.println("An exception happened");
+            ex.printStackTrace();
+        }
     }
 }

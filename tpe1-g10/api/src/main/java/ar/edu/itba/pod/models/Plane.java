@@ -1,12 +1,13 @@
 package api.src.main.java.ar.edu.itba.pod.models;
 
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Plane {
+public class Plane implements Serializable {
     private final String name;
     private final List<RowData> rowDataList;
     private final int totalSeats;

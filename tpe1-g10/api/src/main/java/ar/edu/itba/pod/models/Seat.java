@@ -2,7 +2,9 @@ package api.src.main.java.ar.edu.itba.pod.models;
 
 import api.src.main.java.ar.edu.itba.pod.constants.SeatCategory;
 
-public class Seat {
+import java.io.Serializable;
+
+public class Seat implements Serializable {
     final SeatCategory seatCategory;
     boolean available;
     final String place;

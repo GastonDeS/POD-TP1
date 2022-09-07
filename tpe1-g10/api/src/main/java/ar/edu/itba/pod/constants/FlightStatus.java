@@ -1,5 +1,7 @@
 package api.src.main.java.ar.edu.itba.pod.constants;
 
-public enum FlightStatus {
+import java.io.Serializable;
+
+public enum FlightStatus implements Serializable {
     PENDING, CANCELLED, CONFIRMED
 }
