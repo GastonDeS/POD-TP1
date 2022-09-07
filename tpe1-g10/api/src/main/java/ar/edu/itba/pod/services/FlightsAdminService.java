@@ -95,7 +95,7 @@ public class FlightsAdminService implements FlightAdminServiceInterface {
                 response.append("Cannot find alternative flight for ").append(ticket.getName()).append(" with Ticket ").append(ticket.getFlight().getCode()).append("\n");
             }));
         }
-        if (totalTickets > 0) response.insert(0,totalTickets+" tickets were changed\n");
+        response.insert(0,totalTickets+" tickets were changed\n");
 
         return response.toString();
     }
@@ -141,10 +141,9 @@ public class FlightsAdminService implements FlightAdminServiceInterface {
         });
     }
 
-    // TODO check if we need to change the seat
     private void swapTicket(Ticket oldTicket, Flight flight, SeatCategory seatCategory) {
         oldTicket.getFlight().removeTicketFromFlight(oldTicket);
-        oldTicket.setSeat(null); // this thing
+        oldTicket.setSeat(null);
         oldTicket.setFlight(flight);
         oldTicket.setSeatCategory(seatCategory);
         flight.addTicketToFlight(oldTicket);
