@@ -2,6 +2,7 @@ package api.src.main.java.ar.edu.itba.pod.services;
 
 import api.src.main.java.ar.edu.itba.pod.constants.FlightStatus;
 import api.src.main.java.ar.edu.itba.pod.constants.SeatCategory;
+import api.src.main.java.ar.edu.itba.pod.interfaces.FlightAdminServiceInterface;
 import api.src.main.java.ar.edu.itba.pod.models.Flight;
 import api.src.main.java.ar.edu.itba.pod.models.Plane;
 import api.src.main.java.ar.edu.itba.pod.models.Ticket;
@@ -13,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class FlightsAdminService {
+public class FlightsAdminService implements FlightAdminServiceInterface {
     private static FlightsAdminService instance;
     private final Map<String, Plane> planes;
     private final Map<String, Flight> flights;
