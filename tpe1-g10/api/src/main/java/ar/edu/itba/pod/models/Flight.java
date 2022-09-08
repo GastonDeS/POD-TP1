@@ -110,8 +110,8 @@ public class Flight implements Serializable {
         return (int) planeSeats.values().stream().map(Map::values).count() - ticketList.size();
     }
 
-    public SeatCategory getRowCategory(int row) {
-        return planeSeats.get(""+row).get("A").getSeatCategory();
+    public SeatCategory getRowCategory(String row) {
+        return planeSeats.get(row).get("A").getSeatCategory();
     }
 
     public int getAvailableSeatsAmountByCategory(SeatCategory category) {

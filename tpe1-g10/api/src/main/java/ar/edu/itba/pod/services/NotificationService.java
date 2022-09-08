@@ -11,7 +11,7 @@ import api.src.main.java.ar.edu.itba.pod.utils.Pair;
 import java.rmi.RemoteException;
 import java.util.HashMap;
 import java.util.Map;
-
+//TODO implement exceptions
 public class NotificationService {
 
     private static NotificationService instance;
