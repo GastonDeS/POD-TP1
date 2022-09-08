@@ -56,7 +56,7 @@ public class SeatsAssignmentService {
     public void changeTicket(String name, String current, String alternative) throws RemoteException {
         Ticket ticket = flightsAdminService.getFlights().get(current).getPassengerTicket(name);
         Flight alternativeFlight = flightsAdminService.getFlights().get(alternative);
-        ticket.getSeat().setAvailable(true);
+        ticket.getSeat().setAvailable(true, '*');
         Optional<Seat> newSeat = alternativeFlight.getAvailableSeats()
                 .stream()
                 .filter(seat -> seat.getSeatCategory().ordinal() == ticket.getSeatCategory().ordinal())
@@ -64,7 +64,7 @@ public class SeatsAssignmentService {
         if (!newSeat.isPresent()) throw new RemoteException();
         ticket.setSeat(newSeat.get());
         ticket.setFlight(alternativeFlight);
-        newSeat.get().setAvailable(false);
+        newSeat.get().setAvailable(false, name.charAt(0));
     }
 
     private void assignOrChangeSeat(String flightCode, String name, int row, String column, boolean isChange) throws RemoteException {
@@ -75,9 +75,9 @@ public class SeatsAssignmentService {
                 || seat.getSeatCategory().ordinal() > ticket.getSeatCategory().ordinal())
             throw new RemoteException();
         if (isChange) {
-            ticket.getSeat().setAvailable(true);
+            ticket.getSeat().setAvailable(true, '*');
         }
-        seat.setAvailable(false);
+        seat.setAvailable(false, name.charAt(0));
         ticket.setSeat(seat);
     }
 

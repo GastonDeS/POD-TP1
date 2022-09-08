@@ -71,7 +71,7 @@ public class Flight implements Serializable {
         boolean removed = ticketList.remove(ticket);
         if (removed && ticket.getSeat() != null) {
             String place = ticket.getSeat().getPlace();
-            planeSeats.get(SeatHelper.getRow(place)).get(SeatHelper.getColumn(place)).setAvailable(true);
+            planeSeats.get(SeatHelper.getRow(place)).get(SeatHelper.getColumn(place)).setAvailable(true, '*');
         }
     }
 
@@ -90,7 +90,7 @@ public class Flight implements Serializable {
     public void assignSeatToTicket(Ticket ticket, String seatCode) {
         Seat seat = planeSeats.get(SeatHelper.getRow(seatCode)).get(SeatHelper.getColumn(seatCode));
         if (seat.isAvailable()) {
-            seat.setAvailable(false);
+            seat.setAvailable(false, '*');
             ticket.setSeat(seat);
         } else
             throw new IllegalArgumentException("seat already in use");
