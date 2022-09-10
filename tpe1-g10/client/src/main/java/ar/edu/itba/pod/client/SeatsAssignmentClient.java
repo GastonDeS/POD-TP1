@@ -4,11 +4,27 @@ import ar.edu.itba.pod.interfaces.SeatsAssignmentServiceInterface;
 import ar.edu.itba.pod.constants.ActionsSeatsAssignment;
 import ar.edu.itba.pod.exceptions.InvalidArgumentsException;
 import ar.edu.itba.pod.utils.SeatsAssignmentClientParser;
+import ar.edu.itba.pod.constants.SeatCategory;
+import ar.edu.itba.pod.models.Flight;
 
 import java.rmi.Naming;
 import java.rmi.RemoteException;
+import java.util.Map;
 
 public class SeatsAssignmentClient {
+
+    private static void alternativeFlights(
+            SeatsAssignmentServiceInterface service,
+            SeatsAssignmentClientParser parser) throws RemoteException {
+        Map<SeatCategory, Map<Flight, Long>> availableFlights = service.getAvailableFlights(parser.getFlight(), parser.getPassenger());
+        for (Map.Entry<SeatCategory, Map<Flight, Long>> entry : availableFlights.entrySet()) {
+            SeatCategory category = entry.getKey();
+            for (Map.Entry<Flight, Long> count : entry.getValue().entrySet()) {
+                Flight current = count.getKey();
+                System.out.println(current.getDestination() + " | " + current.getCode() + " | " + count.getValue() + " " + category);
+            }
+        }
+    }
 
     private static void changeTicket(
             SeatsAssignmentServiceInterface service,
@@ -47,6 +63,7 @@ public class SeatsAssignmentClient {
             case MOVE:
                 changeSeat(service, parser);
             case ALTERNATIVES:
+                alternativeFlights(service, parser);
             case CHANGE:
                 changeTicket(service, parser);
         }

@@ -5,6 +5,7 @@ import ar.edu.itba.pod.constants.SeatCategory;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.Map;
+import ar.edu.itba.pod.models.Flight;
 
 public interface SeatsAssignmentServiceInterface extends Remote {
     // If seat is taken, returns the name of the passenger assigned to seat
@@ -14,7 +15,7 @@ public interface SeatsAssignmentServiceInterface extends Remote {
 
     void changeSeat(String flightCode, String name, int row, String column) throws RemoteException;
 
-    Map<SeatCategory, Map<String, Long>> getAvailableFlights(String flightCode, String name) throws RemoteException;
+    Map<SeatCategory, Map<Flight, Long>> getAvailableFlights(String flightCode, String name) throws RemoteException;
 
     void changeTicket(String name, String current, String alternative) throws RemoteException;
 }

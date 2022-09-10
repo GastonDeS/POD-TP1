@@ -9,10 +9,7 @@ import ar.edu.itba.pod.models.Plane;
 
 import java.io.Serializable;
 import java.rmi.RemoteException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 public class Flight implements Serializable {
     private final String planeName;
@@ -118,5 +115,18 @@ public class Flight implements Serializable {
         return ticketList.stream().filter(t ->
             t.getSeat() != null && t.getSeat().getPlace().equals("" + row + column)
         ).findFirst();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Flight flight = (Flight) o;
+        return planeName.equals(flight.planeName) && code.equals(flight.code) && destination.equals(flight.destination);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(planeName, code, destination);
     }
 }

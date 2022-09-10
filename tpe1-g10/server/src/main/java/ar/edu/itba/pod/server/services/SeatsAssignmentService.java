@@ -44,26 +44,29 @@ public class SeatsAssignmentService implements SeatsAssignmentServiceInterface {
         assignOrChangeSeat(flightCode, name, row, column, true);
     }
 
-    public Map<SeatCategory, Map<String, Long>> getAvailableFlights(String flightCode, String name) throws RemoteException {
+    public Map<SeatCategory, Map<Flight, Long>> getAvailableFlights(String flightCode, String name) throws RemoteException {
         Flight currentFlight = flightsAdminService.getFlight(flightCode);
         Ticket ticket = currentFlight.getPassengerTicket(name);
         if (currentFlight.getStatus().equals(FlightStatus.CONFIRMED)) throw new RemoteException("Error: flight is already confirmed");
+
         List<Flight> similarFlights = flightsAdminService.getFlights().values()
                 .stream()
                 .filter(f -> f.getDestination().equals(currentFlight.getDestination())
                         && f.getStatus().equals(FlightStatus.CONFIRMED)
                         && !f.getCode().equals(flightCode))
                 .collect(Collectors.toList());
-        Map<SeatCategory, Map<String, Long>> availableFlights = new HashMap<>();
+
+        Map<SeatCategory, Map<Flight, Long>> availableFlights = new HashMap<>();
         similarFlights.forEach(flight -> {
-            Map<SeatCategory, Long> seatsPerCategory = flight.getAvailableSeats()
-                    .stream()
-                    .filter(seat -> seat.getSeatCategory().ordinal() >= ticket.getSeatCategory().ordinal())
-                    .collect(Collectors.groupingBy(Seat::getSeatCategory, Collectors.counting()));
             for (SeatCategory s : SeatCategory.values()) {
-                Map<String, Long> flights = availableFlights.getOrDefault(s, new HashMap<>());
-                flights.put(flight.getCode(), seatsPerCategory.getOrDefault(s, 0L));
-                availableFlights.put(s, flights);
+                if (s.ordinal() >= ticket.getSeatCategory().ordinal()) {
+                    long count = flight.getAvailableSeats().stream().filter(seat -> seat.getSeatCategory() == s).count();
+                    if (count > 0) {
+                        Map<Flight, Long> flights = availableFlights.getOrDefault(s, new HashMap<>());
+                        flights.put(flight, count);
+                        availableFlights.put(s, flights);
+                    }
+                }
             }
         });
         return availableFlights;

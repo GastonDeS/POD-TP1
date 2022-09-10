@@ -4,6 +4,7 @@ import ar.edu.itba.pod.constants.SeatCategory;
 import ar.edu.itba.pod.models.RowData;
 import ar.edu.itba.pod.models.Seat;
 import ar.edu.itba.pod.models.Ticket;
+import ar.edu.itba.pod.models.Flight;
 import ar.edu.itba.pod.server.services.FlightsAdminService;
 import ar.edu.itba.pod.server.services.SeatsAssignmentService;
 import ar.edu.itba.pod.services.utils.TestUtils;
@@ -36,8 +37,7 @@ public class SeatsAssignmentServiceTest {
         List<Ticket> tickets = TestUtils.getTickets("AA");
         flightsAdminService.createFlight(PLANE_1, "AA", "CDG", tickets);
 
-
-        //Assertions.assertNull(seatsAssignmentService.checkEmptySeat("AA", 1, "A"));
+        Assertions.assertNull(seatsAssignmentService.checkEmptySeat("AA", 1, "A"));
     }
 
     @Test
@@ -47,7 +47,8 @@ public class SeatsAssignmentServiceTest {
 
         List<Ticket> tickets = TestUtils.getTickets("AA");
         flightsAdminService.createFlight(PLANE_1, "AA", "CDG", tickets);
-        flightsAdminService.getFlight("AA").addTicketToFlight(new Ticket.Builder("Pedro").seat(flightsAdminService.getFlight("AA").getSeat(10,"A")).build());
+        flightsAdminService.getFlight("AA").addTicketToFlight(new Ticket.Builder("Pedro")
+                .seat(flightsAdminService.getFlight("AA").getSeat(10,"A")).build());
 
         Assertions.assertEquals("Pedro", seatsAssignmentService.checkEmptySeat("AA", 10, "A"));
     }
@@ -127,12 +128,15 @@ public class SeatsAssignmentServiceTest {
         List<Ticket> tickets2 = TestUtils.getTickets("AA");
 
         flightsAdminService.createFlight(PLANE_2, "BR", "CDG", tickets2);
+        seatsAssignmentService.assignSeat("BR", "Gaston", 10, "A");
         flightsAdminService.confirmPendingFlight("BR");
-        Map<SeatCategory, Map<String, Long>> availableFlights = seatsAssignmentService.getAvailableFlights("AA", "Brittu");
+        Flight alternative = flightsAdminService.getFlight("BR");
 
-        Assertions.assertEquals(0L, availableFlights.get(SeatCategory.BUSINESS).get("BR"));
-        Assertions.assertEquals(20L, availableFlights.get(SeatCategory.PREMIUM_ECONOMY).get("BR"));
-        Assertions.assertEquals(28L, availableFlights.get(SeatCategory.ECONOMY).get("BR"));
+        Map<SeatCategory, Map<Flight, Long>> availableFlights = seatsAssignmentService.getAvailableFlights("AA", "Brittu");
+
+        Assertions.assertNull(availableFlights.get(SeatCategory.BUSINESS));
+        Assertions.assertEquals(20L, availableFlights.get(SeatCategory.PREMIUM_ECONOMY).get(alternative));
+        Assertions.assertEquals(27L, availableFlights.get(SeatCategory.ECONOMY).get(alternative));
     }
 
     @Test
