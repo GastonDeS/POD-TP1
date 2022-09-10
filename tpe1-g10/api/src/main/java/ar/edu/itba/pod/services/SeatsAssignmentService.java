@@ -37,9 +37,9 @@ public class SeatsAssignmentService implements SeatsAssignmentServiceInterface {
         assignOrChangeSeat(flightCode, name, row, column, true);
     }
 
-    //TODO: chequear de que me sirve el name
     public Map<String, List<Seat>> getAvailableFlights(String flightCode, String name) throws RemoteException {
         Flight currentFlight = flightsAdminService.getFlight(flightCode);
+        Ticket ticket = currentFlight.getPassengerTicket(name);
         if (currentFlight.getStatus().equals(FlightStatus.CONFIRMED)) throw new RemoteException("Error: flight is already confirmed");
         List<Flight> similarFlights = flightsAdminService.getFlights().values()
                 .stream()
@@ -49,24 +49,23 @@ public class SeatsAssignmentService implements SeatsAssignmentServiceInterface {
                 .collect(Collectors.toList());
         Map<String, List<Seat>> availableFlights = new HashMap<>();
         similarFlights.forEach(flight -> {
-            availableFlights.put(flight.getCode(), flight.getAvailableSeats());
+            List<Seat> availableSeats = flight.getAvailableSeats()
+                    .stream()
+                    .filter(s -> s.getSeatCategory().ordinal() >= ticket.getSeatCategory().ordinal())
+                    .collect(Collectors.toList());
+            availableFlights.put(flight.getCode(), availableSeats);
         });
         return availableFlights;
     }
 
     public void changeTicket(String name, String current, String alternative) throws RemoteException {
         Ticket ticket = flightsAdminService.getFlight(current).getPassengerTicket(name);
+        Flight currentFlight = flightsAdminService.getFlight(current);
         Flight alternativeFlight = flightsAdminService.getFlight(alternative);
-        ticket.getSeat().setAvailable(true, '*');
-//        Optional<Seat> newSeat = alternativeFlight.getAvailableSeats()
-//                .stream()
-//                .filter(seat -> seat.getSeatCategory().ordinal() == ticket.getSeatCategory().ordinal())
-//                .findFirst();
-//        if (!newSeat.isPresent()) throw new RemoteException();
-        ticket.setSeat(null); //TODO: do i assign a new seat?
-        //ticket.setSeat(newSeat.get());
+        currentFlight.removeTicketFromFlight(ticket);
+        ticket.setSeat(null);
         ticket.setFlight(alternativeFlight);
-        //newSeat.get().setAvailable(false, name.charAt(0));
+        alternativeFlight.addTicketToFlight(ticket);
     }
 
     private void assignOrChangeSeat(String flightCode, String name, int row, String column, boolean isChange) throws RemoteException {
@@ -75,9 +74,9 @@ public class SeatsAssignmentService implements SeatsAssignmentServiceInterface {
         Seat seat = flight.getSeat(row, column);
         if (!flight.getStatus().equals(FlightStatus.PENDING)) throw new RemoteException("Error: flight is " + flight.getStatus().name());
         if (!seat.isAvailable()) throw new RemoteException("Error: seat " + row + column + " is not available");
-        if (seat.getSeatCategory().ordinal() > ticket.getSeatCategory().ordinal())
+        if (seat.getSeatCategory().ordinal() < ticket.getSeatCategory().ordinal())
             throw new RemoteException("Error: seat " + row + column + " is not available for your category");
-        if (isChange) {
+        if (isChange && ticket.getSeat() != null) {
             ticket.getSeat().setAvailable(true, '*');
         }
         seat.setAvailable(false, name.charAt(0));

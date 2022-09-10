@@ -16,6 +16,13 @@ public class Ticket implements Serializable {
         this.flight = flight;
     }
 
+    private Ticket(Builder builder) {
+        this.name = builder.name;
+        this.seatCategory = builder.seatCategory;
+        this.seat = builder.seat;
+        this.flight = builder.flight;
+    }
+
     public void setSeatCategory(SeatCategory seatCategory) {
         this.seatCategory = seatCategory;
     }
@@ -42,5 +49,35 @@ public class Ticket implements Serializable {
 
     public void setFlight(Flight flight) {
         this.flight = flight;
+    }
+
+    public static class Builder
+    {
+        private final String name;
+        private SeatCategory seatCategory;
+        private Seat seat;
+        private Flight flight;
+
+        public Builder(String name) {
+            this.name = name;
+        }
+
+        public Builder seatCategory(SeatCategory seatCategory) {
+            this.seatCategory = seatCategory;
+            return this;
+        }
+
+        public Builder seat(Seat seat) {
+            this.seat = seat;
+            return this;
+        }
+        public Builder flight(Flight flight) {
+            this.flight = flight;
+            return this;
+        }
+
+        public Ticket build() {
+            return new Ticket(this);
+        }
     }
 }

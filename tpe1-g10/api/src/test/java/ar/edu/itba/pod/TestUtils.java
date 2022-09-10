@@ -1,13 +1,13 @@
 package api.src.test.java.ar.edu.itba.pod;
 
 import api.src.main.java.ar.edu.itba.pod.constants.SeatCategory;
-import api.src.main.java.ar.edu.itba.pod.models.Flight;
-import api.src.main.java.ar.edu.itba.pod.models.Plane;
-import api.src.main.java.ar.edu.itba.pod.models.RowData;
-import api.src.main.java.ar.edu.itba.pod.models.Ticket;
+import api.src.main.java.ar.edu.itba.pod.models.*;
 
+import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Stack;
 
 public class TestUtils {
 
@@ -34,5 +34,9 @@ public class TestUtils {
         rowData.add(new RowData(SeatCategory.ECONOMY, 7));
         rowData.add(new RowData(SeatCategory.ECONOMY, 7));
         return rowData;
+    }
+
+    public static void setSeatAvailability (Flight flight, int row, String column, boolean isAvailable) throws RemoteException {
+        flight.getSeat(row, column).setAvailable(isAvailable, '*');
     }
 }

@@ -17,6 +17,13 @@ public class Seat implements Serializable {
         this.available = true;
     }
 
+    private Seat(Builder builder) {
+        this.seatCategory = builder.seatCategory;
+        this.place = builder.place;
+        this.info = builder.info;
+        this.available = builder.available;
+    }
+
     public SeatCategory getSeatCategory() {
         return seatCategory;
     }
@@ -32,6 +39,33 @@ public class Seat implements Serializable {
     public void setAvailable(boolean available, char initialName) {
         this.info = initialName;
         this.available = available;
+    }
+
+    public static class Builder
+    {
+        private final SeatCategory seatCategory;
+        private boolean available;
+        private char info;
+        private final String place;
+
+        public Builder(SeatCategory seatCategory, String place) {
+            this.seatCategory = seatCategory;
+            this.place = place;
+        }
+
+        public Builder available(boolean available) {
+            this.available = available;
+            return this;
+        }
+
+        public Builder info(char info) {
+            this.info = info;
+            return this;
+        }
+
+        public Seat build() {
+            return new Seat(this);
+        }
     }
 
 }
