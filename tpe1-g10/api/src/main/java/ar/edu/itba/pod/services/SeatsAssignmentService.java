@@ -1,6 +1,7 @@
 package api.src.main.java.ar.edu.itba.pod.services;
 
 import api.src.main.java.ar.edu.itba.pod.constants.FlightStatus;
+import api.src.main.java.ar.edu.itba.pod.constants.NotificationCategory;
 import api.src.main.java.ar.edu.itba.pod.interfaces.SeatsAssignmentServiceInterface;
 import api.src.main.java.ar.edu.itba.pod.models.Flight;
 import api.src.main.java.ar.edu.itba.pod.models.Seat;
@@ -13,9 +14,11 @@ import java.util.stream.Collectors;
 public class SeatsAssignmentService implements SeatsAssignmentServiceInterface {
     private static SeatsAssignmentService instance;
     private final FlightsAdminService flightsAdminService;
+    private final NotificationService notificationService;
 
     public SeatsAssignmentService() {
         this.flightsAdminService = FlightsAdminService.getInstance();
+        this.notificationService = NotificationService.getInstance();
     }
 
     public static SeatsAssignmentService getInstance() {
@@ -62,6 +65,10 @@ public class SeatsAssignmentService implements SeatsAssignmentServiceInterface {
         Ticket ticket = flightsAdminService.getFlight(current).getPassengerTicket(name);
         Flight currentFlight = flightsAdminService.getFlight(current);
         Flight alternativeFlight = flightsAdminService.getFlight(alternative);
+
+        // Notify changes
+        notificationService.newNotificationUpdate(alternative, name, ticket, NotificationCategory.CHANGED_TICKET);
+
         currentFlight.removeTicketFromFlight(ticket);
         ticket.setSeat(null);
         ticket.setFlight(alternativeFlight);
@@ -76,9 +83,16 @@ public class SeatsAssignmentService implements SeatsAssignmentServiceInterface {
         if (!seat.isAvailable()) throw new RemoteException("Error: seat " + row + column + " is not available");
         if (seat.getSeatCategory().ordinal() < ticket.getSeatCategory().ordinal())
             throw new RemoteException("Error: seat " + row + column + " is not available for your category");
-        if (isChange && ticket.getSeat() != null) {
-            ticket.getSeat().setAvailable(true, '*');
+
+        if (isChange) {
+            // Notify changes
+            notificationService.newNotificationUpdate(flightCode, name, ticket, NotificationCategory.CHANGED_SEAT);
+            if (ticket.getSeat() != null) ticket.getSeat().setAvailable(true, '*');
+        } else {
+            // Notify changes
+            notificationService.newNotification(flightCode, name, NotificationCategory.CHANGED_SEAT);
         }
+
         seat.setAvailable(false, name.charAt(0));
         ticket.setSeat(seat);
     }
