@@ -1,7 +1,7 @@
 package ar.edu.itba.pod.services;
 
 import ar.edu.itba.pod.constants.SeatCategory;
-import ar.edu.itba.pod.models.RowData;
+import ar.edu.itba.pod.models.PlaneData;
 import ar.edu.itba.pod.models.Ticket;
 import ar.edu.itba.pod.server.services.FlightsAdminService;
 import ar.edu.itba.pod.services.utils.TestUtils;
@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class FlightsAdminServiceTest {
 
@@ -27,7 +28,7 @@ public class FlightsAdminServiceTest {
 
     @Test
     public void testCancelWithNoPlaceToGo() throws RemoteException {
-        List<RowData> rowsData = TestUtils.getRowDataForFlight();
+        Map<SeatCategory, PlaneData> rowsData = TestUtils.getPlaneDataForFlight();
         flightsAdminService.createPlane(PLANE_1, rowsData);
 
         List<Ticket > tickets = TestUtils.getTickets("AA");
@@ -41,7 +42,7 @@ public class FlightsAdminServiceTest {
 
     @Test
     public void testCancelFlightAndFindNewSeats() throws RemoteException {
-        List<RowData> rowsData = TestUtils.getRowDataForFlight();
+        Map<SeatCategory, PlaneData> rowsData = TestUtils.getPlaneDataForFlight();
 
         flightsAdminService.createPlane(PLANE_1, rowsData);
 
@@ -62,16 +63,14 @@ public class FlightsAdminServiceTest {
 
     @Test
     public void testCancelFlightAndTryToMoveSeatsToAPlaneWithNoAvailableSeats() throws RemoteException {
-        List<RowData> rowsData = TestUtils.getRowDataForFlight();
+        Map<SeatCategory, PlaneData> rowsData = TestUtils.getPlaneDataForFlight();
         flightsAdminService.createPlane(PLANE_1, rowsData);
 
         List<Ticket > tickets = TestUtils.getTickets("AA");
 
         flightsAdminService.createFlight(PLANE_1, "AA", "BA", tickets);
 
-        List<RowData> rowData2 = new ArrayList<>();
-        rowData2.add(new RowData(SeatCategory.BUSINESS, 1));
-        flightsAdminService.createPlane(PLANE_2, rowData2);
+        flightsAdminService.createPlane(PLANE_2, TestUtils.getOneSeatPlaneData(SeatCategory.BUSINESS));
         flightsAdminService.createFlight(PLANE_2, "AB", "BA", new ArrayList<>());
 
         flightsAdminService.cancelPendingFlight("AA");
@@ -86,16 +85,14 @@ public class FlightsAdminServiceTest {
 
     @Test
     public void testMoveTicketsTwoMultiplePlane() throws RemoteException {
-        List<RowData> rowsData = TestUtils.getRowDataForFlight();
+        Map<SeatCategory, PlaneData> rowsData = TestUtils.getPlaneDataForFlight();
         flightsAdminService.createPlane(PLANE_1, rowsData);
 
         List<Ticket > tickets = TestUtils.getTickets("AA");
 
         flightsAdminService.createFlight(PLANE_1, "AA", "BA", tickets);
 
-        List<RowData> rowData2 = new ArrayList<>();
-        rowData2.add(new RowData(SeatCategory.ECONOMY, 1));
-        flightsAdminService.createPlane(PLANE_2, rowData2);
+        flightsAdminService.createPlane(PLANE_2, TestUtils.getOneSeatPlaneData(SeatCategory.ECONOMY));
         flightsAdminService.createFlight(PLANE_2, "AB", "BA", new ArrayList<>());
         flightsAdminService.createFlight(PLANE_2, "ABC", "BA", new ArrayList<>());
 
@@ -117,15 +114,13 @@ public class FlightsAdminServiceTest {
 
     @Test
     public void testMoveTicketsPlaneWithNoSameCategorySeats() throws RemoteException {
-        List<RowData> rowsData = TestUtils.getRowDataForFlight();
+        Map<SeatCategory, PlaneData> rowsData = TestUtils.getPlaneDataForFlight();
         flightsAdminService.createPlane(PLANE_1, rowsData);
 
         List<Ticket > tickets = TestUtils.getTickets("AA");
         flightsAdminService.createFlight(PLANE_1, "AA", "BA", tickets);
 
-        List<RowData> rowData2 = new ArrayList<>();
-        rowData2.add(new RowData(SeatCategory.BUSINESS, 1));
-        flightsAdminService.createPlane(PLANE_2, rowData2);
+        flightsAdminService.createPlane(PLANE_2, TestUtils.getOneSeatPlaneData(SeatCategory.BUSINESS));
         flightsAdminService.createFlight(PLANE_2, "AB", "BA", new ArrayList<>());
 
         flightsAdminService.cancelPendingFlight("AA");

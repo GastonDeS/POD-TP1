@@ -2,27 +2,38 @@ package ar.edu.itba.pod.models;
 
 
 import ar.edu.itba.pod.utils.SeatHelper;
-import ar.edu.itba.pod.models.RowData;
+import ar.edu.itba.pod.constants.SeatCategory;
+import ar.edu.itba.pod.models.PlaneData;
 import ar.edu.itba.pod.models.Seat;
 
 import java.io.Serializable;
+import java.rmi.RemoteException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class Plane implements Serializable {
     private final String name;
-    private final List<RowData> rowDataList;
+    private final Map<SeatCategory, PlaneData> planeDataMap;
     private final int totalSeats;
 
-    public Plane(String name, List<RowData> rowDataList) {
+    public Plane(String name, Map<SeatCategory, PlaneData> planeDataMap) throws RemoteException {
         this.name = name;
-        if (rowDataList.size() <= 0 || rowDataList.size() > 25) throw new IllegalArgumentException();
-        rowDataList.forEach(rowData -> {
-            if (rowData.getColumns() <= 0) throw new IllegalArgumentException();
-        });
-        this.rowDataList = rowDataList;
-        this.totalSeats = rowDataList.stream().map(RowData::getColumns).reduce(0, Integer::sum);
+        List<PlaneData> planeDataList = new ArrayList<>(planeDataMap.values());
+        int rows = 0;
+        int totalSeats = 0;
+        for (PlaneData planeData : planeDataList) {
+            if (planeData.getColumns() <= 0) throw new RemoteException("The columns has to have at least one Seat");
+            if (planeData.getRows() < 0) throw new RemoteException("A SeatCategory rows amount cannot be negative");
+            rows += 1;
+            totalSeats += planeData.getRows() * planeData.getColumns();
+        }
+        if (rows <= 0 || rows > 25) throw new RemoteException("The row amount has to be between 0 and 25");
+
+
+        this.planeDataMap = planeDataMap;
+        this.totalSeats = totalSeats;
     }
 
     public String getName() {
@@ -35,13 +46,17 @@ public class Plane implements Serializable {
 
     public final Map<String, Map<String, Seat>> getSeats() {
         Map<String, Map<String, Seat>> seats = new HashMap<>();
-        for (int j = 0; j < rowDataList.size(); j++) {
-            Map<String, Seat> rowHashMap = new HashMap<>();
-            String row = ""+(j+1);
-            seats.put(row, rowHashMap);
-            for (int i = 0; i < rowDataList.get(j).getColumns(); i++) {
-                String place = "" + (j + 1) + (char) (65 + i);
-                seats.get(row).put(SeatHelper.getColumn(place), new Seat(rowDataList.get(j).getSeatCategory(), place));
+        int i =0;
+        for (SeatCategory key : SeatCategory.values()) {
+            PlaneData value = planeDataMap.get(key);
+            if (value == null) continue;
+            for (int w =0; w < value.getRows(); w++, i++) {
+                String row = "" + (i + 1);
+                seats.put(row, new HashMap<>());
+                for (int j = 0; j < value.getColumns(); j++) {
+                    String place = "" + (i + 1) + (char) (65 + j);
+                    seats.get(row).put("" + (char) (65 + j), new Seat(key, place));
+                }
             }
         }
         return seats;

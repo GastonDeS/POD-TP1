@@ -1,8 +1,7 @@
 package ar.edu.itba.pod.services;
 
 import ar.edu.itba.pod.constants.SeatCategory;
-import ar.edu.itba.pod.models.RowData;
-import ar.edu.itba.pod.models.Seat;
+import ar.edu.itba.pod.models.PlaneData;
 import ar.edu.itba.pod.models.Ticket;
 import ar.edu.itba.pod.models.Flight;
 import ar.edu.itba.pod.server.services.FlightsAdminService;
@@ -31,7 +30,7 @@ public class SeatsAssignmentServiceTest {
 
     @Test
     public void testEmptySeat() throws RemoteException {
-        List<RowData> rowsData = TestUtils.getRowDataForFlight();
+        Map<SeatCategory, PlaneData> rowsData = TestUtils.getPlaneDataForFlight();
         flightsAdminService.createPlane(PLANE_1, rowsData);
 
         List<Ticket> tickets = TestUtils.getTickets("AA");
@@ -42,7 +41,7 @@ public class SeatsAssignmentServiceTest {
 
     @Test
     public void testNonEmptySeat() throws RemoteException {
-        List<RowData> rowsData = TestUtils.getRowDataForFlight();
+        Map<SeatCategory, PlaneData> rowsData = TestUtils.getPlaneDataForFlight();
         flightsAdminService.createPlane(PLANE_1, rowsData);
 
         List<Ticket> tickets = TestUtils.getTickets("AA");
@@ -55,7 +54,7 @@ public class SeatsAssignmentServiceTest {
 
     @Test
     public void testAssignSeatAvailable() throws RemoteException {
-        List<RowData> rowsData = TestUtils.getRowDataForFlight();
+        Map<SeatCategory, PlaneData> rowsData = TestUtils.getPlaneDataForFlight();
         flightsAdminService.createPlane(PLANE_1, rowsData);
 
         List<Ticket> tickets = TestUtils.getTickets("AA");
@@ -67,7 +66,7 @@ public class SeatsAssignmentServiceTest {
 
     @Test
     public void testAssignSeatNotAvailable() throws RemoteException {
-        List<RowData> rowsData = TestUtils.getRowDataForFlight();
+        Map<SeatCategory, PlaneData> rowsData = TestUtils.getPlaneDataForFlight();
         flightsAdminService.createPlane(PLANE_1, rowsData);
         List<Ticket> tickets = TestUtils.getTickets("AA");
         flightsAdminService.createFlight(PLANE_1, "AA", "CDG", tickets);
@@ -79,7 +78,7 @@ public class SeatsAssignmentServiceTest {
 
     @Test
     public void testAssignSeatFlightNotPending() throws RemoteException {
-        List<RowData> rowsData = TestUtils.getRowDataForFlight();
+        Map<SeatCategory, PlaneData> rowsData = TestUtils.getPlaneDataForFlight();
         flightsAdminService.createPlane(PLANE_1, rowsData);
 
         List<Ticket> tickets = TestUtils.getTickets("AA");
@@ -93,7 +92,7 @@ public class SeatsAssignmentServiceTest {
 
     @Test
     public void testAssignSeatWrongCategory() throws RemoteException {
-        List<RowData> rowsData = TestUtils.getRowDataForFlight();
+        Map<SeatCategory, PlaneData> rowsData = TestUtils.getPlaneDataForFlight();
         flightsAdminService.createPlane(PLANE_1, rowsData);
 
         List<Ticket> tickets = TestUtils.getTickets("AA");
@@ -105,7 +104,7 @@ public class SeatsAssignmentServiceTest {
 
     @Test
     public void testChangeSeat() throws RemoteException {
-        List<RowData> rowsData = TestUtils.getRowDataForFlight();
+        Map<SeatCategory, PlaneData> rowsData = TestUtils.getPlaneDataForFlight();
         flightsAdminService.createPlane(PLANE_1, rowsData);
 
         List<Ticket> tickets = TestUtils.getTickets("AA");
@@ -114,12 +113,12 @@ public class SeatsAssignmentServiceTest {
         seatsAssignmentService.changeSeat("AA", "Brittu", 7, "A");
 
         Assertions.assertFalse(flightsAdminService.getFlight("AA").getSeat(7, "A").isAvailable());
-        Assertions.assertTrue(flightsAdminService.getFlight("AA").getSeat(1, "A").isAvailable());
+        Assertions.assertTrue(flightsAdminService.getFlight("AA").getSeat(4, "A").isAvailable()); // TODO @linbrittany lo cambie de 4 a 1 pq no se pq mirabas la 1
     }
 
     @Test
     public void testGetAvailableFlights() throws RemoteException {
-        List<RowData> rowsData = TestUtils.getRowDataForFlight();
+        Map<SeatCategory, PlaneData> rowsData = TestUtils.getPlaneDataForFlight();
         flightsAdminService.createPlane(PLANE_1, rowsData);
         flightsAdminService.createPlane(PLANE_2, rowsData);
 
@@ -141,7 +140,7 @@ public class SeatsAssignmentServiceTest {
 
     @Test
     public void testGetAvailableFlightsAlreadyConfirmed() throws RemoteException {
-        List<RowData> rowsData = TestUtils.getRowDataForFlight();
+        Map<SeatCategory, PlaneData> rowsData = TestUtils.getPlaneDataForFlight();
         flightsAdminService.createPlane(PLANE_1, rowsData);
 
         List<Ticket> tickets = TestUtils.getTickets("AA");
@@ -155,7 +154,7 @@ public class SeatsAssignmentServiceTest {
 
     @Test
     public void testChangeTicket() throws RemoteException {
-        List<RowData> rowsData = TestUtils.getRowDataForFlight();
+        Map<SeatCategory, PlaneData> rowsData = TestUtils.getPlaneDataForFlight();
         flightsAdminService.createPlane(PLANE_1, rowsData);
         flightsAdminService.createPlane(PLANE_2, rowsData);
         List<Ticket> tickets = TestUtils.getTickets("AA");
@@ -170,7 +169,7 @@ public class SeatsAssignmentServiceTest {
 
     @Test
     public void testChangeTicketNoFlight() throws RemoteException {
-        List<RowData> rowsData = TestUtils.getRowDataForFlight();
+        Map<SeatCategory, PlaneData> rowsData = TestUtils.getPlaneDataForFlight();
         flightsAdminService.createPlane(PLANE_1, rowsData);
 
         List<Ticket> tickets = TestUtils.getTickets("AA");

@@ -5,8 +5,8 @@ import ar.edu.itba.pod.constants.SeatCategory;
 import ar.edu.itba.pod.interfaces.FlightAdminServiceInterface;
 import ar.edu.itba.pod.models.Flight;
 import ar.edu.itba.pod.models.Plane;
-import ar.edu.itba.pod.models.RowData;
 import ar.edu.itba.pod.models.Ticket;
+import ar.edu.itba.pod.models.PlaneData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,11 +56,11 @@ public class FlightsAdminService implements FlightAdminServiceInterface {
         return flight;
     }
 
-    public void createPlane(String name, List<RowData> rowDataList) throws RemoteException {
+    public void createPlane(String name, Map<SeatCategory, PlaneData> planeDataMap) throws RemoteException {
         if(planes.containsKey(name)){
             throw new RemoteException("Error: plane " +name+ " already exists");
         }
-        Plane plane = new Plane(name, rowDataList);
+        Plane plane = new Plane(name, planeDataMap);
         planes.put(plane.getName(), plane);
     }
 
@@ -96,6 +96,8 @@ public class FlightsAdminService implements FlightAdminServiceInterface {
         flight.setStatus(FlightStatus.CANCELLED);
     }
 
+    // TODO Change we need a way to not return everything via String
+    // TODO add notification
     public String findNewSeatsForCancelledFlights() throws RemoteException{
         List<Flight> cancelledFlights = getCancelledFlights();
         int totalTickets = 0;
