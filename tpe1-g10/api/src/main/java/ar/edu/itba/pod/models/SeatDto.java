@@ -5,8 +5,8 @@ import ar.edu.itba.pod.models.Seat;
 
 public class SeatDto {
     private final SeatCategory seatCategory;
-    private boolean available;
-    private char info;
+    private final boolean available;
+    private final char info;
     private final String place;
 
     public SeatDto(Seat seat) {
