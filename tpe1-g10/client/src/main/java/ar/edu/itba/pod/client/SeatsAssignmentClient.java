@@ -6,12 +6,15 @@ import ar.edu.itba.pod.exceptions.InvalidArgumentsException;
 import ar.edu.itba.pod.utils.SeatsAssignmentClientParser;
 import ar.edu.itba.pod.constants.SeatCategory;
 import ar.edu.itba.pod.models.Flight;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.rmi.Naming;
 import java.rmi.RemoteException;
 import java.util.Map;
 
 public class SeatsAssignmentClient {
+    private static final Logger logger = LoggerFactory.getLogger(SeatsAssignmentClient.class);
 
     private static void alternativeFlights(
             SeatsAssignmentServiceInterface service,
@@ -71,6 +74,8 @@ public class SeatsAssignmentClient {
 
     public static void main(String[] args) {
         try {
+            logger.info("tpe1-g10 Seats Assignment Client Starting ...");
+
             SeatsAssignmentClientParser parser = new SeatsAssignmentClientParser();
 
             try {
@@ -86,7 +91,7 @@ public class SeatsAssignmentClient {
             callMethodFromAction(parser, service);
 
         } catch (Exception ex) {
-            System.out.println("An exception happened");
+            logger.info("An exception happened");
             ex.printStackTrace();
         }
     }

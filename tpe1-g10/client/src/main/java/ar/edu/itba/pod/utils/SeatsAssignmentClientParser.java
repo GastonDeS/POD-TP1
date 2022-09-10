@@ -3,6 +3,7 @@ package ar.edu.itba.pod.utils;
 import ar.edu.itba.pod.constants.ActionsSeatsAssignment;
 import ar.edu.itba.pod.exceptions.InvalidArgumentsException;
 
+
 import java.util.Properties;
 
 public class SeatsAssignmentClientParser {
@@ -59,19 +60,18 @@ public class SeatsAssignmentClientParser {
             this.serverAddress = props.getProperty(SERVER_ADDRESS_KEY);
         }
 
-        if (!props.containsKey(ACTION_KEY)) {
-            throw new InvalidArgumentsException("Action is not specified");
-        } else {
-            this.action = ActionsSeatsAssignment.fromString(props.getProperty(ACTION_KEY));
-            checkActionArguments(props);
-        }
-
         if (!props.containsKey(FLIGHT_KEY)) {
             throw new InvalidArgumentsException("Flight is not specified");
         } else {
             this.flight = props.getProperty(FLIGHT_KEY);
         }
 
+        if (!props.containsKey(ACTION_KEY)) {
+            throw new InvalidArgumentsException("Action is not specified");
+        } else {
+            this.action = ActionsSeatsAssignment.fromString(props.getProperty(ACTION_KEY));
+            checkActionArguments(props);
+        }
     }
 
     private void checkActionArguments(Properties props) throws InvalidArgumentsException {
