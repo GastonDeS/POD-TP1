@@ -1,15 +1,13 @@
-package ar.edu.itba.pod.services;
+package ar.edu.itba.pod.server.services;
 
 import ar.edu.itba.pod.constants.FlightStatus;
 import ar.edu.itba.pod.constants.NotificationCategory;
 import ar.edu.itba.pod.interfaces.NotificationCallbackHandler;
-import ar.edu.itba.pod.interfaces.NotificationServiceInterface;
 import ar.edu.itba.pod.interfaces.NotificationServicePrivateInterface;
+import ar.edu.itba.pod.server.services.FlightsAdminService;
 import ar.edu.itba.pod.models.Flight;
-import ar.edu.itba.pod.models.Seat;
 import ar.edu.itba.pod.models.Ticket;
-import ar.edu.itba.pod.services.FlightsAdminService;
-import ar.edu.itba.pod.utils.Pair;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,11 +18,11 @@ public class NotificationService implements NotificationServicePrivateInterface 
 
     private static NotificationService instance;
 
-    private FlightsAdminService flightsAdminService;
+    private final FlightsAdminService flightsAdminService;
 
-    private Map<String, Map<String, NotificationCallbackHandler>> subscribedMap = new HashMap<>();
+    private final Map<String, Map<String, NotificationCallbackHandler>> subscribedMap = new HashMap<>();
 
-    private static Logger logger = LoggerFactory.getLogger(NotificationService.class);
+    private final static Logger logger = LoggerFactory.getLogger(NotificationService.class);
 
     public NotificationService() {
         this.flightsAdminService = FlightsAdminService.getInstance();
@@ -59,19 +57,19 @@ public class NotificationService implements NotificationServicePrivateInterface 
                 switch (notificationCategory) {
                     case SUBSCRIBED:
                         message =
-                                "You are following flight " + flightNumber + " with destination " + ticket.getFlight().getDestination() + ".";
+                                "You are following flight " + flightNumber + " with destination " + flightsAdminService.getFlight(ticket.getFlightCode()).getDestination() + ".";
                         break;
                     case FLIGHT_CONFIRMED:
-                        message = "Your flight " + flightNumber + " with destination " + ticket.getFlight().getDestination() + " was " +
+                        message = "Your flight " + flightNumber + " with destination " + flightsAdminService.getFlight(ticket.getFlightCode()).getDestination() + " was " +
                                 "confirmed and your seat is " + ticket.getSeatCategory().getMessage() + " " + ticket.getSeat().getPlace();
                         break;
                     case FLIGHT_CANCELLED:
-                        message = "Your flight " + flightNumber + " with destination " + ticket.getFlight().getDestination() + " was " +
+                        message = "Your flight " + flightNumber + " with destination " + flightsAdminService.getFlight(ticket.getFlightCode()).getDestination() + " was " +
                                 "cancelled and your seat is " + ticket.getSeatCategory().getMessage() + " " + ticket.getSeat().getPlace();
                         break;
                     case ASSIGNED_SEAT:
                         message = "Your seat is " + ticket.getSeatCategory().getMessage() + " " + ticket.getSeat().getPlace() + " for " +
-                                "flight " + flightNumber + " with destination " + ticket.getFlight().getDestination();
+                                "flight " + flightNumber + " with destination " + flightsAdminService.getFlight(ticket.getFlightCode()).getDestination();
                         break;
                 }
                 subscribedMap.get(flightNumber).get(name).sendNotification(message, logger);
@@ -88,11 +86,11 @@ public class NotificationService implements NotificationServicePrivateInterface 
                     case CHANGED_SEAT:
                         message = "Your seat changed to " + ticket.getSeatCategory().getMessage() + " " + ticket.getSeat().getPlace() +
                                 " from " + oldTicket.getSeatCategory().getMessage() + " " + oldTicket.getSeat().getPlace() + " for flight" +
-                                " " + flightNumber + " with destination " + ticket.getFlight().getDestination();
+                                " " + flightNumber + " with destination " + flightsAdminService.getFlight(ticket.getFlightCode()).getDestination();
                         break;
                     case CHANGED_TICKET:
                         message =
-                                "Your ticket changed to flight " + flightNumber + " with destination " + ticket.getFlight().getDestination() + " from flight " + oldTicket.getFlight().getCode() + " with destination " + oldTicket.getFlight().getDestination();
+                                "Your ticket changed to flight " + flightNumber + " with destination " + flightsAdminService.getFlight(ticket.getFlightCode()).getDestination() + " from flight " + oldTicket.getFlightCode() + " with destination " + flightsAdminService.getFlight(oldTicket.getFlightCode()).getDestination();
                         break;
                 }
                 subscribedMap.get(flightNumber).get(name).sendNotification(message, logger);

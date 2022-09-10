@@ -5,24 +5,33 @@ import ar.edu.itba.pod.models.Seat;
 import ar.edu.itba.pod.models.Flight;
 
 import java.io.Serializable;
+import java.rmi.RemoteException;
 
 public class Ticket implements Serializable {
     private final String name;
     private SeatCategory seatCategory;
     private Seat seat;
-    private Flight flight;
+    private String flightCode;
 
-    public Ticket(String name, SeatCategory seatCategory, Flight flight) {
+    public Ticket(String name, SeatCategory seatCategory, String flightCode) {
         this.name = name;
         this.seatCategory = seatCategory;
-        this.flight = flight;
+        this.flightCode = flightCode;
+    }
+
+    public String getFlightCode() {
+        return flightCode;
+    }
+
+    public void setFlightCode(String flightCode) {
+        this.flightCode = flightCode;
     }
 
     private Ticket(Builder builder) {
         this.name = builder.name;
         this.seatCategory = builder.seatCategory;
         this.seat = builder.seat;
-        this.flight = builder.flight;
+        this.flightCode = builder.flightCode;
     }
 
     public void setSeatCategory(SeatCategory seatCategory) {
@@ -41,24 +50,18 @@ public class Ticket implements Serializable {
         return seat;
     }
 
-    public Flight getFlight() {
-        return flight;
-    }
 
     public void setSeat(Seat seat) {
         this.seat = seat;
     }
 
-    public void setFlight(Flight flight) {
-        this.flight = flight;
-    }
 
     public static class Builder
     {
         private final String name;
         private SeatCategory seatCategory;
         private Seat seat;
-        private Flight flight;
+        private String flightCode;
 
         public Builder(String name) {
             this.name = name;
@@ -73,8 +76,8 @@ public class Ticket implements Serializable {
             this.seat = seat;
             return this;
         }
-        public Builder flight(Flight flight) {
-            this.flight = flight;
+        public Builder flight(String flightCode) {
+            this.flightCode = flightCode;
             return this;
         }
 

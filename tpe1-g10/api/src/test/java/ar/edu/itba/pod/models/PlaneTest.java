@@ -1,11 +1,12 @@
 package ar.edu.itba.pod.models;
 
-import ar.edu.itba.pod.models.Plane;
-import ar.edu.itba.pod.models.RowData;
-import ar.edu.itba.pod.models.Seat;
-import ar.edu.itba.pod.utils.TestUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+
+import ar.edu.itba.pod.models.RowData;
+import ar.edu.itba.pod.models.Plane;
+import ar.edu.itba.pod.models.Seat;
+import ar.edu.itba.pod.utils.ApiTestUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -16,7 +17,7 @@ public class PlaneTest {
 
     @Test
     public void planeCreationTest() {
-        List<RowData> rowDataList = TestUtils.getRowDataForFlight();
+        List<RowData> rowDataList = ApiTestUtils.getRowDataForFlight();
         Plane plane = new Plane(PLANE_NAME, rowDataList);
 
         // Test seats name creation

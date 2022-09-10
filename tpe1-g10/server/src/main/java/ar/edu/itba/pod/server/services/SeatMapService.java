@@ -1,15 +1,14 @@
-package ar.edu.itba.pod.services;
+package ar.edu.itba.pod.server.services;
 
 import ar.edu.itba.pod.constants.SeatCategory;
 import ar.edu.itba.pod.interfaces.SeatMapServiceInterface;
-import ar.edu.itba.pod.services.FlightsAdminService;
 import ar.edu.itba.pod.models.Flight;
 import ar.edu.itba.pod.models.Seat;
+import ar.edu.itba.pod.server.services.FlightsAdminService;
 
 import java.rmi.RemoteException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 public class SeatMapService implements SeatMapServiceInterface {
     private static SeatMapService instance;

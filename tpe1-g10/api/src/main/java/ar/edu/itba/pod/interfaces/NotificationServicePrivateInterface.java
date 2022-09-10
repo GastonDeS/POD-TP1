@@ -1,8 +1,8 @@
 package ar.edu.itba.pod.interfaces;
 
-import ar.edu.itba.pod.interfaces.NotificationServiceInterface;
 import ar.edu.itba.pod.constants.NotificationCategory;
 import ar.edu.itba.pod.models.Ticket;
+import ar.edu.itba.pod.interfaces.NotificationServiceInterface;
 
 import java.rmi.RemoteException;
 

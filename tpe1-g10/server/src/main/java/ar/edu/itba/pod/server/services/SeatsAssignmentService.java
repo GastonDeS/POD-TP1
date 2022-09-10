@@ -1,4 +1,4 @@
-package ar.edu.itba.pod.services;
+package ar.edu.itba.pod.server.services;
 
 import ar.edu.itba.pod.constants.FlightStatus;
 import ar.edu.itba.pod.constants.NotificationCategory;
@@ -7,8 +7,8 @@ import ar.edu.itba.pod.models.Flight;
 import ar.edu.itba.pod.models.Seat;
 import ar.edu.itba.pod.models.Ticket;
 import ar.edu.itba.pod.constants.SeatCategory;
-import ar.edu.itba.pod.services.FlightsAdminService;
-import ar.edu.itba.pod.services.NotificationService;
+import ar.edu.itba.pod.server.services.FlightsAdminService;
+import ar.edu.itba.pod.server.services.NotificationService;
 
 import java.rmi.RemoteException;
 import java.util.*;
@@ -79,7 +79,7 @@ public class SeatsAssignmentService implements SeatsAssignmentServiceInterface {
 
         currentFlight.removeTicketFromFlight(ticket);
         ticket.setSeat(null);
-        ticket.setFlight(alternativeFlight);
+        ticket.setFlightCode(alternativeFlight.getCode());
         alternativeFlight.addTicketToFlight(ticket);
     }
 

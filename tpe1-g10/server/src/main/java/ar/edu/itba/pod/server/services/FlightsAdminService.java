@@ -1,4 +1,4 @@
-package ar.edu.itba.pod.services;
+package ar.edu.itba.pod.server.services;
 
 import ar.edu.itba.pod.constants.FlightStatus;
 import ar.edu.itba.pod.constants.SeatCategory;
@@ -7,12 +7,15 @@ import ar.edu.itba.pod.models.Flight;
 import ar.edu.itba.pod.models.Plane;
 import ar.edu.itba.pod.models.RowData;
 import ar.edu.itba.pod.models.Ticket;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.rmi.RemoteException;
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class FlightsAdminService implements FlightAdminServiceInterface {
+    private static final Logger logger = LoggerFactory.getLogger(FlightsAdminService.class);
     private static FlightsAdminService instance;
     private final Map<String, Plane> planes;
     private final Map<String, Flight> flights;
@@ -42,28 +45,35 @@ public class FlightsAdminService implements FlightAdminServiceInterface {
         }
     }
 
+    public Plane getPlane(String planeName) throws RemoteException {
+        Plane plane = planes.get(planeName);
+        if (plane == null) throw new RemoteException("Error: flight with code " + planeName + " does not exist");
+        return plane;
+    }
     public Flight getFlight(String code) throws RemoteException {
         Flight flight = flights.get(code);
         if (flight == null) throw new RemoteException("Error: flight with code " + code + " does not exist");
         return flight;
     }
 
-    public Plane createPlane(String name, List<RowData> rowDataList) throws RemoteException {
+    public void createPlane(String name, List<RowData> rowDataList) throws RemoteException {
         if(planes.containsKey(name)){
             throw new RemoteException("Error: plane " +name+ " already exists");
         }
         Plane plane = new Plane(name, rowDataList);
         planes.put(plane.getName(), plane);
-        return plane;
     }
 
-    public Flight createFlight(Plane plane, String code, String destination) throws RemoteException {
+    // TODO tickets may not need to be created when a code and the code can be added here
+    public void createFlight(String planeName, String code, String destination, List<Ticket> tickets) throws RemoteException {
         if (flights.containsKey(code)) {
             throw new RemoteException("Error: flight " +code+ " already exists");
         }
-        Flight flight = new Flight(plane, code, destination);
+        if (planeName == null || !planes.containsKey(planeName))
+            throw new RemoteException("Error: plane doesn't exists");
+        Flight flight = new Flight(planeName, planes.get(planeName).getSeats(), code, destination);
+        tickets.forEach(flight::addTicketToFlight);
         flights.put(flight.getCode(), flight);
-        return flight;
     }
 
     public FlightStatus checkFlightStatus(String code) throws RemoteException {
@@ -95,7 +105,7 @@ public class FlightsAdminService implements FlightAdminServiceInterface {
             findNewSeatsForFlight(flight);
             totalTickets -= flight.getTicketList().size();
             flight.getTicketList().forEach((ticket -> {
-                response.append("Cannot find alternative flight for ").append(ticket.getName()).append(" with Ticket ").append(ticket.getFlight().getCode()).append("\n");
+                response.append("Cannot find alternative flight for ").append(ticket.getName()).append(" with Ticket ").append(ticket).append("\n");
             }));
         }
         response.insert(0,totalTickets+" tickets were changed\n");
@@ -111,7 +121,7 @@ public class FlightsAdminService implements FlightAdminServiceInterface {
         return flights;
     }
 
-    private void findNewSeatsForFlight(Flight oldFlight) {
+    private void findNewSeatsForFlight(Flight oldFlight) throws RemoteException {
         List<Flight> possibleFlights = flights.values().stream()
                 .filter(flight ->
                         flight.getDestination().equals(oldFlight.getDestination()) &&
@@ -134,20 +144,26 @@ public class FlightsAdminService implements FlightAdminServiceInterface {
         swapTickets(SeatCategory.ECONOMY, economyTickets, possibleFlights);
     }
 
-    private void swapTickets(SeatCategory seatCategory, List<Ticket> oldTickets, List<Flight> flights) {
+    private void swapTickets(SeatCategory seatCategory, List<Ticket> oldTickets, List<Flight> flights) throws RemoteException {
         flights.stream().sorted(Comparator.comparing(Flight::getAvailableSeatsAmount).thenComparing(Flight::getCode)).forEach(flight -> {
             long validSeatSize = flight.getAvailableSeatsAmountByCategory(seatCategory);
             for (int i = 0; i < validSeatSize && !oldTickets.isEmpty(); i++) {
-                swapTicket(oldTickets.get(0), flight, seatCategory);
-                oldTickets.remove(0);
+                try {
+                    swapTicket(oldTickets.get(0), flight, seatCategory);
+                    oldTickets.remove(0);
+                } catch (RemoteException e) {
+                    logger.error("Fail to swap ticket "+ oldTickets.get(0).getName() +" for Flight "+oldTickets.get(0).getFlightCode());
+                }
             }
         });
     }
 
-    private void swapTicket(Ticket oldTicket, Flight flight, SeatCategory seatCategory) {
-        oldTicket.getFlight().removeTicketFromFlight(oldTicket);
+
+    // TODO test this again
+    private void swapTicket(Ticket oldTicket, Flight flight, SeatCategory seatCategory) throws RemoteException {
+        this.getFlight(oldTicket.getFlightCode()).removeTicketFromFlight(oldTicket);
         oldTicket.setSeat(null);
-        oldTicket.setFlight(flight);
+        oldTicket.setFlightCode(flight.getCode());
         oldTicket.setSeatCategory(seatCategory);
         flight.addTicketToFlight(oldTicket);
     }

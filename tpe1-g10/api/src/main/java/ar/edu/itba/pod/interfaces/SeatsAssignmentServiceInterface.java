@@ -1,11 +1,9 @@
 package ar.edu.itba.pod.interfaces;
 
 import ar.edu.itba.pod.constants.SeatCategory;
-import ar.edu.itba.pod.models.Seat;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
-import java.util.List;
 import java.util.Map;
 
 public interface SeatsAssignmentServiceInterface extends Remote {

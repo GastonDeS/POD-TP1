@@ -2,11 +2,11 @@ package ar.edu.itba.pod.models;
 
 import ar.edu.itba.pod.constants.FlightStatus;
 import ar.edu.itba.pod.constants.SeatCategory;
-import ar.edu.itba.pod.services.FlightsAdminService;
 import ar.edu.itba.pod.utils.SeatHelper;
-import ar.edu.itba.pod.models.Seat;
 import ar.edu.itba.pod.models.Ticket;
+import ar.edu.itba.pod.models.Seat;
 import ar.edu.itba.pod.models.Plane;
+
 import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
@@ -22,16 +22,13 @@ public class Flight implements Serializable {
     private final List<Ticket> ticketList;
     private final Map<String, Map<String, Seat>> planeSeats;
 
-    public Flight(Plane plane, String code, String destination) throws RemoteException {
-        if (plane == null || !FlightsAdminService.getInstance().getPlanes().containsKey(plane.getName())) {
-            throw new RemoteException();
-        }
-        this.planeName = plane.getName();
+    public Flight(String planeName, Map<String, Map<String, Seat>> planeSeats, String code, String destination) {
+        this.planeName = planeName;
         this.code = code;
         this.destination = destination;
         this.status = FlightStatus.PENDING;
         this.ticketList = new ArrayList<>();
-        this.planeSeats = plane.getSeats();
+        this.planeSeats = planeSeats;
     }
 
     public String getPlane() {
@@ -118,6 +115,8 @@ public class Flight implements Serializable {
     }
 
     public Optional<Ticket> getTicketFromSeat(int row, String column) {
-        return ticketList.stream().filter(t -> t.getSeat().getPlace().equals("" + row + column)).findFirst();
+        return ticketList.stream().filter(t ->
+            t.getSeat() != null && t.getSeat().getPlace().equals("" + row + column)
+        ).findFirst();
     }
 }

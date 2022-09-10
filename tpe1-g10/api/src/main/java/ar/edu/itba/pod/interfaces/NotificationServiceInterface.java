@@ -1,4 +1,5 @@
 package ar.edu.itba.pod.interfaces;
+
 import ar.edu.itba.pod.interfaces.NotificationCallbackHandler;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
