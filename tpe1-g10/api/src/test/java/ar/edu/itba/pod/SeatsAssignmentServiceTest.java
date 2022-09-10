@@ -28,7 +28,7 @@ public class SeatsAssignmentServiceTest {
     public void testEmptySeat() throws RemoteException {
         List<RowData> rowsData = TestUtils.getRowDataForFlight();
         Plane plane = flightsAdminService.createPlane("PLANE_1", rowsData);
-        Flight flight = flightsAdminService.createFlight(plane, "AA", "EZE", "CDG");
+        Flight flight = flightsAdminService.createFlight(plane, "AA", "CDG");
 
         TestUtils.fillFlightWithPassengers(flight);
 
@@ -39,7 +39,7 @@ public class SeatsAssignmentServiceTest {
     public void testNonEmptySeat() throws RemoteException {
         List<RowData> rowsData = TestUtils.getRowDataForFlight();
         Plane plane = flightsAdminService.createPlane("PLANE_1", rowsData);
-        Flight flight = flightsAdminService.createFlight(plane, "AA", "EZE", "CDG");
+        Flight flight = flightsAdminService.createFlight(plane, "AA", "CDG");
 
         TestUtils.fillFlightWithPassengers(flight);
         TestUtils.setSeatAvailability(flight, 1, "A", false);
@@ -51,7 +51,7 @@ public class SeatsAssignmentServiceTest {
     public void testAssignSeatAvailable() throws RemoteException {
         List<RowData> rowsData = TestUtils.getRowDataForFlight();
         Plane plane = flightsAdminService.createPlane("PLANE_1", rowsData);
-        Flight flight = flightsAdminService.createFlight(plane, "AA", "EZE", "CDG");
+        Flight flight = flightsAdminService.createFlight(plane, "AA", "CDG");
         TestUtils.fillFlightWithPassengers(flight);
         seatsAssignmentService.assignSeat(flight.getCode(), "Brittu", 1, "A");
 
@@ -62,7 +62,7 @@ public class SeatsAssignmentServiceTest {
     public void testAssignSeatNotAvailable() throws RemoteException {
         List<RowData> rowsData = TestUtils.getRowDataForFlight();
         Plane plane = flightsAdminService.createPlane("PLANE_1", rowsData);
-        Flight flight = flightsAdminService.createFlight(plane, "AA", "EZE", "CDG");
+        Flight flight = flightsAdminService.createFlight(plane, "AA", "CDG");
         TestUtils.fillFlightWithPassengers(flight);
         TestUtils.setSeatAvailability(flight, 1, "A", false);
 
@@ -74,7 +74,7 @@ public class SeatsAssignmentServiceTest {
     public void testAssignSeatFlightNotPending() throws RemoteException {
         List<RowData> rowsData = TestUtils.getRowDataForFlight();
         Plane plane = flightsAdminService.createPlane("PLANE_1", rowsData);
-        Flight flight = flightsAdminService.createFlight(plane, "AA", "EZE", "CDG");
+        Flight flight = flightsAdminService.createFlight(plane, "AA", "CDG");
         flight.setStatus(FlightStatus.CANCELLED);
         TestUtils.fillFlightWithPassengers(flight);
 
@@ -86,7 +86,7 @@ public class SeatsAssignmentServiceTest {
     public void testAssignSeatWrongCategory() throws RemoteException {
         List<RowData> rowsData = TestUtils.getRowDataForFlight();
         Plane plane = flightsAdminService.createPlane("PLANE_1", rowsData);
-        Flight flight = flightsAdminService.createFlight(plane, "AA", "EZE", "CDG");
+        Flight flight = flightsAdminService.createFlight(plane, "AA", "CDG");
         TestUtils.fillFlightWithPassengers(flight);
 
         Assertions.assertThrows(RemoteException.class,
@@ -97,7 +97,7 @@ public class SeatsAssignmentServiceTest {
     public void testChangeSeat() throws RemoteException {
         List<RowData> rowsData = TestUtils.getRowDataForFlight();
         Plane plane = flightsAdminService.createPlane("PLANE_1", rowsData);
-        Flight flight = flightsAdminService.createFlight(plane, "AA", "EZE", "CDG");
+        Flight flight = flightsAdminService.createFlight(plane, "AA", "CDG");
         TestUtils.fillFlightWithPassengers(flight);
         seatsAssignmentService.assignSeat(flight.getCode(), "Brittu", 4, "A");
         seatsAssignmentService.changeSeat(flight.getCode(), "Brittu", 7, "A");
@@ -111,8 +111,8 @@ public class SeatsAssignmentServiceTest {
         List<RowData> rowsData = TestUtils.getRowDataForFlight();
         Plane plane = flightsAdminService.createPlane("PLANE_1", rowsData);
         Plane alternativePlane = flightsAdminService.createPlane("PLANE_2", rowsData);
-        Flight flight = flightsAdminService.createFlight(plane, "AA", "EZE", "CDG");
-        Flight alternativeFlight = flightsAdminService.createFlight(alternativePlane, "BR", "EZE", "CDG");
+        Flight flight = flightsAdminService.createFlight(plane, "AA", "CDG");
+        Flight alternativeFlight = flightsAdminService.createFlight(alternativePlane, "BR", "CDG");
         alternativeFlight.setStatus(FlightStatus.CONFIRMED);
         TestUtils.fillFlightWithPassengers(flight);
         Map<String, List<Seat>> availableFlights = seatsAssignmentService.getAvailableFlights(flight.getCode(), "Gaston");
@@ -125,7 +125,7 @@ public class SeatsAssignmentServiceTest {
     public void testGetAvailableFlightsAlreadyConfirmed() throws RemoteException {
         List<RowData> rowsData = TestUtils.getRowDataForFlight();
         Plane plane = flightsAdminService.createPlane("PLANE_1", rowsData);
-        Flight flight = flightsAdminService.createFlight(plane, "AA", "EZE", "CDG");
+        Flight flight = flightsAdminService.createFlight(plane, "AA", "CDG");
         flight.setStatus(FlightStatus.CONFIRMED);
 
         Assertions.assertThrows(RemoteException.class,
@@ -137,8 +137,8 @@ public class SeatsAssignmentServiceTest {
         List<RowData> rowsData = TestUtils.getRowDataForFlight();
         Plane plane = flightsAdminService.createPlane("PLANE_1", rowsData);
         Plane alternativePlane = flightsAdminService.createPlane("PLANE_2", rowsData);
-        Flight flight = flightsAdminService.createFlight(plane, "AA", "EZE", "CDG");
-        Flight alternativeFlight = flightsAdminService.createFlight(alternativePlane, "BR", "EZE", "CDG");
+        Flight flight = flightsAdminService.createFlight(plane, "AA", "CDG");
+        Flight alternativeFlight = flightsAdminService.createFlight(alternativePlane, "BR", "CDG");
         TestUtils.fillFlightWithPassengers(flight);
         seatsAssignmentService.changeTicket("Brittu", flight.getCode(), alternativeFlight.getCode());
 
@@ -150,7 +150,7 @@ public class SeatsAssignmentServiceTest {
     public void testChangeTicketNoFlight() throws RemoteException {
         List<RowData> rowsData = TestUtils.getRowDataForFlight();
         Plane plane = flightsAdminService.createPlane("PLANE_1", rowsData);
-        Flight flight = flightsAdminService.createFlight(plane, "AA", "EZE", "CDG");
+        Flight flight = flightsAdminService.createFlight(plane, "AA", "CDG");
         TestUtils.fillFlightWithPassengers(flight);
 
         Assertions.assertThrows(RemoteException.class,

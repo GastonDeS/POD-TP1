@@ -28,7 +28,7 @@ public class FlightsAdminServiceTest {
         List<RowData> rowsData = TestUtils.getRowDataForFlight();
         Plane plane = flightsAdminService.createPlane("PLANE_1", rowsData);
 
-        Flight flight = flightsAdminService.createFlight(plane, "AA", "mardel", "BA");
+        Flight flight = flightsAdminService.createFlight(plane, "AA", "BA");
         TestUtils.fillFlightWithPassengers(flight);
         flightsAdminService.cancelPendingFlight("AA");
         flightsAdminService.findNewSeatsForCancelledFlights();
@@ -41,10 +41,10 @@ public class FlightsAdminServiceTest {
         List<RowData> rowsData = TestUtils.getRowDataForFlight();
 
         Plane plane = flightsAdminService.createPlane("PLANE_1", rowsData);
-        Flight flight = flightsAdminService.createFlight(plane, "AA", "mardel", "BA");
+        Flight flight = flightsAdminService.createFlight(plane, "AA", "BA");
         TestUtils.fillFlightWithPassengers(flight);
 
-        Flight flight2 = flightsAdminService.createFlight(plane, "AB", "mardel", "BA");
+        Flight flight2 = flightsAdminService.createFlight(plane, "AB", "BA");
 
         flightsAdminService.cancelPendingFlight("AA");
         flightsAdminService.findNewSeatsForCancelledFlights();
@@ -62,13 +62,13 @@ public class FlightsAdminServiceTest {
         List<RowData> rowsData = TestUtils.getRowDataForFlight();
         Plane plane = flightsAdminService.createPlane("PLANE_1", rowsData);
 
-        Flight flight = flightsAdminService.createFlight(plane, "AA", "mardel", "BA");
+        Flight flight = flightsAdminService.createFlight(plane, "AA", "BA");
         TestUtils.fillFlightWithPassengers(flight);
 
         List<RowData> rowData2 = new ArrayList<>();
         rowData2.add(new RowData(SeatCategory.BUSINESS, 1));
         Plane plane2 = flightsAdminService.createPlane("PLANE_2", rowData2);
-        Flight flight2 = flightsAdminService.createFlight(plane2, "AB", "mardel", "BA");
+        Flight flight2 = flightsAdminService.createFlight(plane2, "AB", "BA");
 
         flightsAdminService.cancelPendingFlight("AA");
         String response = flightsAdminService.findNewSeatsForCancelledFlights();
@@ -85,16 +85,16 @@ public class FlightsAdminServiceTest {
         List<RowData> rowsData = TestUtils.getRowDataForFlight();
         Plane plane = flightsAdminService.createPlane("PLANE_1", rowsData);
 
-        Flight flight1 = flightsAdminService.createFlight(plane, "AA", "mardel", "BA");
+        Flight flight1 = flightsAdminService.createFlight(plane, "AA", "BA");
         TestUtils.fillFlightWithPassengers(flight1);
 
         List<RowData> rowData2 = new ArrayList<>();
         rowData2.add(new RowData(SeatCategory.ECONOMY, 1));
         Plane plane2 = flightsAdminService.createPlane("PLANE_2", rowData2);
-        Flight flight2 = flightsAdminService.createFlight(plane2, "AB", "mardel", "BA");
-        Flight flight3 = flightsAdminService.createFlight(plane2, "ABC", "mardel", "BA");
+        Flight flight2 = flightsAdminService.createFlight(plane2, "AB", "BA");
+        Flight flight3 = flightsAdminService.createFlight(plane2, "ABC", "BA");
 
-        Flight flight4 = flightsAdminService.createFlight(plane2, "AC", "mardel", "BA");
+        Flight flight4 = flightsAdminService.createFlight(plane2, "AC", "BA");
 
         Assertions.assertEquals(1,plane2.getTotalSeats());
 
@@ -114,13 +114,13 @@ public class FlightsAdminServiceTest {
     public void testMoveTicketsPlaneWithNoSameCategorySeats() throws RemoteException {
         List<RowData> rowsData = TestUtils.getRowDataForFlight();
         Plane plane = flightsAdminService.createPlane("PLANE_1", rowsData);
-        Flight flight = flightsAdminService.createFlight(plane, "AA", "mardel", "BA");
+        Flight flight = flightsAdminService.createFlight(plane, "AA", "BA");
         TestUtils.fillFlightWithPassengers(flight);
 
         List<RowData> rowData2 = new ArrayList<>();
         rowData2.add(new RowData(SeatCategory.BUSINESS, 1));
         Plane plane2 = flightsAdminService.createPlane("PLANE_2", rowData2);
-        Flight flight2 = flightsAdminService.createFlight(plane2, "AB", "mardel", "BA");
+        Flight flight2 = flightsAdminService.createFlight(plane2, "AB", "BA");
 
         flightsAdminService.cancelPendingFlight("AA");
         flightsAdminService.findNewSeatsForCancelledFlights();
