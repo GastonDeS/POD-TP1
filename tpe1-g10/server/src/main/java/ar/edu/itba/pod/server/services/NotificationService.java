@@ -57,7 +57,7 @@ public class NotificationService implements NotificationServicePrivateInterface 
                 switch (notificationCategory) {
                     case SUBSCRIBED:
                         message =
-                                "You are following flight " + flightNumber + " with destination " + flightsAdminService.getFlight(ticket.getFlightCode()).getDestination() + ".";
+                                "You are following flight " + flightNumber + " with destination " + flightsAdminService.getFlight(ticket.getFlightCode()).getDestination();
                         break;
                     case FLIGHT_CONFIRMED:
                         message = "Your flight " + flightNumber + " with destination " + flightsAdminService.getFlight(ticket.getFlightCode()).getDestination() + " was " +
