@@ -3,7 +3,7 @@ package api.src.main.java.ar.edu.itba.pod.constants;
 public enum NotificationCategory {
 
     SUBSCRIBED("Successful subscription!"),
-    FLIGHT_CONFIRMED("Fligght confirmed!"),
+    FLIGHT_CONFIRMED("Flight confirmed!"),
     FLIGHT_CANCELLED("Flight cancelled!"),
     ASSIGNED_SEAT("Seat assigned!"),
     CHANGED_SEAT("Seat changed!"),
