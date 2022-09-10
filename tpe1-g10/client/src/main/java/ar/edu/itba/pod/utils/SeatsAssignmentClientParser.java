@@ -22,6 +22,33 @@ public class SeatsAssignmentClientParser {
     private String col;
     private String originalFlight;
 
+    public String getServerAddress() {
+        return serverAddress;
+    }
+
+    public String getAction() {
+        return action;
+    }
+
+    public String getFlight() {
+        return flight;
+    }
+
+    public String getPassenger() {
+        return passenger;
+    }
+
+    public Integer getRow() {
+        return row;
+    }
+
+    public String getCol() {
+        return col;
+    }
+
+    public String getOriginalFlight() {
+        return originalFlight;
+    }
 
     public void parseArguments() throws InvalidArgumentsException {
         Properties props = System.getProperties();
