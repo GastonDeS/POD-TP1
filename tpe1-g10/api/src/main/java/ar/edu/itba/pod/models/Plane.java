@@ -1,7 +1,9 @@
-package api.src.main.java.ar.edu.itba.pod.models;
+package ar.edu.itba.pod.models;
 
 
-import api.src.main.java.ar.edu.itba.pod.utils.SeatHelper;
+import ar.edu.itba.pod.utils.SeatHelper;
+import ar.edu.itba.pod.models.RowData;
+import ar.edu.itba.pod.models.Seat;
 
 import java.io.Serializable;
 import java.util.HashMap;

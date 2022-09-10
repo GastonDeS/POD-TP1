@@ -1,6 +1,6 @@
-package client.src.main.java.ar.edu.itba.pod.constants;
+package ar.edu.itba.pod.constants;
 
-import client.src.main.java.ar.edu.itba.pod.exceptions.InvalidArgumentsException;
+import ar.edu.itba.pod.exceptions.InvalidArgumentsException;
 
 public enum ActionsSeatsAssignment {
     STATUS("status"),

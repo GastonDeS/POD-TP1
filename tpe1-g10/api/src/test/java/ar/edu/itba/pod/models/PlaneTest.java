@@ -1,9 +1,9 @@
-package api.src.test.java.ar.edu.itba.pod.models;
+package ar.edu.itba.pod.models;
 
-import api.src.main.java.ar.edu.itba.pod.models.Plane;
-import api.src.main.java.ar.edu.itba.pod.models.RowData;
-import api.src.main.java.ar.edu.itba.pod.models.Seat;
-import api.src.test.java.ar.edu.itba.pod.utils.TestUtils;
+import ar.edu.itba.pod.models.Plane;
+import ar.edu.itba.pod.models.RowData;
+import ar.edu.itba.pod.models.Seat;
+import ar.edu.itba.pod.utils.TestUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

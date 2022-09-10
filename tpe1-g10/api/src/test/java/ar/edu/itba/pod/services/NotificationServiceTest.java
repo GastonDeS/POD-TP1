@@ -1,6 +1,6 @@
-package api.src.test.java.ar.edu.itba.pod.services;
+package ar.edu.itba.pod.services;
 
-import api.src.main.java.ar.edu.itba.pod.services.NotificationService;
+import ar.edu.itba.pod.services.NotificationService;
 
 public class NotificationServiceTest {
 

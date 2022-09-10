@@ -1,8 +1,8 @@
-package client.src.main.java.ar.edu.itba.pod.client;
+package ar.edu.itba.pod.client;
 
-import api.src.main.java.ar.edu.itba.pod.constants.SeatCategory;
-import api.src.main.java.ar.edu.itba.pod.interfaces.SeatMapServiceInterface;
-import api.src.main.java.ar.edu.itba.pod.models.Seat;
+import ar.edu.itba.pod.constants.SeatCategory;
+import ar.edu.itba.pod.interfaces.SeatMapServiceInterface;
+import ar.edu.itba.pod.models.Seat;
 
 import java.io.FileWriter;
 import java.io.IOException;

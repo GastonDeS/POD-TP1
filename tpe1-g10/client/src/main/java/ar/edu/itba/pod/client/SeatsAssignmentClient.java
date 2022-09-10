@@ -1,9 +1,9 @@
-package client.src.main.java.ar.edu.itba.pod.client;
+package ar.edu.itba.pod.client;
 
-import api.src.main.java.ar.edu.itba.pod.interfaces.SeatsAssignmentServiceInterface;
-import client.src.main.java.ar.edu.itba.pod.constants.ActionsSeatsAssignment;
-import client.src.main.java.ar.edu.itba.pod.exceptions.InvalidArgumentsException;
-import client.src.main.java.ar.edu.itba.pod.utils.SeatsAssignmentClientParser;
+import ar.edu.itba.pod.interfaces.SeatsAssignmentServiceInterface;
+import ar.edu.itba.pod.constants.ActionsSeatsAssignment;
+import ar.edu.itba.pod.exceptions.InvalidArgumentsException;
+import ar.edu.itba.pod.utils.SeatsAssignmentClientParser;
 
 import java.rmi.Naming;
 import java.rmi.RemoteException;

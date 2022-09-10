@@ -1,4 +1,4 @@
-package api.src.main.java.ar.edu.itba.pod.utils;
+package ar.edu.itba.pod.utils;
 
 public class Pair<T, U> {
 

@@ -1,6 +1,8 @@
-package api.src.main.java.ar.edu.itba.pod.models;
+package ar.edu.itba.pod.models;
 
-import api.src.main.java.ar.edu.itba.pod.constants.SeatCategory;
+import ar.edu.itba.pod.constants.SeatCategory;
+import ar.edu.itba.pod.models.Seat;
+import ar.edu.itba.pod.models.Flight;
 
 import java.io.Serializable;
 

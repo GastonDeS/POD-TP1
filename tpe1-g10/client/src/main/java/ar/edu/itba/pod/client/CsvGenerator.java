@@ -1,6 +1,6 @@
-package client.src.main.java.ar.edu.itba.pod.client;
+package ar.edu.itba.pod.client;
 
-import api.src.main.java.ar.edu.itba.pod.constants.SeatCategory;
+import ar.edu.itba.pod.constants.SeatCategory;
 
 import java.io.File;
 import java.io.FileWriter;

@@ -1,10 +1,12 @@
-package api.src.main.java.ar.edu.itba.pod.models;
+package ar.edu.itba.pod.models;
 
-import api.src.main.java.ar.edu.itba.pod.constants.FlightStatus;
-import api.src.main.java.ar.edu.itba.pod.constants.SeatCategory;
-import api.src.main.java.ar.edu.itba.pod.services.FlightsAdminService;
-import api.src.main.java.ar.edu.itba.pod.utils.SeatHelper;
-
+import ar.edu.itba.pod.constants.FlightStatus;
+import ar.edu.itba.pod.constants.SeatCategory;
+import ar.edu.itba.pod.services.FlightsAdminService;
+import ar.edu.itba.pod.utils.SeatHelper;
+import ar.edu.itba.pod.models.Seat;
+import ar.edu.itba.pod.models.Ticket;
+import ar.edu.itba.pod.models.Plane;
 import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.util.ArrayList;

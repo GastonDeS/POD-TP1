@@ -1,5 +1,6 @@
-package api.src.main.java.ar.edu.itba.pod.interfaces;
+package ar.edu.itba.pod.interfaces;
 
+import ar.edu.itba.pod.constants.SeatCategory;
 import org.slf4j.Logger;
 
 import java.rmi.Remote;

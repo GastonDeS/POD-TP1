@@ -1,7 +1,7 @@
-package client.src.main.java.ar.edu.itba.pod.utils;
+package ar.edu.itba.pod.utils;
 
-import client.src.main.java.ar.edu.itba.pod.constants.ActionsSeatsAssignment;
-import client.src.main.java.ar.edu.itba.pod.exceptions.InvalidArgumentsException;
+import ar.edu.itba.pod.constants.ActionsSeatsAssignment;
+import ar.edu.itba.pod.exceptions.InvalidArgumentsException;
 
 import java.util.Properties;
 

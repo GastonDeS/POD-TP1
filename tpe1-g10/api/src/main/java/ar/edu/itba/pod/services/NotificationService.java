@@ -1,11 +1,15 @@
-package api.src.main.java.ar.edu.itba.pod.services;
+package ar.edu.itba.pod.services;
 
-import api.src.main.java.ar.edu.itba.pod.constants.FlightStatus;
-import api.src.main.java.ar.edu.itba.pod.constants.NotificationCategory;
-import api.src.main.java.ar.edu.itba.pod.interfaces.NotificationCallbackHandler;
-import api.src.main.java.ar.edu.itba.pod.interfaces.NotificationServicePrivateInterface;
-import api.src.main.java.ar.edu.itba.pod.models.Flight;
-import api.src.main.java.ar.edu.itba.pod.models.Ticket;
+import ar.edu.itba.pod.constants.FlightStatus;
+import ar.edu.itba.pod.constants.NotificationCategory;
+import ar.edu.itba.pod.interfaces.NotificationCallbackHandler;
+import ar.edu.itba.pod.interfaces.NotificationServiceInterface;
+import ar.edu.itba.pod.interfaces.NotificationServicePrivateInterface;
+import ar.edu.itba.pod.models.Flight;
+import ar.edu.itba.pod.models.Seat;
+import ar.edu.itba.pod.models.Ticket;
+import ar.edu.itba.pod.services.FlightsAdminService;
+import ar.edu.itba.pod.utils.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

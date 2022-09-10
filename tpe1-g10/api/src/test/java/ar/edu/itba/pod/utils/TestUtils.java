@@ -1,13 +1,13 @@
-package api.src.test.java.ar.edu.itba.pod.utils;
+package ar.edu.itba.pod.utils;
 
-import api.src.main.java.ar.edu.itba.pod.constants.SeatCategory;
-import api.src.main.java.ar.edu.itba.pod.models.*;
+import ar.edu.itba.pod.constants.SeatCategory;
+import ar.edu.itba.pod.models.Flight;
+import ar.edu.itba.pod.models.RowData;
+import ar.edu.itba.pod.models.Ticket;
 
 import java.rmi.RemoteException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Stack;
 
 public class TestUtils {
 

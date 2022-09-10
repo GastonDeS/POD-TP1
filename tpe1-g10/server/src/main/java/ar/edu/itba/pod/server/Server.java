@@ -1,12 +1,12 @@
 package ar.edu.itba.pod.server;
 
 
-import api.src.main.java.ar.edu.itba.pod.interfaces.FlightAdminServiceInterface;
-import api.src.main.java.ar.edu.itba.pod.interfaces.SeatMapServiceInterface;
-import api.src.main.java.ar.edu.itba.pod.interfaces.SeatsAssignmentServiceInterface;
-import api.src.main.java.ar.edu.itba.pod.services.FlightsAdminService;
-import api.src.main.java.ar.edu.itba.pod.services.SeatMapService;
-import api.src.main.java.ar.edu.itba.pod.services.SeatsAssignmentService;
+import ar.edu.itba.pod.interfaces.FlightAdminServiceInterface;
+import ar.edu.itba.pod.interfaces.SeatMapServiceInterface;
+import ar.edu.itba.pod.interfaces.SeatsAssignmentServiceInterface;
+import ar.edu.itba.pod.services.FlightsAdminService;
+import ar.edu.itba.pod.services.SeatMapService;
+import ar.edu.itba.pod.services.SeatsAssignmentService;
 
 import java.rmi.Remote;
 import java.rmi.registry.LocateRegistry;

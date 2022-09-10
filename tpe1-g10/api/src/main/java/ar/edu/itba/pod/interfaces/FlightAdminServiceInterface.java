@@ -1,10 +1,10 @@
-package api.src.main.java.ar.edu.itba.pod.interfaces;
+package ar.edu.itba.pod.interfaces;
 
 
-import api.src.main.java.ar.edu.itba.pod.constants.FlightStatus;
-import api.src.main.java.ar.edu.itba.pod.models.Flight;
-import api.src.main.java.ar.edu.itba.pod.models.Plane;
-import api.src.main.java.ar.edu.itba.pod.models.RowData;
+import ar.edu.itba.pod.constants.FlightStatus;
+import ar.edu.itba.pod.models.Flight;
+import ar.edu.itba.pod.models.Plane;
+import ar.edu.itba.pod.models.RowData;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;

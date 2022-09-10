@@ -1,14 +1,18 @@
-package client.src.main.java.ar.edu.itba.pod.client;
+package ar.edu.itba.pod.client;
 
-import api.src.main.java.ar.edu.itba.pod.constants.FlightStatus;
-import api.src.main.java.ar.edu.itba.pod.interfaces.FlightAdminServiceInterface;
-import client.src.main.java.ar.edu.itba.pod.constants.ActionsFlightsAdmin;
+import ar.edu.itba.pod.constants.FlightStatus;
+import ar.edu.itba.pod.interfaces.FlightAdminServiceInterface;
+import ar.edu.itba.pod.constants.ActionsFlightsAdmin;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.rmi.Naming;
 import java.rmi.RemoteException;
 import java.util.Properties;
 
 public class FlightsAdminClient {
+
+    private static Logger logger = LoggerFactory.getLogger(FlightsAdminClient.class);
 
     private static String serverAddress;
     private static ActionsFlightsAdmin actionName;
@@ -21,6 +25,11 @@ public class FlightsAdminClient {
         actionName = ActionsFlightsAdmin.valueOf(props.getProperty("action").toUpperCase());
         fileName = System.getProperty("Path");
         planeCode = System.getProperty("flight");
+
+        logger.info("Server address: " + serverAddress);
+        logger.info("Action Name: " + actionName);
+        logger.info("file Name: " + fileName);
+        logger.info("Plane Code: " + planeCode);
     }
 
     private static void cancelMethod(FlightAdminServiceInterface service, String planeCode) {
@@ -88,7 +97,9 @@ public class FlightsAdminClient {
 
             getProperties();
 
+
             final FlightAdminServiceInterface service = (FlightAdminServiceInterface) Naming.lookup("//" + serverAddress + "/flightAdminService");
+
 
             callMethod(actionName, service, fileName, planeCode);
 

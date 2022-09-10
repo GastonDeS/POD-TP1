@@ -1,9 +1,10 @@
-package api.src.main.java.ar.edu.itba.pod.services;
+package ar.edu.itba.pod.services;
 
-import api.src.main.java.ar.edu.itba.pod.constants.SeatCategory;
-import api.src.main.java.ar.edu.itba.pod.interfaces.SeatMapServiceInterface;
-import api.src.main.java.ar.edu.itba.pod.models.Flight;
-import api.src.main.java.ar.edu.itba.pod.models.Seat;
+import ar.edu.itba.pod.constants.SeatCategory;
+import ar.edu.itba.pod.interfaces.SeatMapServiceInterface;
+import ar.edu.itba.pod.services.FlightsAdminService;
+import ar.edu.itba.pod.models.Flight;
+import ar.edu.itba.pod.models.Seat;
 
 import java.rmi.RemoteException;
 import java.util.HashMap;

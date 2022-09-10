@@ -1,6 +1,6 @@
-package client.src.main.java.ar.edu.itba.pod.utils;
+package ar.edu.itba.pod.utils;
 
-import client.src.main.java.ar.edu.itba.pod.constants.ActionsFlightsAdmin;
+import ar.edu.itba.pod.constants.ActionsFlightsAdmin;
 
 public class ParseArgsHelper {
     public static String getServerAdress(String arg){
