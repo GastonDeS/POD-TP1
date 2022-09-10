@@ -1,18 +1,12 @@
 package client.src.main.java.ar.edu.itba.pod.client;
 
 import api.src.main.java.ar.edu.itba.pod.constants.FlightStatus;
-import api.src.main.java.ar.edu.itba.pod.constants.SeatCategory;
 import api.src.main.java.ar.edu.itba.pod.interfaces.FlightAdminServiceInterface;
-import api.src.main.java.ar.edu.itba.pod.models.Flight;
-import api.src.main.java.ar.edu.itba.pod.models.Plane;
-import api.src.main.java.ar.edu.itba.pod.models.RowData;
 import client.src.main.java.ar.edu.itba.pod.constants.ActionsFlightsAdmin;
 import client.src.main.java.ar.edu.itba.pod.utils.ParseArgsHelper;
 
 import java.rmi.Naming;
 import java.rmi.RemoteException;
-import java.util.ArrayList;
-import java.util.List;
 
 public class FlightsAdminClient {
 
@@ -20,8 +14,7 @@ public class FlightsAdminClient {
         try {
             service.cancelPendingFlight(planeCode);
         } catch (RemoteException ex) {
-            System.out.println("Flight" + planeCode + "does not exist");
-            System.out.println("Flight" + planeCode + "was already CANCELLED");
+            ex.getMessage();
         }
         System.out.println("Flight" + planeCode + "was CANCELLED");
     }
@@ -31,7 +24,7 @@ public class FlightsAdminClient {
         try {
             flightStatus = service.checkFlightStatus(planeCode);
         } catch (RemoteException ex) {
-            System.out.println("Error");
+            ex.getMessage();
         }
         System.out.println("Flight" + planeCode + "new status is: " + flightStatus);
     }
@@ -40,8 +33,7 @@ public class FlightsAdminClient {
         try {
             service.confirmPendingFlight(planeCode);
         } catch (RemoteException ex) {
-            System.out.println("Flight" + planeCode + "does not exist");
-            System.out.println("Flight" + planeCode + "was already CONFIRMED");
+           ex.getMessage();
         }
         System.out.println("Flight" + planeCode + "was CONFIRMED");
     }
