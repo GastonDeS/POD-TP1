@@ -24,7 +24,7 @@ public class Client {
             rowData.add(new RowData(SeatCategory.BUSINESS, 3));
             Plane plane = service.createPlane("Gasti plane", rowData);
 
-            Flight flight = service.createFlight(plane, "A", "A", "B");
+            Flight flight = service.createFlight(plane, "A", "B");
 
             Flight flight1 = service.getFlight("A");
             System.out.println(flight1.getTicketList());

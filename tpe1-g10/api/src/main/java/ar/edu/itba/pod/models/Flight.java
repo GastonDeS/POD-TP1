@@ -20,7 +20,7 @@ public class Flight implements Serializable {
     private final List<Ticket> ticketList;
     private final Map<String, Map<String, Seat>> planeSeats;
 
-    public Flight(Plane plane, String code, String origin, String destination) throws RemoteException {
+    public Flight(Plane plane, String code, String destination) throws RemoteException {
         if (plane == null || !FlightsAdminService.getInstance().getPlanes().containsKey(plane.getName())) {
             throw new RemoteException();
         }

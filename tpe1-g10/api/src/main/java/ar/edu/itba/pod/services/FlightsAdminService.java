@@ -57,11 +57,11 @@ public class FlightsAdminService implements FlightAdminServiceInterface {
         return plane;
     }
 
-    public Flight createFlight(Plane plane, String code, String origin, String destination) throws RemoteException {
+    public Flight createFlight(Plane plane, String code, String destination) throws RemoteException {
         if (flights.containsKey(code)) {
             throw new RemoteException("Error: flight " +code+ " already exists");
         }
-        Flight flight = new Flight(plane, code, origin, destination);
+        Flight flight = new Flight(plane, code, destination);
         flights.put(flight.getCode(), flight);
         return flight;
     }

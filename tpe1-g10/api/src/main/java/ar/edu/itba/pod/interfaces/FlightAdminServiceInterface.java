@@ -15,7 +15,7 @@ public interface FlightAdminServiceInterface extends Remote {
 
     Flight getFlight(String code) throws RemoteException;
 
-    Flight createFlight(Plane plane, String code, String origin, String destination) throws RemoteException;
+    Flight createFlight(Plane plane, String code, String destination) throws RemoteException;
 
     Plane createPlane(String name, List<RowData> rowDataList) throws RemoteException;
 
