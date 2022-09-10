@@ -11,12 +11,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 public class Flight implements Serializable {
     private final String planeName;
     private final String code;
-    private final String origin;
     private final String destination;
     private FlightStatus status;
     private final List<Ticket> ticketList;
@@ -28,7 +26,6 @@ public class Flight implements Serializable {
         }
         this.planeName = plane.getName();
         this.code = code;
-        this.origin = origin;
         this.destination = destination;
         this.status = FlightStatus.PENDING;
         this.ticketList = new ArrayList<>();
@@ -45,10 +42,6 @@ public class Flight implements Serializable {
 
     public String getDestination() {
         return destination;
-    }
-
-    public String getOrigin() {
-        return origin;
     }
 
     public final FlightStatus getStatus() {

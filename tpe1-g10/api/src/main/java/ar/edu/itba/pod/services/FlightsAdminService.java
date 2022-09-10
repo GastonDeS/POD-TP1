@@ -50,7 +50,7 @@ public class FlightsAdminService implements FlightAdminServiceInterface {
 
     public Plane createPlane(String name, List<RowData> rowDataList) throws RemoteException {
         if(planes.containsKey(name)){
-            throw new RemoteException();
+            throw new RemoteException("Error: plane " +name+ " already exists");
         }
         Plane plane = new Plane(name, rowDataList);
         planes.put(plane.getName(), plane);
@@ -59,7 +59,7 @@ public class FlightsAdminService implements FlightAdminServiceInterface {
 
     public Flight createFlight(Plane plane, String code, String origin, String destination) throws RemoteException {
         if (flights.containsKey(code)) {
-            throw new RemoteException();
+            throw new RemoteException("Error: flight " +code+ " already exists");
         }
         Flight flight = new Flight(plane, code, origin, destination);
         flights.put(flight.getCode(), flight);
@@ -68,24 +68,27 @@ public class FlightsAdminService implements FlightAdminServiceInterface {
 
     public FlightStatus checkFlightStatus(String code) throws RemoteException {
         Flight flight = getFlight(code);
+        if (flight == null) throw new RemoteException("Error: flight "+ code + "does not exist");
         return flight.getStatus();
     }
 
     public void confirmPendingFlight(String code) throws RemoteException {
         Flight flight = getFlight(code);
-        if (flight.getStatus() != FlightStatus.PENDING) throw new RemoteException();
+        if (flight.getStatus() != FlightStatus.PENDING) throw new RemoteException("Error: flight " + code + "is "+ flight.getStatus());
         flight.setStatus(FlightStatus.CONFIRMED);
     }
 
     public void cancelPendingFlight(String code) throws RemoteException {
         Flight flight = getFlight(code);
-        if (flight.getStatus() != FlightStatus.PENDING) throw new RemoteException();
+        if( flight == null)
+            throw new RemoteException("Error: flight " + code + "does not exist");
+        if (flight.getStatus() != FlightStatus.PENDING) throw new RemoteException("Error: flight " + code + "is "+ flight.getStatus());
         flight.setStatus(FlightStatus.CANCELLED);
     }
 
-    public String findNewSeatsForCancelledFlights() throws RemoteException {
+    public String findNewSeatsForCancelledFlights() throws RemoteException{
         List<Flight> cancelledFlights = getCancelledFlights();
-        Integer totalTickets = 0;
+        int totalTickets = 0;
         StringBuilder response = new StringBuilder();
         for (Flight flight : cancelledFlights) {
             totalTickets += flight.getTicketList().size();
@@ -110,7 +113,7 @@ public class FlightsAdminService implements FlightAdminServiceInterface {
 
     private void findNewSeatsForFlight(Flight oldFlight) {
         List<Flight> possibleFlights = flights.values().stream()
-                .filter(flight -> flight.getOrigin().equals(oldFlight.getOrigin()) &&
+                .filter(flight ->
                         flight.getDestination().equals(oldFlight.getDestination()) &&
                         flight.getAvailableSeatsAmount() > 0 &&
                         flight.getStatus() != FlightStatus.CANCELLED)

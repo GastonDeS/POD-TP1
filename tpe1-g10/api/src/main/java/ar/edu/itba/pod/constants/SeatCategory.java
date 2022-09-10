@@ -3,5 +3,11 @@ package api.src.main.java.ar.edu.itba.pod.constants;
 import java.io.Serializable;
 
 public enum SeatCategory implements Serializable {
-    BUSINESS, PREMIUM_ECONOMY, ECONOMY
+    BUSINESS("business"), PREMIUM_ECONOMY("premium economy"), ECONOMY("economy");
+    private String message;
+    SeatCategory(String message){this.message = message;}
+
+    public String getMessage() {
+        return message;
+    }
 }
