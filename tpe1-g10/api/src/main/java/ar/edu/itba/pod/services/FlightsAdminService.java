@@ -88,7 +88,7 @@ public class FlightsAdminService implements FlightAdminServiceInterface {
 
     public String findNewSeatsForCancelledFlights() throws RemoteException{
         List<Flight> cancelledFlights = getCancelledFlights();
-        Integer totalTickets = 0;
+        int totalTickets = 0;
         StringBuilder response = new StringBuilder();
         for (Flight flight : cancelledFlights) {
             totalTickets += flight.getTicketList().size();
@@ -113,7 +113,7 @@ public class FlightsAdminService implements FlightAdminServiceInterface {
 
     private void findNewSeatsForFlight(Flight oldFlight) {
         List<Flight> possibleFlights = flights.values().stream()
-                .filter(flight -> flight.getOrigin().equals(oldFlight.getOrigin()) &&
+                .filter(flight ->
                         flight.getDestination().equals(oldFlight.getDestination()) &&
                         flight.getAvailableSeatsAmount() > 0 &&
                         flight.getStatus() != FlightStatus.CANCELLED)
