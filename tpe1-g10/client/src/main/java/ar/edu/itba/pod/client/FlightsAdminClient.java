@@ -3,12 +3,25 @@ package client.src.main.java.ar.edu.itba.pod.client;
 import api.src.main.java.ar.edu.itba.pod.constants.FlightStatus;
 import api.src.main.java.ar.edu.itba.pod.interfaces.FlightAdminServiceInterface;
 import client.src.main.java.ar.edu.itba.pod.constants.ActionsFlightsAdmin;
-import client.src.main.java.ar.edu.itba.pod.utils.ParseArgsHelper;
 
 import java.rmi.Naming;
 import java.rmi.RemoteException;
+import java.util.Properties;
 
 public class FlightsAdminClient {
+
+    private static String serverAddress;
+    private static ActionsFlightsAdmin actionName;
+    private static String fileName;
+    private static String planeCode;
+
+    private static void getProperties() {
+        Properties props = System.getProperties();
+        serverAddress = System.getProperty("serverAddress");
+        actionName = ActionsFlightsAdmin.valueOf(props.getProperty("action").toUpperCase());
+        fileName = System.getProperty("Path");
+        planeCode = System.getProperty("flight");
+    }
 
     private static void cancelMethod(FlightAdminServiceInterface service, String planeCode) {
         try {
@@ -48,7 +61,7 @@ public class FlightsAdminClient {
         System.out.println(answer);
     }
 
-    private static void callMethod(ActionsFlightsAdmin actionsFlightsAdmin, FlightAdminServiceInterface service, String planeCode) {
+    private static void callMethod(ActionsFlightsAdmin actionsFlightsAdmin, FlightAdminServiceInterface service, String fileName, String planeCode) {
         switch (actionsFlightsAdmin) {
             case CANCEL:
                 cancelMethod(service, planeCode);
@@ -73,13 +86,11 @@ public class FlightsAdminClient {
         try {
             System.out.println("tpe1-g10 Client Starting ...");
 
-            String serverAddress = ParseArgsHelper.getServerAdress(args[1]);
-            ActionsFlightsAdmin actionsFlightsAdmin = ParseArgsHelper.getAction(args[2]);
-            String planeCode = "";
+            getProperties();
 
             final FlightAdminServiceInterface service = (FlightAdminServiceInterface) Naming.lookup("//" + serverAddress + "/flightAdminService");
 
-            callMethod(actionsFlightsAdmin, service, planeCode);
+            callMethod(actionName, service, fileName, planeCode);
 
             System.out.println("client started");
         } catch (Exception ex) {
