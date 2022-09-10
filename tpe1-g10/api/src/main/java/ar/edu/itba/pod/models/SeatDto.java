@@ -12,7 +12,23 @@ public class SeatDto {
     public SeatDto(Seat seat) {
         this.seatCategory = seat.getSeatCategory();
         this.place = seat.getPlace();
+        this.available = seat.isAvailable();
+        this.info = seat.getInfo();
     }
 
+    public SeatCategory getSeatCategory() {
+        return seatCategory;
+    }
 
+    public boolean isAvailable() {
+        return available;
+    }
+
+    public char getInfo() {
+        return info;
+    }
+
+    public String getPlace() {
+        return place;
+    }
 }

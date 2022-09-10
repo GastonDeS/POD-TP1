@@ -3,6 +3,7 @@ package ar.edu.itba.pod.server.services;
 import ar.edu.itba.pod.constants.SeatCategory;
 import ar.edu.itba.pod.interfaces.SeatMapServiceInterface;
 import ar.edu.itba.pod.models.Flight;
+import ar.edu.itba.pod.models.SeatDto;
 import ar.edu.itba.pod.models.Seat;
 import ar.edu.itba.pod.server.services.FlightsAdminService;
 
@@ -23,6 +24,7 @@ public class SeatMapService implements SeatMapServiceInterface {
             SeatMapService.instance = new SeatMapService();
         return SeatMapService.instance;
     }
+
     private Flight existsFlight(String flightCode) throws RemoteException{
         Flight flight;
         try{
@@ -31,23 +33,23 @@ public class SeatMapService implements SeatMapServiceInterface {
             throw new RemoteException("Error: flight with code " + flightCode + " does not exist");    }
         return flight;
     }
-    public Map<String, Map<String, Seat>> peekAllSeats(String flightCode) throws RemoteException {
+    public Map<String, Map<String, SeatDto>> peekAllSeats(String flightCode) throws RemoteException {
         Flight flight = existsFlight(flightCode);
-        return flight.getPlaneSeats();
+        return seatsToDto(flight.getPlaneSeats());
     }
 
-    public Map<String, Seat> peekRowSeats(String flightCode, String rowNumber) throws RemoteException {
+    public Map<String, SeatDto> peekRowSeats(String flightCode, String rowNumber) throws RemoteException {
         Flight flight = existsFlight(flightCode);
-        Map<String, Map<String, Seat>> planeMap = flight.getPlaneSeats();
+        Map<String, Map<String, SeatDto>> planeMap = seatsToDto(flight.getPlaneSeats());
         if(planeMap.containsKey(rowNumber))
             return planeMap.get(rowNumber);
         throw new RemoteException("Error: Row number " + rowNumber + " does not exist in flight " + flightCode);
     }
 
-    public Map<String, Map<String, Seat>> peekCategorySeats(String flightCode, SeatCategory category) throws RemoteException {
+    public Map<String, Map<String, SeatDto>> peekCategorySeats(String flightCode, SeatCategory category) throws RemoteException {
         Flight flight = existsFlight(flightCode);
-        Map<String, Map<String, Seat>> planeMap = flight.getPlaneSeats();
-        Map<String, Map<String, Seat>> categoryMap = new HashMap<>();
+        Map<String, Map<String, SeatDto>> planeMap = seatsToDto(flight.getPlaneSeats());
+        Map<String, Map<String, SeatDto>> categoryMap = new HashMap<>();
         boolean found = false;
         for(String row : planeMap.keySet()){
             if(flight.getRowCategory(row).equals(category)){
@@ -62,6 +64,24 @@ public class SeatMapService implements SeatMapServiceInterface {
             return categoryMap;
 
         throw new RemoteException("Error: Category " + category.getMessage() + " does not exist in flight " + flightCode);
+    }
+
+    private Map<String, Map<String, SeatDto>> seatsToDto (Map<String, Map<String, Seat>> seats){
+        Map<String, Map<String, SeatDto>> publicSeatsDto = new HashMap<>();
+        seats.forEach((key, value) -> {
+            Map<String, SeatDto> seatsDto = rowSeatDtoMap(value);
+            publicSeatsDto.put(key, seatsDto);
+        });
+        return publicSeatsDto;
+    }
+
+    private Map<String, SeatDto> rowSeatDtoMap (Map<String, Seat> seatMap) {
+        Map<String, SeatDto> rowSeatsToDto = new HashMap<>();
+        seatMap.forEach((key, value) -> {
+            SeatDto seatDto = new SeatDto(value);
+            rowSeatsToDto.put(key, seatDto);
+        });
+        return rowSeatsToDto;
     }
 
 
