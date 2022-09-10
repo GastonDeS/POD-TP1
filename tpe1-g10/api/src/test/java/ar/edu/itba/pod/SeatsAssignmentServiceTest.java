@@ -53,9 +53,9 @@ public class SeatsAssignmentServiceTest {
         Plane plane = flightsAdminService.createPlane("PLANE_1", rowsData);
         Flight flight = flightsAdminService.createFlight(plane, "AA", "EZE", "CDG");
         TestUtils.fillFlightWithPassengers(flight);
-        seatsAssignmentService.assignSeat(flight.getCode(), "Brittu", 1, "A");
+        seatsAssignmentService.assignSeat(flight.getCode(), "Brittu", 4, "A");
 
-        Assertions.assertFalse(flight.getSeat(1, "A").isAvailable());
+        Assertions.assertFalse(flight.getSeat(4, "A").isAvailable());
     }
 
     @Test
