@@ -9,12 +9,12 @@ public class NotificationCallbackHandlerImpl implements NotificationCallbackHand
 
     // TODO: implement correctly with logger and not with string
     @Override
-    public String sendNotification(String flightCode, String destCode, SeatCategory seatCategory, String place, String message) throws RemoteException {
+    public void sendNotification(String flightCode, String destCode, SeatCategory seatCategory, String place, String message) throws RemoteException {
 
     }
 
     @Override
-    public String sendNotificationUpdate(String flightCode, String destCode, SeatCategory seatCategory, String place,
+    public void sendNotificationUpdate(String flightCode, String destCode, SeatCategory seatCategory, String place,
                                        SeatCategory oldSeatCategory, String oldPlace, String message) throws RemoteException {
 
     }

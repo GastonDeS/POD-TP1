@@ -2,6 +2,7 @@ package api.src.main.java.ar.edu.itba.pod.services;
 
 import api.src.main.java.ar.edu.itba.pod.constants.FlightStatus;
 import api.src.main.java.ar.edu.itba.pod.constants.NotificationCategory;
+import api.src.main.java.ar.edu.itba.pod.constants.SeatCategory;
 import api.src.main.java.ar.edu.itba.pod.interfaces.SeatsAssignmentServiceInterface;
 import api.src.main.java.ar.edu.itba.pod.models.Flight;
 import api.src.main.java.ar.edu.itba.pod.models.Seat;
@@ -28,8 +29,9 @@ public class SeatsAssignmentService implements SeatsAssignmentServiceInterface {
         return SeatsAssignmentService.instance;
     }
 
-    public boolean checkEmptySeat(String flightCode, int row, String column) throws RemoteException {
-        return flightsAdminService.getFlight(flightCode).getSeat(row, column).isAvailable();
+    public String checkEmptySeat(String flightCode, int row, String column) throws RemoteException {
+        Optional<Ticket> maybeTicket = flightsAdminService.getFlight(flightCode).getTicketFromSeat(row, column);
+        return maybeTicket.map(Ticket::getName).orElse(null);
     }
 
     public void assignSeat(String flightCode, String name, int row, String column) throws RemoteException {
@@ -40,7 +42,7 @@ public class SeatsAssignmentService implements SeatsAssignmentServiceInterface {
         assignOrChangeSeat(flightCode, name, row, column, true);
     }
 
-    public Map<String, List<Seat>> getAvailableFlights(String flightCode, String name) throws RemoteException {
+    public Map<SeatCategory, Map<String, Long>> getAvailableFlights(String flightCode, String name) throws RemoteException {
         Flight currentFlight = flightsAdminService.getFlight(flightCode);
         Ticket ticket = currentFlight.getPassengerTicket(name);
         if (currentFlight.getStatus().equals(FlightStatus.CONFIRMED)) throw new RemoteException("Error: flight is already confirmed");
@@ -50,13 +52,17 @@ public class SeatsAssignmentService implements SeatsAssignmentServiceInterface {
                         && f.getStatus().equals(FlightStatus.CONFIRMED)
                         && !f.getCode().equals(flightCode))
                 .collect(Collectors.toList());
-        Map<String, List<Seat>> availableFlights = new HashMap<>();
+        Map<SeatCategory, Map<String, Long>> availableFlights = new HashMap<>();
         similarFlights.forEach(flight -> {
-            List<Seat> availableSeats = flight.getAvailableSeats()
+            Map<SeatCategory, Long> seatsPerCategory = flight.getAvailableSeats()
                     .stream()
-                    .filter(s -> s.getSeatCategory().ordinal() >= ticket.getSeatCategory().ordinal())
-                    .collect(Collectors.toList());
-            availableFlights.put(flight.getCode(), availableSeats);
+                    .filter(seat -> seat.getSeatCategory().ordinal() >= ticket.getSeatCategory().ordinal())
+                    .collect(Collectors.groupingBy(Seat::getSeatCategory, Collectors.counting()));
+            for (SeatCategory s : SeatCategory.values()) {
+                Map<String, Long> flights = availableFlights.getOrDefault(s, new HashMap<>());
+                flights.put(flight.getCode(), seatsPerCategory.getOrDefault(s, 0L));
+                availableFlights.put(s, flights);
+            }
         });
         return availableFlights;
     }

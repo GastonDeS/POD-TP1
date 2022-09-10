@@ -15,7 +15,7 @@ public class SeatsAssignmentClientParser {
     private static final String SERVER_ADDRESS_KEY = "serverAddress";
 
     private String serverAddress;
-    private String action;
+    private ActionsSeatsAssignment action;
     private String flight;
     private String passenger;
     private Integer row;
@@ -26,7 +26,7 @@ public class SeatsAssignmentClientParser {
         return serverAddress;
     }
 
-    public String getAction() {
+    public ActionsSeatsAssignment getAction() {
         return action;
     }
 
@@ -62,9 +62,8 @@ public class SeatsAssignmentClientParser {
         if (!props.containsKey(ACTION_KEY)) {
             throw new InvalidArgumentsException("Action is not specified");
         } else {
-            this.action = props.getProperty(ACTION_KEY);
-            ActionsSeatsAssignment actionsSeatsAssignment = ActionsSeatsAssignment.fromString(action);
-            checkActionArguments(actionsSeatsAssignment, props);
+            this.action = ActionsSeatsAssignment.fromString(props.getProperty(ACTION_KEY));
+            checkActionArguments(props);
         }
 
         if (!props.containsKey(FLIGHT_KEY)) {
@@ -75,8 +74,8 @@ public class SeatsAssignmentClientParser {
 
     }
 
-    private void checkActionArguments(ActionsSeatsAssignment actionsSeatsAssignment, Properties props) throws InvalidArgumentsException {
-        switch (actionsSeatsAssignment) {
+    private void checkActionArguments(Properties props) throws InvalidArgumentsException {
+        switch (this.action) {
             case STATUS:
                 checkRowAndCol(props);
             case ASSIGN:

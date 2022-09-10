@@ -29,11 +29,12 @@ public class Server {
 
             registry.rebind("flightAdminService", remoteFlightsAdmin);
             System.out.println("flightAdminService bound");
-            registry.rebind("seatMapService", remoteMapQuery);
-            System.out.println("seatMapService bound");
 
             registry.rebind("seatsAssignmentService", remoteSeatsAssignment);
             System.out.println("seatsAssignmentService bound");
+
+            registry.rebind("seatMapService", remoteMapQuery);
+            System.out.println("seatMapService bound");
 
             System.out.println("server online");
         } catch (Exception ex ) {

@@ -1,12 +1,11 @@
-package api.src.test.java.ar.edu.itba.pod;
+package api.src.test.java.ar.edu.itba.pod.services;
 
 import api.src.main.java.ar.edu.itba.pod.constants.FlightStatus;
-import api.src.main.java.ar.edu.itba.pod.models.Flight;
-import api.src.main.java.ar.edu.itba.pod.models.Plane;
-import api.src.main.java.ar.edu.itba.pod.models.RowData;
-import api.src.main.java.ar.edu.itba.pod.models.Seat;
+import api.src.main.java.ar.edu.itba.pod.constants.SeatCategory;
+import api.src.main.java.ar.edu.itba.pod.models.*;
 import api.src.main.java.ar.edu.itba.pod.services.FlightsAdminService;
 import api.src.main.java.ar.edu.itba.pod.services.SeatsAssignmentService;
+import api.src.test.java.ar.edu.itba.pod.utils.TestUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,7 +31,7 @@ public class SeatsAssignmentServiceTest {
 
         TestUtils.fillFlightWithPassengers(flight);
 
-        Assertions.assertTrue(seatsAssignmentService.checkEmptySeat(flight.getCode(), 1, "A"));
+        Assertions.assertNull(seatsAssignmentService.checkEmptySeat(flight.getCode(), 1, "A"));
     }
 
     @Test
@@ -40,11 +39,11 @@ public class SeatsAssignmentServiceTest {
         List<RowData> rowsData = TestUtils.getRowDataForFlight();
         Plane plane = flightsAdminService.createPlane("PLANE_1", rowsData);
         Flight flight = flightsAdminService.createFlight(plane, "AA", "CDG");
+        flight.addTicketToFlight(new Ticket.Builder("Pedro").seat(new Seat(SeatCategory.ECONOMY, "10A")).build());
 
         TestUtils.fillFlightWithPassengers(flight);
-        TestUtils.setSeatAvailability(flight, 1, "A", false);
 
-        Assertions.assertFalse(seatsAssignmentService.checkEmptySeat(flight.getCode(), 1, "A"));
+        Assertions.assertEquals("Pedro", seatsAssignmentService.checkEmptySeat(flight.getCode(), 10, "A"));
     }
 
     @Test
@@ -115,10 +114,12 @@ public class SeatsAssignmentServiceTest {
         Flight alternativeFlight = flightsAdminService.createFlight(alternativePlane, "BR", "CDG");
         alternativeFlight.setStatus(FlightStatus.CONFIRMED);
         TestUtils.fillFlightWithPassengers(flight);
-        Map<String, List<Seat>> availableFlights = seatsAssignmentService.getAvailableFlights(flight.getCode(), "Gaston");
+        TestUtils.fillFlightWithPassengers(alternativeFlight);
+        Map<SeatCategory, Map<String, Long>> availableFlights = seatsAssignmentService.getAvailableFlights(flight.getCode(), "Brittu");
 
-        Assertions.assertEquals(1, availableFlights.size());
-        Assertions.assertEquals(28, availableFlights.get(alternativeFlight.getCode()).size());
+        Assertions.assertEquals(0L, availableFlights.get(SeatCategory.BUSINESS).get("BR"));
+        Assertions.assertEquals(20L, availableFlights.get(SeatCategory.PREMIUM_ECONOMY).get("BR"));
+        Assertions.assertEquals(28L, availableFlights.get(SeatCategory.ECONOMY).get("BR"));
     }
 
     @Test

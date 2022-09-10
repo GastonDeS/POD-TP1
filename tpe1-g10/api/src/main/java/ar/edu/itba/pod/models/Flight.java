@@ -114,4 +114,8 @@ public class Flight implements Serializable {
         int ticketListCategoryCount = (int) ticketList.stream().filter(ticket -> ticket.getSeatCategory() == category).count();
         return planeSeatsCount - ticketListCategoryCount;
     }
+
+    public Optional<Ticket> getTicketFromSeat(int row, String column) {
+        return ticketList.stream().filter(t -> t.getSeat().getPlace().equals("" + row + column)).findFirst();
+    }
 }
