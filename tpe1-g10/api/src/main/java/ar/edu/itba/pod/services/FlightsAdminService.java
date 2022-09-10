@@ -44,7 +44,7 @@ public class FlightsAdminService implements FlightAdminServiceInterface {
 
     public Flight getFlight(String code) throws RemoteException {
         Flight flight = flights.get(code);
-        if (flight == null) throw new RemoteException();
+        if (flight == null) throw new RemoteException("Error: flight with code " + code + " does not exist");
         return flight;
     }
 

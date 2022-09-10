@@ -7,7 +7,6 @@ import java.io.Serializable;
 public class Seat implements Serializable {
     private final SeatCategory seatCategory;
     private boolean available;
-
     private char info;
     private final String place;
 

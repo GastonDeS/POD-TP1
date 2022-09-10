@@ -13,22 +13,22 @@ import java.util.Map;
 
 public interface FlightAdminServiceInterface extends Remote {
 
-    public Flight getFlight(String code) throws RemoteException;
+    Flight getFlight(String code) throws RemoteException;
 
-    public Flight createFlight(Plane plane, String code, String origin, String destination) throws RemoteException;
+    Flight createFlight(Plane plane, String code, String origin, String destination) throws RemoteException;
 
-    public Plane createPlane(String name, List<RowData> rowDataList) throws RemoteException;
+    Plane createPlane(String name, List<RowData> rowDataList) throws RemoteException;
 
-    public FlightStatus checkFlightStatus(String code) throws RemoteException;
+    FlightStatus checkFlightStatus(String code) throws RemoteException;
 
-    public void confirmPendingFlight(String code) throws RemoteException;
+    void confirmPendingFlight(String code) throws RemoteException;
 
-    public void cancelPendingFlight(String code) throws RemoteException;
+    void cancelPendingFlight(String code) throws RemoteException;
 
-    public String findNewSeatsForCancelledFlights() throws RemoteException;
+    String findNewSeatsForCancelledFlights() throws RemoteException;
 
-    public Map<String, Plane> getPlanes() throws RemoteException;
+    Map<String, Plane> getPlanes() throws RemoteException;
 
-    public Map<String, Flight> getFlights() throws RemoteException;
+    Map<String, Flight> getFlights() throws RemoteException;
 }
 

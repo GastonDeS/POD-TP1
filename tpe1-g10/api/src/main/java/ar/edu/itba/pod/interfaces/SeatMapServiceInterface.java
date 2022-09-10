@@ -8,7 +8,9 @@ import java.util.Map;
 
 public interface SeatMapServiceInterface extends Remote {
 
-    public Map<String, Map<String, Seat>> peekAllSeats(String flightCode);
-    public Map<String, Seat> peekRowSeats(String flightCode, String rowNumber);
-    public Map<String, Map<String, Seat>> peekCategorySeats(String flightCode, SeatCategory category);
-    }
+    Map<String, Map<String, Seat>> peekAllSeats(String flightCode);
+
+    Map<String, Seat> peekRowSeats(String flightCode, String rowNumber);
+
+    Map<String, Map<String, Seat>> peekCategorySeats(String flightCode, SeatCategory category);
+}
