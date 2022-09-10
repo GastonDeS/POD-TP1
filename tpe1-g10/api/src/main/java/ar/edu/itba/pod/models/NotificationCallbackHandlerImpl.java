@@ -7,14 +7,14 @@ import java.rmi.RemoteException;
 
 public class NotificationCallbackHandlerImpl implements NotificationCallbackHandler {
 
-    // TODO: implement correctly
+    // TODO: implement correctly with logger and not with string
     @Override
-    public void sendNotification(String flightCode, String destCode, SeatCategory seatCategory, String place, String message) throws RemoteException {
+    public String sendNotification(String flightCode, String destCode, SeatCategory seatCategory, String place, String message) throws RemoteException {
 
     }
 
     @Override
-    public void sendNotificationUpdate(String flightCode, String destCode, SeatCategory seatCategory, String place,
+    public String sendNotificationUpdate(String flightCode, String destCode, SeatCategory seatCategory, String place,
                                        SeatCategory oldSeatCategory, String oldPlace, String message) throws RemoteException {
 
     }

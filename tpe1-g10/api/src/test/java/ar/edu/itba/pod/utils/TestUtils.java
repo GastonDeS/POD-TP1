@@ -1,4 +1,4 @@
-package api.src.test.java.ar.edu.itba.pod;
+package api.src.test.java.ar.edu.itba.pod.utils;
 
 import api.src.main.java.ar.edu.itba.pod.constants.SeatCategory;
 import api.src.main.java.ar.edu.itba.pod.models.*;

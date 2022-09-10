@@ -1,11 +1,11 @@
-package api.src.test.java.ar.edu.itba.pod;
+package api.src.test.java.ar.edu.itba.pod.services;
 
 import api.src.main.java.ar.edu.itba.pod.constants.SeatCategory;
 import api.src.main.java.ar.edu.itba.pod.models.Flight;
 import api.src.main.java.ar.edu.itba.pod.models.Plane;
 import api.src.main.java.ar.edu.itba.pod.models.RowData;
-import api.src.main.java.ar.edu.itba.pod.models.Ticket;
 import api.src.main.java.ar.edu.itba.pod.services.FlightsAdminService;
+import api.src.test.java.ar.edu.itba.pod.utils.TestUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
