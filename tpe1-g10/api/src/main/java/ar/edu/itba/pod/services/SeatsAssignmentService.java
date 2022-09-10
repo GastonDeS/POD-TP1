@@ -73,7 +73,7 @@ public class SeatsAssignmentService implements SeatsAssignmentServiceInterface {
         Flight alternativeFlight = flightsAdminService.getFlight(alternative);
 
         // Notify changes
-        notificationService.newNotificationUpdate(alternative, name, ticket, NotificationCategory.CHANGED_TICKET);
+        notificationService.newNotification(alternative, name, ticket, NotificationCategory.CHANGED_TICKET);
 
         currentFlight.removeTicketFromFlight(ticket);
         ticket.setSeat(null);
@@ -92,7 +92,7 @@ public class SeatsAssignmentService implements SeatsAssignmentServiceInterface {
 
         if (isChange) {
             // Notify changes
-            notificationService.newNotificationUpdate(flightCode, name, ticket, NotificationCategory.CHANGED_SEAT);
+            notificationService.newNotification(flightCode, name, ticket, NotificationCategory.CHANGED_SEAT);
             if (ticket.getSeat() != null) ticket.getSeat().setAvailable(true, '*');
         } else {
             // Notify changes
