@@ -41,6 +41,10 @@ public class Seat implements Serializable {
         this.available = available;
     }
 
+    public char getInfo() {
+        return info;
+    }
+
     public static class Builder
     {
         private final SeatCategory seatCategory;
