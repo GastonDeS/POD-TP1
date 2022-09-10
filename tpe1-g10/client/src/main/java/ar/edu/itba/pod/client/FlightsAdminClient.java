@@ -12,8 +12,7 @@ import java.util.Properties;
 
 public class FlightsAdminClient {
 
-    private static Logger logger = LoggerFactory.getLogger(FlightsAdminClient.class);
-
+    private static final Logger logger = LoggerFactory.getLogger(FlightsAdminClient.class);
     private static String serverAddress;
     private static ActionsFlightsAdmin actionName;
     private static String fileName;
@@ -21,15 +20,10 @@ public class FlightsAdminClient {
 
     private static void getProperties() {
         Properties props = System.getProperties();
-        serverAddress = System.getProperty("serverAddress");
+        serverAddress = props.getProperty("serverAddress");
         actionName = ActionsFlightsAdmin.valueOf(props.getProperty("action").toUpperCase());
-        fileName = System.getProperty("Path");
-        planeCode = System.getProperty("flight");
-
-        logger.info("Server address: " + serverAddress);
-        logger.info("Action Name: " + actionName);
-        logger.info("file Name: " + fileName);
-        logger.info("Plane Code: " + planeCode);
+        fileName = props.getProperty("Path");
+        planeCode = props.getProperty("flight");
     }
 
     private static void cancelMethod(FlightAdminServiceInterface service, String planeCode) {
@@ -38,7 +32,7 @@ public class FlightsAdminClient {
         } catch (RemoteException ex) {
             ex.getMessage();
         }
-        System.out.println("Flight" + planeCode + "was CANCELLED");
+        logger.info("Flight " + planeCode + " was CANCELLED");
     }
 
     private static void statusMethod(FlightAdminServiceInterface service, String planeCode) {
@@ -48,7 +42,7 @@ public class FlightsAdminClient {
         } catch (RemoteException ex) {
             ex.getMessage();
         }
-        System.out.println("Flight" + planeCode + "new status is: " + flightStatus);
+        logger.info("Flight" + planeCode + " new status is: " + flightStatus);
     }
 
     private static void confirmMethod(FlightAdminServiceInterface service, String planeCode) {
@@ -57,7 +51,7 @@ public class FlightsAdminClient {
         } catch (RemoteException ex) {
            ex.getMessage();
         }
-        System.out.println("Flight" + planeCode + "was CONFIRMED");
+        logger.info("Flight " + planeCode + " was CONFIRMED");
     }
 
     private static void reticketingMethod(FlightAdminServiceInterface service) {
@@ -65,9 +59,9 @@ public class FlightsAdminClient {
         try {
             answer = service.findNewSeatsForCancelledFlights();
         } catch (RemoteException ex) {
-            System.out.println("The reticketing could not be completed");
+            logger.error("The reticketing could not be completed");
         }
-        System.out.println(answer);
+        logger.info(answer);
     }
 
     private static void callMethod(ActionsFlightsAdmin actionsFlightsAdmin, FlightAdminServiceInterface service, String fileName, String planeCode) {
@@ -93,7 +87,7 @@ public class FlightsAdminClient {
 
     public static void main(String[] args) {
         try {
-            System.out.println("tpe1-g10 Client Starting ...");
+            logger.info("tpe1-g10 Client Starting ...");
 
             getProperties();
 
@@ -103,9 +97,9 @@ public class FlightsAdminClient {
 
             callMethod(actionName, service, fileName, planeCode);
 
-            System.out.println("client started");
+            logger.info("client started");
         } catch (Exception ex) {
-            System.out.println("An exception happened");
+            logger.error("An exception happened");
             ex.printStackTrace();
         }
     }

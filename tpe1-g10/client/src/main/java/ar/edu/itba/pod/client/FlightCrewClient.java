@@ -2,7 +2,7 @@ package ar.edu.itba.pod.client;
 
 import ar.edu.itba.pod.constants.SeatCategory;
 import ar.edu.itba.pod.interfaces.SeatMapServiceInterface;
-import ar.edu.itba.pod.models.Seat;
+import ar.edu.itba.pod.models.SeatDto;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -21,8 +21,8 @@ public class FlightCrewClient {
     private static Optional<String> optionalRowInput;
     private static SeatCategory categoryInput;
     private static String rowInput;
-    private static Map<String, Map<String, Seat>> planeMap;
-    private static Map<String, Seat> rowPlaneMap;
+    private static Map<String, Map<String, SeatDto>> planeMap;
+    private static Map<String, SeatDto> rowPlaneMap;
 
     public static void main(String[] args) throws RemoteException,
             NotBoundException, MalformedURLException {
@@ -80,7 +80,7 @@ public class FlightCrewClient {
         }
     }
 
-    private static void writeOutputRowResults(Map<String, Seat> rowPlaneMap, String row) throws IOException {
+    private static void writeOutputRowResults(Map<String, SeatDto> rowPlaneMap, String row) throws IOException {
         FileWriter fw = new FileWriter(outPathInput);
         SeatCategory category = rowPlaneMap.entrySet().stream().findFirst().get().getValue().getSeatCategory();
         for(String column : rowPlaneMap.keySet()){
@@ -92,10 +92,10 @@ public class FlightCrewClient {
         fw.close();
     }
 
-    private static void writeOutputPlaneResults(Map<String, Map<String, Seat>> planeMap) throws IOException{
+    private static void writeOutputPlaneResults(Map<String, Map<String, SeatDto>> planeMap) throws IOException{
         FileWriter fw = new FileWriter(outPathInput);
         for(String row : planeMap.keySet()){
-            Map<String, Seat> rowMap = planeMap.get(row);
+            Map<String, SeatDto> rowMap = planeMap.get(row);
             SeatCategory category = rowMap.entrySet().stream().findFirst().get().getValue().getSeatCategory();
             for(String column : rowMap.keySet()){
                 char initial = rowMap.get(column).getInfo();
