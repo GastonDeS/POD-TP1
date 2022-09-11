@@ -62,6 +62,7 @@ public class FlightsAdminService implements FlightAdminServiceInterface {
         }
         Plane plane = new Plane(name, planeDataMap);
         planes.put(plane.getName(), plane);
+        logger.info("plane created");
     }
 
     // TODO tickets may not need to be created when a code and the code can be added here
@@ -74,6 +75,7 @@ public class FlightsAdminService implements FlightAdminServiceInterface {
         Flight flight = new Flight(planeName, planes.get(planeName).getSeats(), code, destination);
         tickets.forEach(flight::addTicketToFlight);
         flights.put(flight.getCode(), flight);
+        logger.info("flightAdded: "+code+" "+tickets.size());
     }
 
     public FlightStatus checkFlightStatus(String code) throws RemoteException {

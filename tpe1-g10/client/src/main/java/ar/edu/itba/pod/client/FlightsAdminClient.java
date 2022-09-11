@@ -5,6 +5,7 @@ import ar.edu.itba.pod.interfaces.FlightAdminServiceInterface;
 import ar.edu.itba.pod.constants.ActionsFlightsAdmin;
 import ar.edu.itba.pod.constants.SeatCategory;
 import ar.edu.itba.pod.models.PlaneData;
+import ar.edu.itba.pod.models.Ticket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,7 +26,7 @@ public class FlightsAdminClient {
         Properties props = System.getProperties();
         serverAddress = props.getProperty("serverAddress");
         actionName = ActionsFlightsAdmin.valueOf(props.getProperty("action").toUpperCase());
-        fileName = props.getProperty("Path");
+        fileName = props.getProperty("inPath");
         planeCode = props.getProperty("flight");
     }
 
@@ -81,24 +82,53 @@ public class FlightsAdminClient {
 
         } catch (Exception ex) {
             logger.error("File cannot be opened");
+            ex.printStackTrace();
         }
-
-
-
     }
 
-    private static Map<SeatCategory, PlaneData> parseRowData(String[] rowsData) {
+    private static Map<SeatCategory, PlaneData> parseRowData(String[] plane) {
         Map<SeatCategory, PlaneData> planeData = new HashMap<>();
-        for (int i = 0; i < rowsData.length; i++) {
-            String[] rowData = rowsData[i].split("#");
-            planeData.put(SeatCategory.valueOf(rowData[0]), new PlaneData( Integer.parseInt(rowsData[1]), Integer.parseInt(rowData[2])));
+        for (int i = 0; i < plane.length; i++) {
+            String[] categoryData = plane[i].split("#");
+            planeData.put(SeatCategory.valueOf(categoryData[0]), new PlaneData( Integer.parseInt(categoryData[1]), Integer.parseInt(categoryData[2])));
         }
         return planeData;
     }
 
-    private static void uploadFlights(FlightAdminServiceInterface service, String fileName) {
 
+    // TODO dont create tickets ?
+    // TODO put more validators over the csv this way we only accept valid csv of throw ? Is that correct ?
+    private static void uploadFlights(FlightAdminServiceInterface service, String fileName) {
+        File fileCsv = new File(fileName);
+        try {
+            Reader fileReader = new FileReader(fileCsv);
+            BufferedReader br = new BufferedReader(fileReader);
+            String line = br.readLine(); // skip first line
+            while ((line = br.readLine()) != null) {
+                String[] values = line.split(";");
+                String[] ticketsString = values.length > 3 ? values[3].split(",") : new String[]{};
+                List<ar.edu.itba.pod.models.Ticket> tickets = parseTickets(ticketsString, values[1]);
+                service.createFlight(values[0], values[1], values[2], tickets);
+            }
+
+        } catch (Exception ex) {
+            logger.error("File cannot be opened");
+            ex.printStackTrace();
+        }
     }
+
+
+    // TODO no me gusta nada crear tickets ?
+    private static List<ar.edu.itba.pod.models.Ticket> parseTickets(String[] tickets, String flightCode) {
+        List<ar.edu.itba.pod.models.Ticket> ticketList = new ArrayList<>();
+        for (int i = 0; i < tickets.length; i++) {
+            String[] ticketData = tickets[i].split("#");
+            ticketList.add(new Ticket(ticketData[1], SeatCategory.valueOf(ticketData[0]), flightCode));
+        }
+        return ticketList;
+    }
+
+
 
     private static void callMethod(ActionsFlightsAdmin actionsFlightsAdmin, FlightAdminServiceInterface service, String fileName, String planeCode) {
         switch (actionsFlightsAdmin) {

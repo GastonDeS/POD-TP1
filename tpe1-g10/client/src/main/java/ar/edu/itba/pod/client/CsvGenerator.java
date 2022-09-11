@@ -13,14 +13,14 @@ public class CsvGenerator {
     final static String flightPreCode = "AA";
     final static String BUSINESS = "BUSINESS";
     final static String PREMIUM_ECONOMY = "PREMIUM_ECONOMY";
-    final static String ECONOMIC = "ECONOMIC";
+    final static String ECONOMY = "ECONOMY";
     final static String[] names = {"Flor", "Sol", "Gasti", "Brittu", "Juanma"};
 
 
 
     public static void main(String[] args) throws Exception {
         generateCsvForCreateFlight(20);
-        generateCsvForCreatePlanes();
+//        generateCsvForCreatePlanes();
     }
 
     public static void generateCsvForCreatePlanes() throws IOException {
@@ -59,7 +59,7 @@ public class CsvGenerator {
                     planeBuilder.append(BUSINESS);
                 } else if (random < 0.66)
                     planeBuilder.append(PREMIUM_ECONOMY);
-                else planeBuilder.append(ECONOMIC);
+                else planeBuilder.append(ECONOMY);
 
                 planeBuilder.append("#").append(names[j % names.length]).append(j);
                 if (j < ticketAmount - 1) planeBuilder.append(",");
