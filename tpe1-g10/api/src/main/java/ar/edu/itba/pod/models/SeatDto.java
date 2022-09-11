@@ -3,7 +3,9 @@ package ar.edu.itba.pod.models;
 import ar.edu.itba.pod.constants.SeatCategory;
 import ar.edu.itba.pod.models.Seat;
 
-public class SeatDto {
+import java.io.Serializable;
+
+public class SeatDto implements Serializable {
     private final SeatCategory seatCategory;
     private final boolean available;
     private final char info;

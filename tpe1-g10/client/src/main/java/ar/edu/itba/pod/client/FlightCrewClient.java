@@ -4,6 +4,7 @@ import ar.edu.itba.pod.constants.SeatCategory;
 import ar.edu.itba.pod.interfaces.SeatMapServiceInterface;
 import ar.edu.itba.pod.models.SeatDto;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -12,6 +13,7 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,10 +57,10 @@ public class FlightCrewClient {
             rowInput = optionalRowInput.get();
         } else optionalCategoryInput.ifPresent(s -> categoryInput = SeatCategory.valueOf(s));
 
-        StringBuilder str = new StringBuilder();
-        str.append(outPathInput);
-        str.append(System.getProperty("outPath"));
-        outPathInput = str.toString();
+//        StringBuilder str = new StringBuilder();
+//        str.append(outPathInput);
+//        str.append(System.getProperty("outPath"));
+        outPathInput = System.getProperty("outPath");
     }
 
     private static void getResults() throws IOException {
@@ -84,7 +86,8 @@ public class FlightCrewClient {
     }
 
     private static void writeOutputRowResults(Map<String, SeatDto> rowPlaneMap, String row) throws IOException {
-        FileWriter fw = new FileWriter(outPathInput);
+        File fileCsv = new File(outPathInput);
+        FileWriter fw = new FileWriter(fileCsv);
         SeatCategory category = rowPlaneMap.entrySet().stream().findFirst().get().getValue().getSeatCategory();
         for(String column : rowPlaneMap.keySet()){
             char initial = rowPlaneMap.get(column).getInfo();
@@ -96,8 +99,9 @@ public class FlightCrewClient {
     }
 
     private static void writeOutputPlaneResults(Map<String, Map<String, SeatDto>> planeMap) throws IOException{
-        FileWriter fw = new FileWriter(outPathInput);
-        for(String row : planeMap.keySet()){
+        File fileCsv = new File(outPathInput);
+        FileWriter fw = new FileWriter(fileCsv);
+        for(String row : planeMap.keySet().stream().sorted().collect(Collectors.toList())){
             Map<String, SeatDto> rowMap = planeMap.get(row);
             SeatCategory category = rowMap.entrySet().stream().findFirst().get().getValue().getSeatCategory();
             for(String column : rowMap.keySet()){

@@ -71,7 +71,8 @@ public class Flight implements Serializable {
     }
 
     public Seat getSeat(int row, String column) throws RemoteException {
-        Seat seat = planeSeats.get(""+row).get(column);
+        String rowS =  (row) < 10 ? ("0"+(row)) :""+(row);
+        Seat seat = planeSeats.get(rowS).get(column);
         if (seat == null) throw new RemoteException();
         return seat;
     }

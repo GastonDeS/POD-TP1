@@ -30,8 +30,9 @@ public class PlaneTest {
         int i=0;
         for (SeatCategory value : SeatCategory.values()) {
             for (int w = 0; w < planeDataMap.get(value).getRows(); w++, i++) {
+                String row =  (i+1) < 10 ? ("0"+(i+1)) :""+(i+1);
                 for (int j = 0; j < planeDataMap.get(value).getRows(); j++) {
-                    Assertions.assertEquals( value,seats.get("" + (i + 1)).getOrDefault("" + (char) (65 + j), null).getSeatCategory());
+                    Assertions.assertEquals( value,seats.get(row).getOrDefault("" + (char) (65 + j), null).getSeatCategory());
                 }
             }
         }

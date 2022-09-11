@@ -10,6 +10,7 @@ import ar.edu.itba.pod.server.services.FlightsAdminService;
 import java.rmi.RemoteException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class SeatMapService implements SeatMapServiceInterface {
     private static SeatMapService instance;
@@ -51,7 +52,7 @@ public class SeatMapService implements SeatMapServiceInterface {
         Map<String, Map<String, SeatDto>> planeMap = seatsToDto(flight.getPlaneSeats());
         Map<String, Map<String, SeatDto>> categoryMap = new HashMap<>();
         boolean found = false;
-        for(String row : planeMap.keySet()){
+        for(String row : planeMap.keySet().stream().sorted().collect(Collectors.toList())){
             if(flight.getRowCategory(row).equals(category)){
                 found = true;
                 categoryMap.put(row, planeMap.get(row));
