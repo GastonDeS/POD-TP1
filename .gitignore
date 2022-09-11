@@ -9,3 +9,4 @@ tpe1-g10/client/*.iml
 tpe1-g10/api/*.iml
 tpe1-g10/*.iml
 out
+*.csv
