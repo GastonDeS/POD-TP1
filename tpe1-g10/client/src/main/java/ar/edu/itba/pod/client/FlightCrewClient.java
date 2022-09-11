@@ -13,7 +13,12 @@ import java.rmi.RemoteException;
 import java.util.Map;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class FlightCrewClient {
+    private static Logger logger = LoggerFactory.getLogger(FlightCrewClient.class);
+
     private static String serverAddressInput;
     private static String flightCodeInput;
     private static String outPathInput = "./";
@@ -26,7 +31,7 @@ public class FlightCrewClient {
 
     public static void main(String[] args) throws RemoteException,
             NotBoundException, MalformedURLException {
-        System.out.println("tpe1-g10 Flight Crew Client Starting ...");
+        logger.info("tpe1-g10 Flight Crew Client Starting ...");
         try {
             getSystemProperties();
             getResults();
@@ -34,7 +39,7 @@ public class FlightCrewClient {
             System.err.println(e.getMessage());
             System.exit(-1);
         }
-        System.out.println("Flight Crew Client has succesfully done his job");
+        logger.info("Flight Crew Client has succesfully done his job");
     }
 
     private static void getSystemProperties() throws RemoteException {
@@ -48,9 +53,7 @@ public class FlightCrewClient {
             throw new RemoteException("You cannot consult for category and row at the same time");
         } else if (optionalRowInput.isPresent()) {
             rowInput = optionalRowInput.get();
-        } else if (optionalCategoryInput.isPresent()) {
-            categoryInput = SeatCategory.valueOf(optionalCategoryInput.get()) ;
-        }
+        } else optionalCategoryInput.ifPresent(s -> categoryInput = SeatCategory.valueOf(s));
 
         StringBuilder str = new StringBuilder();
         str.append(outPathInput);
