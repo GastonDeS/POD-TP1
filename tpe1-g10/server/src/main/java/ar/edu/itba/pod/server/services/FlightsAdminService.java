@@ -1,8 +1,10 @@
 package ar.edu.itba.pod.server.services;
 
 import ar.edu.itba.pod.constants.FlightStatus;
+import ar.edu.itba.pod.constants.NotificationCategory;
 import ar.edu.itba.pod.constants.SeatCategory;
 import ar.edu.itba.pod.interfaces.FlightAdminServiceInterface;
+import ar.edu.itba.pod.server.services.NotificationService;
 import ar.edu.itba.pod.models.Flight;
 import ar.edu.itba.pod.models.Plane;
 import ar.edu.itba.pod.models.Ticket;
@@ -19,10 +21,12 @@ public class FlightsAdminService implements FlightAdminServiceInterface {
     private static FlightsAdminService instance;
     private final Map<String, Plane> planes;
     private final Map<String, Flight> flights;
+    private final NotificationService notificationService;
 
     private FlightsAdminService() {
         this.planes = new HashMap<>();
         this.flights = new HashMap<>();
+        this.notificationService = NotificationService.getInstance();
     }
 
     public static FlightsAdminService getInstance() {
@@ -88,6 +92,9 @@ public class FlightsAdminService implements FlightAdminServiceInterface {
         Flight flight = getFlight(code);
         if (flight.getStatus() != FlightStatus.PENDING) throw new RemoteException("Error: flight " + code + "is "+ flight.getStatus());
         flight.setStatus(FlightStatus.CONFIRMED);
+        for (Ticket ticket : flight.getTicketList()) {
+          notificationService.newNotification(code, ticket.getName(), NotificationCategory.FLIGHT_CONFIRMED);
+        }
     }
 
     public void cancelPendingFlight(String code) throws RemoteException {
@@ -96,6 +103,9 @@ public class FlightsAdminService implements FlightAdminServiceInterface {
             throw new RemoteException("Error: flight " + code + "does not exist");
         if (flight.getStatus() != FlightStatus.PENDING) throw new RemoteException("Error: flight " + code + "is "+ flight.getStatus());
         flight.setStatus(FlightStatus.CANCELLED);
+        for (Ticket ticket : flight.getTicketList()) {
+            notificationService.newNotification(code, ticket.getName(), NotificationCategory.FLIGHT_CANCELLED);
+        }
     }
 
     // TODO Change we need a way to not return everything via String
@@ -155,6 +165,7 @@ public class FlightsAdminService implements FlightAdminServiceInterface {
                 try {
                     swapTicket(oldTickets.get(0), flight, seatCategory);
                     oldTickets.remove(0);
+                    notificationService.newNotification(flight.getCode(), oldTickets.get(0).getName(), NotificationCategory.CHANGED_TICKET);
                 } catch (RemoteException e) {
                     logger.error("Fail to swap ticket "+ oldTickets.get(0).getName() +" for Flight "+oldTickets.get(0).getFlightCode());
                 }

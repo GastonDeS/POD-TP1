@@ -96,11 +96,9 @@ public class SeatsAssignmentService implements SeatsAssignmentServiceInterface {
             throw new RemoteException("Error: seat " + row + column + " is not available for your category");
 
         if (isChange) {
-            // Notify changes
             notificationService.newNotification(flightCode, name, ticket, NotificationCategory.CHANGED_SEAT);
             if (ticket.getSeat() != null) ticket.getSeat().setAvailable(true, '*');
         } else {
-            // Notify changes
             notificationService.newNotification(flightCode, name, NotificationCategory.CHANGED_SEAT);
         }
 
