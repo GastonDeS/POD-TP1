@@ -3,6 +3,7 @@ package ar.edu.itba.pod.services;
 import ar.edu.itba.pod.constants.SeatCategory;
 import ar.edu.itba.pod.models.PlaneData;
 import ar.edu.itba.pod.models.Ticket;
+import ar.edu.itba.pod.models.TicketDto;
 import ar.edu.itba.pod.server.services.FlightsAdminService;
 import ar.edu.itba.pod.services.utils.TestUtils;
 import org.junit.jupiter.api.Assertions;
@@ -31,7 +32,7 @@ public class FlightsAdminServiceTest {
         Map<SeatCategory, PlaneData> rowsData = TestUtils.getPlaneDataForFlight();
         flightsAdminService.createPlane(PLANE_1, rowsData);
 
-        List<Ticket > tickets = TestUtils.getTickets("AA");
+        List<TicketDto> tickets = TestUtils.getTickets("AA");
 
         flightsAdminService.createFlight(PLANE_1, "AA", "BA", tickets);
         flightsAdminService.cancelPendingFlight("AA");
@@ -46,7 +47,7 @@ public class FlightsAdminServiceTest {
 
         flightsAdminService.createPlane(PLANE_1, rowsData);
 
-        List<Ticket > tickets = TestUtils.getTickets("AA");
+        List<TicketDto> tickets = TestUtils.getTickets("AA");
 
         flightsAdminService.createFlight(PLANE_1, "AA", "BA", tickets);
 
@@ -66,7 +67,7 @@ public class FlightsAdminServiceTest {
         Map<SeatCategory, PlaneData> rowsData = TestUtils.getPlaneDataForFlight();
         flightsAdminService.createPlane(PLANE_1, rowsData);
 
-        List<Ticket > tickets = TestUtils.getTickets("AA");
+        List<TicketDto> tickets = TestUtils.getTickets("AA");
 
         flightsAdminService.createFlight(PLANE_1, "AA", "BA", tickets);
 
@@ -88,7 +89,7 @@ public class FlightsAdminServiceTest {
         Map<SeatCategory, PlaneData> rowsData = TestUtils.getPlaneDataForFlight();
         flightsAdminService.createPlane(PLANE_1, rowsData);
 
-        List<Ticket > tickets = TestUtils.getTickets("AA");
+        List<TicketDto> tickets = TestUtils.getTickets("AA");
 
         flightsAdminService.createFlight(PLANE_1, "AA", "BA", tickets);
 
@@ -117,7 +118,7 @@ public class FlightsAdminServiceTest {
         Map<SeatCategory, PlaneData> rowsData = TestUtils.getPlaneDataForFlight();
         flightsAdminService.createPlane(PLANE_1, rowsData);
 
-        List<Ticket > tickets = TestUtils.getTickets("AA");
+        List<TicketDto> tickets = TestUtils.getTickets("AA");
         flightsAdminService.createFlight(PLANE_1, "AA", "BA", tickets);
 
         flightsAdminService.createPlane(PLANE_2, TestUtils.getOneSeatPlaneData(SeatCategory.BUSINESS));

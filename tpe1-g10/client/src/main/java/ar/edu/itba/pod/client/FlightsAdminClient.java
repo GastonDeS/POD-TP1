@@ -5,7 +5,7 @@ import ar.edu.itba.pod.interfaces.FlightAdminServiceInterface;
 import ar.edu.itba.pod.constants.ActionsFlightsAdmin;
 import ar.edu.itba.pod.constants.SeatCategory;
 import ar.edu.itba.pod.models.PlaneData;
-import ar.edu.itba.pod.models.Ticket;
+import ar.edu.itba.pod.models.TicketDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -96,8 +96,6 @@ public class FlightsAdminClient {
     }
 
 
-    // TODO dont create tickets ?
-    // TODO put more validators over the csv this way we only accept valid csv of throw ? Is that correct ?
     private static void uploadFlights(FlightAdminServiceInterface service, String fileName) {
         File fileCsv = new File(fileName);
         try {
@@ -107,7 +105,7 @@ public class FlightsAdminClient {
             while ((line = br.readLine()) != null) {
                 String[] values = line.split(";");
                 String[] ticketsString = values.length > 3 ? values[3].split(",") : new String[]{};
-                List<ar.edu.itba.pod.models.Ticket> tickets = parseTickets(ticketsString, values[1]);
+                List<TicketDto> tickets = parseTickets(ticketsString, values[1]);
                 service.createFlight(values[0], values[1], values[2], tickets);
             }
 
@@ -118,12 +116,11 @@ public class FlightsAdminClient {
     }
 
 
-    // TODO no me gusta nada crear tickets ?
-    private static List<ar.edu.itba.pod.models.Ticket> parseTickets(String[] tickets, String flightCode) {
-        List<ar.edu.itba.pod.models.Ticket> ticketList = new ArrayList<>();
+    private static List<TicketDto> parseTickets(String[] tickets, String flightCode) {
+        List<TicketDto> ticketList = new ArrayList<>();
         for (int i = 0; i < tickets.length; i++) {
             String[] ticketData = tickets[i].split("#");
-            ticketList.add(new Ticket(ticketData[1], SeatCategory.valueOf(ticketData[0]), flightCode));
+            ticketList.add(new TicketDto(ticketData[1], SeatCategory.valueOf(ticketData[0]), flightCode));
         }
         return ticketList;
     }

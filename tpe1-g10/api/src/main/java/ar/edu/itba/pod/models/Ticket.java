@@ -3,6 +3,7 @@ package ar.edu.itba.pod.models;
 import ar.edu.itba.pod.constants.SeatCategory;
 import ar.edu.itba.pod.models.Seat;
 import ar.edu.itba.pod.models.Flight;
+import ar.edu.itba.pod.models.TicketDto;
 
 import java.io.Serializable;
 import java.rmi.RemoteException;
@@ -17,6 +18,10 @@ public class Ticket implements Serializable {
         this.name = name;
         this.seatCategory = seatCategory;
         this.flightCode = flightCode;
+    }
+
+    public static Ticket createFromDto(TicketDto ticketDto) {
+        return new Ticket(ticketDto.getName(), ticketDto.getSeatCategory(), ticketDto.getFlightCode());
     }
 
     public String getFlightCode() {

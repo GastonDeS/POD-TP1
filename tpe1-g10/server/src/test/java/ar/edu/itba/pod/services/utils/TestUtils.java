@@ -4,6 +4,7 @@ import ar.edu.itba.pod.constants.SeatCategory;
 import ar.edu.itba.pod.models.Flight;
 import ar.edu.itba.pod.models.Ticket;
 import ar.edu.itba.pod.models.PlaneData;
+import ar.edu.itba.pod.models.TicketDto;
 
 import java.rmi.RemoteException;
 import java.util.ArrayList;
@@ -13,13 +14,13 @@ import java.util.Map;
 
 public class TestUtils {
     
-    public static List<Ticket> getTickets(String flightCode) {
-        List<Ticket> tickets = new ArrayList<>();
-        tickets.add(new Ticket("Gaston", SeatCategory.ECONOMY, flightCode));
-        tickets.add(new Ticket("Brittu", SeatCategory.PREMIUM_ECONOMY, flightCode));
-        tickets.add(new Ticket("Flor", SeatCategory.ECONOMY, flightCode));
-        tickets.add(new Ticket("Juanma", SeatCategory.ECONOMY, flightCode));
-        tickets.add(new Ticket("Sol", SeatCategory.ECONOMY, flightCode));
+    public static List<TicketDto> getTickets(String flightCode) {
+        List<TicketDto> tickets = new ArrayList<>();
+        tickets.add(new TicketDto("Gaston", SeatCategory.ECONOMY, flightCode));
+        tickets.add(new TicketDto("Brittu", SeatCategory.PREMIUM_ECONOMY, flightCode));
+        tickets.add(new TicketDto("Flor", SeatCategory.ECONOMY, flightCode));
+        tickets.add(new TicketDto("Juanma", SeatCategory.ECONOMY, flightCode));
+        tickets.add(new TicketDto("Sol", SeatCategory.ECONOMY, flightCode));
         return tickets;
     }
 

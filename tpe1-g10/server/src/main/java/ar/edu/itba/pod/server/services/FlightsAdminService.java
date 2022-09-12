@@ -9,6 +9,7 @@ import ar.edu.itba.pod.models.Flight;
 import ar.edu.itba.pod.models.Plane;
 import ar.edu.itba.pod.models.Ticket;
 import ar.edu.itba.pod.models.PlaneData;
+import ar.edu.itba.pod.models.TicketDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,15 +70,14 @@ public class FlightsAdminService implements FlightAdminServiceInterface {
         logger.info("plane created");
     }
 
-    // TODO tickets may not need to be created when a code and the code can be added here
-    public void createFlight(String planeName, String code, String destination, List<Ticket> tickets) throws RemoteException {
+    public void createFlight(String planeName, String code, String destination, List<TicketDto> tickets) throws RemoteException {
         if (flights.containsKey(code)) {
             throw new RemoteException("Error: flight " +code+ " already exists");
         }
         if (planeName == null || !planes.containsKey(planeName))
             throw new RemoteException("Error: plane doesn't exists");
         Flight flight = new Flight(planeName, planes.get(planeName).getSeats(), code, destination);
-        tickets.forEach(flight::addTicketToFlight);
+        tickets.forEach(ticketDto -> flight.addTicketToFlight(Ticket.createFromDto(ticketDto)));
         flights.put(flight.getCode(), flight);
         logger.info("flightAdded: "+code+" "+tickets.size());
     }

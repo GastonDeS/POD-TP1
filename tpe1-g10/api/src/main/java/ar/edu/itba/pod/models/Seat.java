@@ -1,6 +1,7 @@
 package ar.edu.itba.pod.models;
 
 import ar.edu.itba.pod.constants.SeatCategory;
+import ar.edu.itba.pod.models.SeatDto;
 
 import java.io.Serializable;
 

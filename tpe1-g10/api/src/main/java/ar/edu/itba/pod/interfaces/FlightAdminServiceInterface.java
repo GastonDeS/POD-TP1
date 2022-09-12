@@ -2,8 +2,8 @@ package ar.edu.itba.pod.interfaces;
 
 
 import ar.edu.itba.pod.constants.FlightStatus;
-import ar.edu.itba.pod.models.Ticket;
 import ar.edu.itba.pod.models.PlaneData;
+import ar.edu.itba.pod.models.TicketDto;
 import ar.edu.itba.pod.constants.SeatCategory;
 
 import java.rmi.Remote;
@@ -13,7 +13,7 @@ import java.util.Map;
 
 public interface FlightAdminServiceInterface extends Remote {
 
-    void createFlight(String planeName, String code, String destination, List<Ticket> tickets) throws RemoteException;
+    void createFlight(String planeName, String code, String destination, List<TicketDto> tickets) throws RemoteException;
 
     void createPlane(String name, Map<SeatCategory, PlaneData> planeDataMap) throws RemoteException;
 
