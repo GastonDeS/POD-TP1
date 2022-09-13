@@ -5,6 +5,7 @@ import ar.edu.itba.pod.constants.NotificationCategory;
 import ar.edu.itba.pod.interfaces.SeatsAssignmentServiceInterface;
 import ar.edu.itba.pod.server.services.FlightsAdminService;
 import ar.edu.itba.pod.server.services.NotificationService;
+import ar.edu.itba.pod.models.AvailableFlightDto;
 import ar.edu.itba.pod.server.models.Flight;
 import ar.edu.itba.pod.server.models.Seat;
 import ar.edu.itba.pod.server.models.Ticket;
@@ -44,7 +45,7 @@ public class SeatsAssignmentService implements SeatsAssignmentServiceInterface {
         assignOrChangeSeat(flightCode, name, row, column, true);
     }
 
-    public ar.edu.itba.pod.models.AvailableFlightDto getAvailableFlights(String flightCode, String name) throws RemoteException {
+    public AvailableFlightDto getAvailableFlights(String flightCode, String name) throws RemoteException {
         Flight currentFlight = flightsAdminService.getFlight(flightCode);
         Ticket ticket = currentFlight.getPassengerTicket(name);
         if (currentFlight.getStatus().equals(FlightStatus.CONFIRMED)) throw new RemoteException("Error: flight is already confirmed");
@@ -70,7 +71,7 @@ public class SeatsAssignmentService implements SeatsAssignmentServiceInterface {
                 }
             }
         });
-        return new ar.edu.itba.pod.models.AvailableFlightDto(currentFlight.getDestination(), availableFlights);
+        return new AvailableFlightDto(currentFlight.getDestination(), availableFlights);
     }
 
     public void changeTicket(String name, String current, String alternative) throws RemoteException {
