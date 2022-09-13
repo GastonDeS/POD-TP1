@@ -1,16 +1,19 @@
 package ar.edu.itba.pod.client;
 
-import ar.edu.itba.pod.models.TicketDto;
-import ar.edu.itba.pod.models.ChangedTicketsDto;
-import ar.edu.itba.pod.constants.FlightStatus;
-import ar.edu.itba.pod.interfaces.FlightAdminServiceInterface;
 import ar.edu.itba.pod.constants.ActionsFlightsAdmin;
+import ar.edu.itba.pod.constants.FlightStatus;
 import ar.edu.itba.pod.constants.SeatCategory;
+import ar.edu.itba.pod.interfaces.FlightAdminServiceInterface;
+import ar.edu.itba.pod.models.ChangedTicketsDto;
 import ar.edu.itba.pod.models.PlaneData;
+import ar.edu.itba.pod.models.TicketDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.Reader;
 import java.rmi.Naming;
 import java.rmi.RemoteException;
 import java.util.*;
@@ -23,40 +26,47 @@ public class FlightsAdminClient {
     private static String fileName;
     private static String planeCode;
 
-    private static void getProperties() {
+    private static void getProperties() throws RemoteException {
         Properties props = System.getProperties();
         serverAddress = props.getProperty("serverAddress");
         actionName = ActionsFlightsAdmin.valueOf(props.getProperty("action").toUpperCase());
         fileName = props.getProperty("inPath");
         planeCode = props.getProperty("flight");
+
+        if (serverAddress == null)
+            logger.error("The server address must be valid");
+
+        if (fileName != null && planeCode != null)
+            logger.error("You cannot consult for a file and a flight code at the same time");
     }
 
     private static void cancelMethod(FlightAdminServiceInterface service, String planeCode) {
         try {
             service.cancelPendingFlight(planeCode);
+            logger.info("Flight " + planeCode + " was CANCELLED");
+
         } catch (RemoteException ex) {
-            ex.getMessage();
+            logger.error(ex.getCause().getMessage());
         }
-        logger.info("Flight " + planeCode + " was CANCELLED");
     }
 
     private static void statusMethod(FlightAdminServiceInterface service, String planeCode) {
         FlightStatus flightStatus = FlightStatus.PENDING;
         try {
             flightStatus = service.checkFlightStatus(planeCode);
+            logger.info("Flight" + planeCode + " new status is: " + flightStatus);
         } catch (RemoteException ex) {
-            ex.getMessage();
+            logger.error(ex.getCause().getMessage());
         }
-        logger.info("Flight" + planeCode + " new status is: " + flightStatus);
     }
 
     private static void confirmMethod(FlightAdminServiceInterface service, String planeCode) {
         try {
             service.confirmPendingFlight(planeCode);
+            logger.info("Flight " + planeCode + " was CONFIRMED");
         } catch (RemoteException ex) {
-           ex.getMessage();
+            logger.error(ex.getCause().getMessage());
         }
-        logger.info("Flight " + planeCode + " was CONFIRMED");
     }
 
     private static void reticketingMethod(FlightAdminServiceInterface service) {
@@ -65,10 +75,11 @@ public class FlightsAdminClient {
             ticketDto = service.findNewSeatsForCancelledFlights();
         } catch (RemoteException ex) {
             logger.error("The reticketing could not be completed");
+            return;
         }
         logger.info(ticketDto.getTicketsChangedAmount() + " tickets were changed\n");
         ticketDto.getTicketDtoList().forEach(ticket -> {
-            logger.info("Cannot find alternative flight for " + ticket.getName() + " with Ticket " + ticket.getFlightCode() +"\n");
+            logger.info("Cannot find alternative flight for " + ticket.getName() + " with Ticket " + ticket.getFlightCode() + "\n");
 
         });
     }
@@ -95,7 +106,7 @@ public class FlightsAdminClient {
         Map<SeatCategory, PlaneData> planeData = new HashMap<>();
         for (int i = 0; i < plane.length; i++) {
             String[] categoryData = plane[i].split("#");
-            planeData.put(SeatCategory.valueOf(categoryData[0]), new PlaneData( Integer.parseInt(categoryData[1]), Integer.parseInt(categoryData[2])));
+            planeData.put(SeatCategory.valueOf(categoryData[0]), new PlaneData(Integer.parseInt(categoryData[1]), Integer.parseInt(categoryData[2])));
         }
         return planeData;
     }
@@ -131,27 +142,38 @@ public class FlightsAdminClient {
     }
 
 
-
-    private static void callMethod(ActionsFlightsAdmin actionsFlightsAdmin, FlightAdminServiceInterface service, String fileName, String planeCode) {
+    private static void callMethod(ActionsFlightsAdmin actionsFlightsAdmin, FlightAdminServiceInterface service, String fileName, String planeCode) throws RemoteException {
         switch (actionsFlightsAdmin) {
             case CANCEL:
+                if (planeCode == null)
+                    logger.error("There must be a valid flight code");
                 cancelMethod(service, planeCode);
                 break;
             case MODELS:
+                if (fileName == null)
+                    logger.error("There must be a valid filename");
                 uploadModels(service, fileName);
                 break;
             case FLIGHTS:
+                if (fileName == null)
+                    logger.error("There must be a valid filename");
                 uploadFlights(service, fileName);
                 break;
             case STATUS:
+                if (planeCode == null)
+                    logger.error("There must be a valid flight code");
                 statusMethod(service, planeCode);
                 break;
             case CONFIRM:
+                if (planeCode == null)
+                    logger.error("There must be a valid flight code");
                 confirmMethod(service, planeCode);
                 break;
             case RETICKETING:
                 reticketingMethod(service);
                 break;
+            default:
+                throw new RemoteException("Please enter a valid action");
         }
     }
 
@@ -161,13 +183,12 @@ public class FlightsAdminClient {
 
             getProperties();
 
-
             final FlightAdminServiceInterface service = (FlightAdminServiceInterface) Naming.lookup("//" + serverAddress + "/flightAdminService");
 
+            logger.info("client started");
 
             callMethod(actionName, service, fileName, planeCode);
 
-            logger.info("client started");
         } catch (Exception ex) {
             logger.error("An exception happened");
             ex.printStackTrace();
