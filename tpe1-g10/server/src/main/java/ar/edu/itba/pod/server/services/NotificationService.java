@@ -22,8 +22,6 @@ public class NotificationService implements NotificationServicePrivateInterface 
 
     private final Map<String, Map<String, NotificationCallbackHandler>> subscribedMap = new HashMap<>();
 
-    private final static Logger logger = LoggerFactory.getLogger(NotificationService.class);
-
     public NotificationService() {
         this.flightsAdminService = FlightsAdminService.getInstance();
     }
@@ -55,21 +53,21 @@ public class NotificationService implements NotificationServicePrivateInterface 
                 Ticket ticket = this.flightsAdminService.getFlight(flightNumber).getPassengerTicket(name);
                 switch (notificationCategory) {
                     case SUBSCRIBED:
-                        subscribedMap.get(flightNumber).get(name).subscribedNotification(logger, flightNumber,
+                        subscribedMap.get(flightNumber).get(name).subscribedNotification(flightNumber,
                                 flightsAdminService.getFlight(ticket.getFlightCode()).getDestination());
                         break;
                     case FLIGHT_CONFIRMED:
-                        subscribedMap.get(flightNumber).get(name).flightConfirmedNotification(logger, flightNumber,
+                        subscribedMap.get(flightNumber).get(name).flightConfirmedNotification(flightNumber,
                                 flightsAdminService.getFlight(ticket.getFlightCode()).getDestination(),
                                 ticket.getSeatCategory().getMessage(), ticket.getSeat().getPlace());
                         break;
                     case FLIGHT_CANCELLED:
-                        subscribedMap.get(flightNumber).get(name).flightCancelledNotification(logger, flightNumber,
+                        subscribedMap.get(flightNumber).get(name).flightCancelledNotification(flightNumber,
                                 flightsAdminService.getFlight(ticket.getFlightCode()).getDestination(),
                                 ticket.getSeatCategory().getMessage(), ticket.getSeat().getPlace());
                         break;
                     case ASSIGNED_SEAT:
-                        subscribedMap.get(flightNumber).get(name).assignedSeatNotification(logger, flightNumber,
+                        subscribedMap.get(flightNumber).get(name).assignedSeatNotification(flightNumber,
                                 flightsAdminService.getFlight(ticket.getFlightCode()).getDestination(),
                                 ticket.getSeatCategory().getMessage(), ticket.getSeat().getPlace());
                         break;
@@ -82,7 +80,7 @@ public class NotificationService implements NotificationServicePrivateInterface 
         if (subscribedMap.containsKey(flightNumber)) {
             if (subscribedMap.get(flightNumber).containsKey(name)) {
                 Ticket ticket = this.flightsAdminService.getFlight(flightNumber).getPassengerTicket(name);
-                subscribedMap.get(flightNumber).get(name).changedTicketNotification(logger, flightNumber,
+                subscribedMap.get(flightNumber).get(name).changedTicketNotification( flightNumber,
                         flightsAdminService.getFlight(ticket.getFlightCode()).getDestination(),
                         ticket.getSeatCategory().getMessage(), ticket.getSeat().getPlace(),
                         flightCode, oldDestination);
@@ -94,7 +92,7 @@ public class NotificationService implements NotificationServicePrivateInterface 
         if (subscribedMap.containsKey(flightNumber)) {
             if (subscribedMap.get(flightNumber).containsKey(name)) {
                 Ticket ticket = this.flightsAdminService.getFlight(flightNumber).getPassengerTicket(name);
-                subscribedMap.get(flightNumber).get(name).changedSeatNotification(logger, flightNumber,
+                subscribedMap.get(flightNumber).get(name).changedSeatNotification( flightNumber,
                         flightsAdminService.getFlight(ticket.getFlightCode()).getDestination(),
                         ticket.getSeatCategory().getMessage(), ticket.getSeat().getPlace(),
                         oldMessage, oldPlace);
