@@ -59,14 +59,19 @@ public class SeatsAssignmentClient {
         switch (parser.getAction()) {
             case STATUS:
                 checkSeatStatus(service, parser);
+                break;
             case ASSIGN:
                 assignSeat(service, parser);
+                break;
             case MOVE:
                 changeSeat(service, parser);
+                break;
             case ALTERNATIVES:
                 alternativeFlights(service, parser);
+                break;
             case CHANGE:
                 changeTicket(service, parser);
+                break;
         }
     }
 
