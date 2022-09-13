@@ -47,6 +47,8 @@ public class NotificationService implements NotificationServicePrivateInterface 
         newNotification(flightNumber, name, NotificationCategory.SUBSCRIBED);
     }
 
+
+
     public void newNotification(String flightNumber, String name, NotificationCategory notificationCategory) throws RemoteException {
         if (subscribedMap.containsKey(flightNumber)) {
             if (subscribedMap.get(flightNumber).containsKey(name)) {
@@ -60,6 +62,11 @@ public class NotificationService implements NotificationServicePrivateInterface 
                         subscribedMap.get(flightNumber).get(name).flightConfirmedNotification(flightNumber,
                                 flightsAdminService.getFlight(ticket.getFlightCode()).getDestination(),
                                 ticket.getSeatCategory().getMessage(), ticket.getSeat().getPlace());
+                        subscribedMap.get(flightNumber).get(name).finish();
+                        subscribedMap.get(flightNumber).remove(name);
+                        if (subscribedMap.get(flightNumber).isEmpty()) {
+                            subscribedMap.remove(flightNumber);
+                        }
                         break;
                     case FLIGHT_CANCELLED:
                         subscribedMap.get(flightNumber).get(name).flightCancelledNotification(flightNumber,
@@ -81,9 +88,7 @@ public class NotificationService implements NotificationServicePrivateInterface 
             if (subscribedMap.get(flightNumber).containsKey(name)) {
                 Ticket ticket = this.flightsAdminService.getFlight(flightNumber).getPassengerTicket(name);
                 subscribedMap.get(flightNumber).get(name).changedTicketNotification( flightNumber,
-                        flightsAdminService.getFlight(ticket.getFlightCode()).getDestination(),
-                        ticket.getSeatCategory().getMessage(), ticket.getSeat().getPlace(),
-                        flightCode, oldDestination);
+                        flightsAdminService.getFlight(ticket.getFlightCode()).getDestination(), flightCode, oldDestination);
             }
         }
     }

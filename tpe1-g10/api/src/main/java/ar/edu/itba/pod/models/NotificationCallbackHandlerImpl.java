@@ -11,6 +11,14 @@ public class NotificationCallbackHandlerImpl implements NotificationCallbackHand
 
     private static final Logger logger = LoggerFactory.getLogger(NotificationCallbackHandler.class);
 
+    private boolean finished = false;
+
+    // TODO: Check thread safe
+    @Override
+    public void finish() throws RemoteException {
+        finished = true;
+    }
+
     @Override
     public void subscribedNotification(String flightCode, String dest) throws RemoteException {
         logger.info("You are following flight " + flightCode + " with destination " + dest);
@@ -18,12 +26,21 @@ public class NotificationCallbackHandlerImpl implements NotificationCallbackHand
 
     @Override
     public void flightConfirmedNotification(String flightCode, String dest, String seatCategory, String place) throws RemoteException {
-        logger.info("Your flight " + flightCode + " with destination " + dest + " was confirmed and your seat is " + seatCategory + " " + place);
+        if (seatCategory != null && place != null) {
+            logger.info("Your flight " + flightCode + " with destination " + dest + " was confirmed and your seat is " + seatCategory + " " + place);
+        } else {
+            logger.info("Your flight " + flightCode + " with destination " + dest + " was confirmed");
+
+        }
     }
 
     @Override
     public void flightCancelledNotification(String flightCode, String dest, String seatCategory, String place) throws RemoteException {
-        logger.info("Your flight " + flightCode + " with destination " + dest + " was cancelled and your seat is " + seatCategory + " " + place);
+        if (seatCategory != null && place != null) {
+            logger.info("Your flight " + flightCode + " with destination " + dest + " was cancelled and your seat is " + seatCategory + " " + place);
+        } else {
+            logger.info("Your flight " + flightCode + " with destination " + dest + " was cancelled");
+        }
     }
 
     @Override
@@ -38,9 +55,11 @@ public class NotificationCallbackHandlerImpl implements NotificationCallbackHand
     }
 
     @Override
-    public void changedTicketNotification(String flightCode, String dest, String seatCategory, String place,
-                                          String oldFlightCode, String oldDest) throws RemoteException {
+    public void changedTicketNotification(String flightCode, String dest, String oldFlightCode, String oldDest) throws RemoteException {
         logger.info("Your ticket changed to flight " + flightCode + " with destination " + dest + " from flight " + oldFlightCode + " with destination " + oldDest);
     }
 
+    public boolean isFinished() {
+        return finished;
+    }
 }

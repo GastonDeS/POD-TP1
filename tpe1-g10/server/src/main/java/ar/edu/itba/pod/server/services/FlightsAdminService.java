@@ -93,6 +93,7 @@ public class FlightsAdminService implements FlightAdminServiceInterface {
         return flight.getStatus();
     }
 
+    // TODO: change cycling to notification service
     public void confirmPendingFlight(String code) throws RemoteException {
         if (notificationService == null) init();
         Flight flight = getFlight(code);
@@ -102,6 +103,7 @@ public class FlightsAdminService implements FlightAdminServiceInterface {
         }
     }
 
+    // TODO: change cycling to notification service
     public void cancelPendingFlight(String code) throws RemoteException {
         if (notificationService == null) init();
         Flight flight = getFlight(code);
