@@ -3,10 +3,10 @@ package ar.edu.itba.pod.server.services;
 import ar.edu.itba.pod.constants.FlightStatus;
 import ar.edu.itba.pod.constants.NotificationCategory;
 import ar.edu.itba.pod.interfaces.NotificationCallbackHandler;
-import ar.edu.itba.pod.interfaces.NotificationServicePrivateInterface;
+import ar.edu.itba.pod.server.interfaces.NotificationServicePrivateInterface;
 import ar.edu.itba.pod.server.services.FlightsAdminService;
-import ar.edu.itba.pod.models.Flight;
-import ar.edu.itba.pod.models.Ticket;
+import ar.edu.itba.pod.server.models.Flight;
+import ar.edu.itba.pod.server.models.Ticket;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +18,7 @@ public class NotificationService implements NotificationServicePrivateInterface 
 
     private static NotificationService instance;
 
-    private final FlightsAdminService flightsAdminService;
+    private FlightsAdminService flightsAdminService;
 
     private final Map<String, Map<String, NotificationCallbackHandler>> subscribedMap = new HashMap<>();
 

@@ -1,7 +1,6 @@
 package ar.edu.itba.pod.models;
 
 import ar.edu.itba.pod.constants.SeatCategory;
-import ar.edu.itba.pod.models.Seat;
 
 import java.io.Serializable;
 
@@ -11,11 +10,11 @@ public class SeatDto implements Serializable {
     private final char info;
     private final String place;
 
-    public SeatDto(Seat seat) {
-        this.seatCategory = seat.getSeatCategory();
-        this.place = seat.getPlace();
-        this.available = seat.isAvailable();
-        this.info = seat.getInfo();
+    public SeatDto(SeatCategory seatCategory, boolean available, char info, String place) {
+        this.seatCategory = seatCategory;
+        this.available = available;
+        this.info = info;
+        this.place = place;
     }
 
     public SeatCategory getSeatCategory() {

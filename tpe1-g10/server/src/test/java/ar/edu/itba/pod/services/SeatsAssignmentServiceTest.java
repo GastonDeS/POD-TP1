@@ -2,9 +2,10 @@ package ar.edu.itba.pod.services;
 
 import ar.edu.itba.pod.constants.SeatCategory;
 import ar.edu.itba.pod.models.PlaneData;
-import ar.edu.itba.pod.models.Ticket;
-import ar.edu.itba.pod.models.Flight;
+import ar.edu.itba.pod.server.models.Ticket;
+import ar.edu.itba.pod.server.models.Flight;
 import ar.edu.itba.pod.models.TicketDto;
+import ar.edu.itba.pod.models.FlightDto;
 import ar.edu.itba.pod.server.services.FlightsAdminService;
 import ar.edu.itba.pod.server.services.SeatsAssignmentService;
 import ar.edu.itba.pod.services.utils.TestUtils;
@@ -132,11 +133,11 @@ public class SeatsAssignmentServiceTest {
         flightsAdminService.confirmPendingFlight("BR");
         Flight alternative = flightsAdminService.getFlight("BR");
 
-        Map<SeatCategory, Map<Flight, Long>> availableFlights = seatsAssignmentService.getAvailableFlights("AA", "Brittu");
+        FlightDto availableFlights = seatsAssignmentService.getAvailableFlights("AA", "Brittu");
 
-        Assertions.assertNull(availableFlights.get(SeatCategory.BUSINESS));
-        Assertions.assertEquals(20L, availableFlights.get(SeatCategory.PREMIUM_ECONOMY).get(alternative));
-        Assertions.assertEquals(27L, availableFlights.get(SeatCategory.ECONOMY).get(alternative));
+        Assertions.assertNull(availableFlights.getSeats().get(SeatCategory.BUSINESS));
+        Assertions.assertEquals(20L, availableFlights.getSeats().get(SeatCategory.PREMIUM_ECONOMY).get(alternative.getCode()));
+        Assertions.assertEquals(27L, availableFlights.getSeats().get(SeatCategory.ECONOMY).get(alternative.getCode()));
     }
 
     @Test

@@ -1,4 +1,4 @@
-package ar.edu.itba.pod.models;
+package ar.edu.itba.pod.server.models;
 
 import ar.edu.itba.pod.constants.SeatCategory;
 import ar.edu.itba.pod.models.SeatDto;
@@ -16,6 +16,10 @@ public class Seat implements Serializable {
         this.place = place;
         this.info = '*';
         this.available = true;
+    }
+
+    public SeatDto toSeatDto() {
+        return new SeatDto(this.seatCategory, this.available, this.info, this.place);
     }
 
     private Seat(Builder builder) {

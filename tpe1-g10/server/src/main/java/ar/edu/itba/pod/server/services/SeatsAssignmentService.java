@@ -3,12 +3,14 @@ package ar.edu.itba.pod.server.services;
 import ar.edu.itba.pod.constants.FlightStatus;
 import ar.edu.itba.pod.constants.NotificationCategory;
 import ar.edu.itba.pod.interfaces.SeatsAssignmentServiceInterface;
-import ar.edu.itba.pod.models.Flight;
-import ar.edu.itba.pod.models.Seat;
-import ar.edu.itba.pod.models.Ticket;
-import ar.edu.itba.pod.constants.SeatCategory;
 import ar.edu.itba.pod.server.services.FlightsAdminService;
 import ar.edu.itba.pod.server.services.NotificationService;
+import ar.edu.itba.pod.server.models.Flight;
+import ar.edu.itba.pod.server.models.Seat;
+import ar.edu.itba.pod.server.models.Ticket;
+import ar.edu.itba.pod.models.FlightDto;
+import ar.edu.itba.pod.server.models.Flight;
+import ar.edu.itba.pod.constants.SeatCategory;
 
 import java.rmi.RemoteException;
 import java.util.*;
@@ -44,7 +46,7 @@ public class SeatsAssignmentService implements SeatsAssignmentServiceInterface {
         assignOrChangeSeat(flightCode, name, row, column, true);
     }
 
-    public Map<SeatCategory, Map<Flight, Long>> getAvailableFlights(String flightCode, String name) throws RemoteException {
+    public FlightDto getAvailableFlights(String flightCode, String name) throws RemoteException {
         Flight currentFlight = flightsAdminService.getFlight(flightCode);
         Ticket ticket = currentFlight.getPassengerTicket(name);
         if (currentFlight.getStatus().equals(FlightStatus.CONFIRMED)) throw new RemoteException("Error: flight is already confirmed");
@@ -56,20 +58,21 @@ public class SeatsAssignmentService implements SeatsAssignmentServiceInterface {
                         && !f.getCode().equals(flightCode))
                 .collect(Collectors.toList());
 
-        Map<SeatCategory, Map<Flight, Long>> availableFlights = new HashMap<>();
+
+        Map<SeatCategory, Map<String, Long>> availableFlights = new HashMap<>();
         similarFlights.forEach(flight -> {
             for (SeatCategory s : SeatCategory.values()) {
                 if (s.ordinal() >= ticket.getSeatCategory().ordinal()) {
                     long count = flight.getAvailableSeats().stream().filter(seat -> seat.getSeatCategory() == s).count();
                     if (count > 0) {
-                        Map<Flight, Long> flights = availableFlights.getOrDefault(s, new HashMap<>());
-                        flights.put(flight, count);
+                        Map<String, Long> flights = availableFlights.getOrDefault(s, new HashMap<>());
+                        flights.put(flight.getCode(), count);
                         availableFlights.put(s, flights);
                     }
                 }
             }
         });
-        return availableFlights;
+        return new FlightDto(currentFlight.getDestination(), availableFlights);
     }
 
     public void changeTicket(String name, String current, String alternative) throws RemoteException {

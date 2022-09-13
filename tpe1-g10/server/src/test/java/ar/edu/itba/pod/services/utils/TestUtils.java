@@ -1,8 +1,7 @@
 package ar.edu.itba.pod.services.utils;
 
 import ar.edu.itba.pod.constants.SeatCategory;
-import ar.edu.itba.pod.models.Flight;
-import ar.edu.itba.pod.models.Ticket;
+import ar.edu.itba.pod.server.models.Flight;
 import ar.edu.itba.pod.models.PlaneData;
 import ar.edu.itba.pod.models.TicketDto;
 

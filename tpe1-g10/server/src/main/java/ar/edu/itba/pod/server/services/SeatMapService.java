@@ -2,10 +2,10 @@ package ar.edu.itba.pod.server.services;
 
 import ar.edu.itba.pod.constants.SeatCategory;
 import ar.edu.itba.pod.interfaces.SeatMapServiceInterface;
-import ar.edu.itba.pod.models.Flight;
-import ar.edu.itba.pod.models.SeatDto;
-import ar.edu.itba.pod.models.Seat;
+import ar.edu.itba.pod.server.models.Flight;
 import ar.edu.itba.pod.server.services.FlightsAdminService;
+import ar.edu.itba.pod.models.SeatDto;
+import ar.edu.itba.pod.server.models.Seat;
 
 import java.rmi.RemoteException;
 import java.util.HashMap;
@@ -78,8 +78,8 @@ public class SeatMapService implements SeatMapServiceInterface {
 
     private Map<String, SeatDto> rowSeatDtoMap (Map<String, Seat> seatMap) {
         Map<String, SeatDto> rowSeatsToDto = new HashMap<>();
-        seatMap.forEach((key, value) -> {
-            SeatDto seatDto = new SeatDto(value);
+        seatMap.forEach((key, seat) -> {
+            SeatDto seatDto = seat.toSeatDto();
             rowSeatsToDto.put(key, seatDto);
         });
         return rowSeatsToDto;

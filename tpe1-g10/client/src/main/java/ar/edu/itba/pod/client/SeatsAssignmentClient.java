@@ -1,11 +1,10 @@
 package ar.edu.itba.pod.client;
 
 import ar.edu.itba.pod.interfaces.SeatsAssignmentServiceInterface;
-import ar.edu.itba.pod.constants.ActionsSeatsAssignment;
 import ar.edu.itba.pod.exceptions.InvalidArgumentsException;
 import ar.edu.itba.pod.utils.SeatsAssignmentClientParser;
 import ar.edu.itba.pod.constants.SeatCategory;
-import ar.edu.itba.pod.models.Flight;
+import ar.edu.itba.pod.models.FlightDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,12 +18,11 @@ public class SeatsAssignmentClient {
     private static void alternativeFlights(
             SeatsAssignmentServiceInterface service,
             SeatsAssignmentClientParser parser) throws RemoteException {
-        Map<SeatCategory, Map<Flight, Long>> availableFlights = service.getAvailableFlights(parser.getFlight(), parser.getPassenger());
-        for (Map.Entry<SeatCategory, Map<Flight, Long>> entry : availableFlights.entrySet()) {
+        FlightDto availableFlights = service.getAvailableFlights(parser.getFlight(), parser.getPassenger());
+        for (Map.Entry<SeatCategory, Map<String, Long>> entry : availableFlights.getSeats().entrySet()) {
             SeatCategory category = entry.getKey();
-            for (Map.Entry<Flight, Long> count : entry.getValue().entrySet()) {
-                Flight current = count.getKey();
-                System.out.println(current.getDestination() + " | " + current.getCode() + " | " + count.getValue() + " " + category);
+            for (Map.Entry<String, Long> count : entry.getValue().entrySet()) {
+                System.out.println(availableFlights.getDestination() + " | " + count.getKey() + " | " + count.getValue() + " " + category);
             }
         }
     }

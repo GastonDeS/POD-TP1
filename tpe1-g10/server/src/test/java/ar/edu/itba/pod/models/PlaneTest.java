@@ -3,16 +3,15 @@ package ar.edu.itba.pod.models;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import ar.edu.itba.pod.utils.ApiTestUtils;
+import ar.edu.itba.pod.services.utils.TestUtils;
 
 
 import ar.edu.itba.pod.constants.SeatCategory;
+import ar.edu.itba.pod.server.models.Plane;
+import ar.edu.itba.pod.server.models.Seat;
 import ar.edu.itba.pod.models.PlaneData;
-import ar.edu.itba.pod.models.Plane;
-import ar.edu.itba.pod.models.Seat;
 
 import java.rmi.RemoteException;
-import java.util.List;
 import java.util.Map;
 
 public class PlaneTest {
@@ -21,7 +20,7 @@ public class PlaneTest {
 
     @Test
     public void planeCreationTest() throws RemoteException {
-        Map<SeatCategory, PlaneData> planeDataMap = ApiTestUtils.getRowDataForFlight();
+        Map<SeatCategory, PlaneData> planeDataMap = TestUtils.getPlaneDataForFlight();
         Plane plane = null;
         plane = new Plane(PLANE_NAME, planeDataMap);
 

@@ -5,9 +5,9 @@ import ar.edu.itba.pod.constants.NotificationCategory;
 import ar.edu.itba.pod.constants.SeatCategory;
 import ar.edu.itba.pod.interfaces.FlightAdminServiceInterface;
 import ar.edu.itba.pod.server.services.NotificationService;
-import ar.edu.itba.pod.models.Flight;
-import ar.edu.itba.pod.models.Plane;
-import ar.edu.itba.pod.models.Ticket;
+import ar.edu.itba.pod.server.models.Flight;
+import ar.edu.itba.pod.server.models.Plane;
+import ar.edu.itba.pod.server.models.Ticket;
 import ar.edu.itba.pod.models.PlaneData;
 import ar.edu.itba.pod.models.TicketDto;
 import org.slf4j.Logger;
@@ -22,12 +22,11 @@ public class FlightsAdminService implements FlightAdminServiceInterface {
     private static FlightsAdminService instance;
     private final Map<String, Plane> planes;
     private final Map<String, Flight> flights;
-    private final NotificationService notificationService;
+    private NotificationService notificationService;
 
     private FlightsAdminService() {
         this.planes = new HashMap<>();
         this.flights = new HashMap<>();
-        this.notificationService = NotificationService.getInstance();
     }
 
     public static FlightsAdminService getInstance() {
@@ -35,6 +34,10 @@ public class FlightsAdminService implements FlightAdminServiceInterface {
             FlightsAdminService.instance = new FlightsAdminService();
         }
         return FlightsAdminService.instance;
+    }
+
+    private void init() {
+        this.notificationService = NotificationService.getInstance();
     }
 
     // For test purposes
@@ -89,6 +92,7 @@ public class FlightsAdminService implements FlightAdminServiceInterface {
     }
 
     public void confirmPendingFlight(String code) throws RemoteException {
+        if (notificationService == null) init();
         Flight flight = getFlight(code);
         if (flight.getStatus() != FlightStatus.PENDING) throw new RemoteException("Error: flight " + code + "is "+ flight.getStatus());
         flight.setStatus(FlightStatus.CONFIRMED);
@@ -98,6 +102,7 @@ public class FlightsAdminService implements FlightAdminServiceInterface {
     }
 
     public void cancelPendingFlight(String code) throws RemoteException {
+        if (notificationService == null) init();
         Flight flight = getFlight(code);
         if( flight == null)
             throw new RemoteException("Error: flight " + code + "does not exist");
@@ -136,6 +141,7 @@ public class FlightsAdminService implements FlightAdminServiceInterface {
     }
 
     private void findNewSeatsForFlight(Flight oldFlight) throws RemoteException {
+        if (notificationService == null) init();
         List<Flight> possibleFlights = flights.values().stream()
                 .filter(flight ->
                         flight.getDestination().equals(oldFlight.getDestination()) &&
@@ -164,8 +170,8 @@ public class FlightsAdminService implements FlightAdminServiceInterface {
             for (int i = 0; i < validSeatSize && !oldTickets.isEmpty(); i++) {
                 try {
                     swapTicket(oldTickets.get(0), flight, seatCategory);
-                    oldTickets.remove(0);
                     notificationService.newNotification(flight.getCode(), oldTickets.get(0).getName(), NotificationCategory.CHANGED_TICKET);
+                    oldTickets.remove(0);
                 } catch (RemoteException e) {
                     logger.error("Fail to swap ticket "+ oldTickets.get(0).getName() +" for Flight "+oldTickets.get(0).getFlightCode());
                 }
