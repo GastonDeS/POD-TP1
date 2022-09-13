@@ -78,15 +78,19 @@ public class SeatsAssignmentClientParser {
         switch (this.action) {
             case STATUS:
                 checkRowAndCol(props);
+                break;
             case ASSIGN:
             case MOVE:
                 checkRowAndCol(props);
                 checkPassenger(props);
+                break;
             case ALTERNATIVES:
                 checkPassenger(props);
+                break;
             case CHANGE:
                 checkPassenger(props);
                 checkOriginalFlight(props);
+                break;
         }
     }
 
