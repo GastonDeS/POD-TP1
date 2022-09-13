@@ -53,7 +53,6 @@ public class NotificationService implements NotificationServicePrivateInterface 
         if (subscribedMap.containsKey(flightNumber)) {
             if (subscribedMap.get(flightNumber).containsKey(name)) {
                 Ticket ticket = this.flightsAdminService.getFlight(flightNumber).getPassengerTicket(name);
-                String message = null;
                 switch (notificationCategory) {
                     case SUBSCRIBED:
                         subscribedMap.get(flightNumber).get(name).subscribedNotification(logger, flightNumber,
@@ -83,7 +82,6 @@ public class NotificationService implements NotificationServicePrivateInterface 
         if (subscribedMap.containsKey(flightNumber)) {
             if (subscribedMap.get(flightNumber).containsKey(name)) {
                 Ticket ticket = this.flightsAdminService.getFlight(flightNumber).getPassengerTicket(name);
-                String message = null;
                 switch (notificationCategory) {
                     case CHANGED_SEAT:
                         subscribedMap.get(flightNumber).get(name).changedSeatNotification(logger, flightNumber,
@@ -98,7 +96,6 @@ public class NotificationService implements NotificationServicePrivateInterface 
                                 oldTicket.getFlightCode(), flightsAdminService.getFlight(oldTicket.getFlightCode()).getDestination());
                         break;
                 }
-                subscribedMap.get(flightNumber).get(name).sendNotification(message, logger);
             }
         }
     }
