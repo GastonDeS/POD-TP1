@@ -42,8 +42,10 @@ public class Seat implements Serializable {
     }
 
     public void setAvailable(boolean available, char initialName) {
-        this.info = initialName;
-        this.available = available;
+        synchronized (this) {
+            this.info = initialName;
+            this.available = available;
+        }
     }
 
     public char getInfo() {

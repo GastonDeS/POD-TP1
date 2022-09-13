@@ -53,7 +53,7 @@ public class Plane implements Serializable {
                 String row =  (i+1) < 10 ? ("0"+(i+1)) :""+(i+1);
                 seats.put(row, new HashMap<>());
                 for (int j = 0; j < value.getColumns(); j++) {
-                    String place = "" + (i + 1) + (char) (65 + j);
+                    String place = row + (char) (65 + j);
                     seats.get(row).put("" + (char) (65 + j), new Seat(key, place));
                 }
             }

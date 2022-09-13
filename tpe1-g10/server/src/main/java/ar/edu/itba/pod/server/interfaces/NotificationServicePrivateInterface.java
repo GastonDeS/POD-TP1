@@ -10,5 +10,7 @@ public interface NotificationServicePrivateInterface extends NotificationService
 
     void newNotification(String flightNumber, String name, NotificationCategory notificationCategory) throws RemoteException;
 
-    void newNotification(String flightNumber, String name, Ticket oldTicket, NotificationCategory notificationCategory) throws RemoteException;
+    void newNotificationChangeSeat(String flightNumber, String name, String flightCode, String oldDestination ) throws RemoteException;
+
+    void newNotificationChangeTicket(String flightNumber, String name, String oldMessage, String oldPlace) throws RemoteException;
 }

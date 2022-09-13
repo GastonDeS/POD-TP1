@@ -78,24 +78,26 @@ public class NotificationService implements NotificationServicePrivateInterface 
         }
     }
 
-    public void newNotification(String flightNumber, String name, Ticket oldTicket, NotificationCategory notificationCategory) throws RemoteException {
+    public void newNotificationChangeTicket(String flightNumber, String name, String flightCode, String oldDestination) throws RemoteException {
         if (subscribedMap.containsKey(flightNumber)) {
             if (subscribedMap.get(flightNumber).containsKey(name)) {
                 Ticket ticket = this.flightsAdminService.getFlight(flightNumber).getPassengerTicket(name);
-                switch (notificationCategory) {
-                    case CHANGED_SEAT:
-                        subscribedMap.get(flightNumber).get(name).changedSeatNotification(logger, flightNumber,
-                                flightsAdminService.getFlight(ticket.getFlightCode()).getDestination(),
-                                ticket.getSeatCategory().getMessage(), ticket.getSeat().getPlace(),
-                                oldTicket.getSeatCategory().getMessage(), oldTicket.getSeat().getPlace());
-                        break;
-                    case CHANGED_TICKET:
-                        subscribedMap.get(flightNumber).get(name).changedTicketNotification(logger, flightNumber,
-                                flightsAdminService.getFlight(ticket.getFlightCode()).getDestination(),
-                                ticket.getSeatCategory().getMessage(), ticket.getSeat().getPlace(),
-                                oldTicket.getFlightCode(), flightsAdminService.getFlight(oldTicket.getFlightCode()).getDestination());
-                        break;
-                }
+                subscribedMap.get(flightNumber).get(name).changedTicketNotification(logger, flightNumber,
+                        flightsAdminService.getFlight(ticket.getFlightCode()).getDestination(),
+                        ticket.getSeatCategory().getMessage(), ticket.getSeat().getPlace(),
+                        flightCode, oldDestination);
+            }
+        }
+    }
+
+    public void newNotificationChangeSeat(String flightNumber, String name, String oldMessage, String oldPlace) throws RemoteException {
+        if (subscribedMap.containsKey(flightNumber)) {
+            if (subscribedMap.get(flightNumber).containsKey(name)) {
+                Ticket ticket = this.flightsAdminService.getFlight(flightNumber).getPassengerTicket(name);
+                subscribedMap.get(flightNumber).get(name).changedSeatNotification(logger, flightNumber,
+                        flightsAdminService.getFlight(ticket.getFlightCode()).getDestination(),
+                        ticket.getSeatCategory().getMessage(), ticket.getSeat().getPlace(),
+                        oldMessage, oldPlace);
             }
         }
     }

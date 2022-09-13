@@ -53,7 +53,7 @@ public class SeatsAssignmentService implements SeatsAssignmentServiceInterface {
         List<Flight> similarFlights = flightsAdminService.getFlights().values()
                 .stream()
                 .filter(f -> f.getDestination().equals(currentFlight.getDestination())
-                        && f.getStatus().equals(FlightStatus.CONFIRMED)
+                        && !f.getStatus().equals(FlightStatus.CANCELLED)
                         && !f.getCode().equals(flightCode))
                 .collect(Collectors.toList());
 
@@ -79,13 +79,10 @@ public class SeatsAssignmentService implements SeatsAssignmentServiceInterface {
         Flight currentFlight = flightsAdminService.getFlight(current);
         Flight alternativeFlight = flightsAdminService.getFlight(alternative);
 
-        // Notify changes
-        notificationService.newNotification(alternative, name, ticket, NotificationCategory.CHANGED_TICKET);
+        currentFlight.swapTicket(ticket, alternativeFlight, ticket.getSeatCategory());
 
-        currentFlight.removeTicketFromFlight(ticket);
-        ticket.setSeat(null);
-        ticket.setFlightCode(alternativeFlight.getCode());
-        alternativeFlight.addTicketToFlight(ticket);
+        // Notify changes
+        notificationService.newNotificationChangeTicket(alternative, name, current, currentFlight.getDestination());
     }
 
     private void assignOrChangeSeat(String flightCode, String name, int row, String column, boolean isChange) throws RemoteException {
@@ -98,14 +95,13 @@ public class SeatsAssignmentService implements SeatsAssignmentServiceInterface {
             throw new RemoteException("Error: seat " + row + column + " is not available for your category");
 
         if (isChange) {
-            notificationService.newNotification(flightCode, name, ticket, NotificationCategory.CHANGED_SEAT);
+            notificationService.newNotificationChangeSeat(flightCode, name, ticket.getSeat().getSeatCategory().getMessage(), ticket.getSeat().getPlace());
             if (ticket.getSeat() != null) ticket.getSeat().setAvailable(true, '*');
         } else {
             notificationService.newNotification(flightCode, name, NotificationCategory.CHANGED_SEAT);
         }
 
-        seat.setAvailable(false, name.charAt(0));
-        ticket.setSeat(seat);
+        ticket.setSeatAndUpdateSeat(seat, false, name.charAt(0));
     }
 
 }

@@ -51,15 +51,38 @@ public class Flight implements Serializable {
         this.status = status;
     }
 
+    public void chargePendingStatus(FlightStatus flightStatus) throws RemoteException {
+        synchronized (this.status) {
+            if (this.status != FlightStatus.PENDING) throw new RemoteException("Error: flight " + code + "is "+ this.status);
+            this.status = flightStatus;
+        }
+    }
+
     public void addTicketToFlight(Ticket ticket) {
-        ticketList.add(ticket);
+        synchronized (ticketList) {
+            ticketList.add(ticket);
+        }
+    }
+
+    public void swapTicket(Ticket oldTicket, Flight newFlight, SeatCategory seatCategory) {
+        synchronized (ticketList) {
+            boolean removed = ticketList.remove(oldTicket);
+            if (removed && oldTicket.getSeat() != null) {
+                String place = oldTicket.getSeat().getPlace();
+                planeSeats.get(SeatHelper.getRow(place)).get(SeatHelper.getColumn(place)).setAvailable(true, '*');
+            }
+            oldTicket.swapTicket(newFlight.getCode(), seatCategory);
+            newFlight.addTicketToFlight(oldTicket);
+        }
     }
 
     public void removeTicketFromFlight(Ticket ticket) {
-        boolean removed = ticketList.remove(ticket);
-        if (removed && ticket.getSeat() != null) {
-            String place = ticket.getSeat().getPlace();
-            planeSeats.get(SeatHelper.getRow(place)).get(SeatHelper.getColumn(place)).setAvailable(true, '*');
+        synchronized (ticketList) {
+            boolean removed = ticketList.remove(ticket);
+            if (removed && ticket.getSeat() != null) {
+                String place = ticket.getSeat().getPlace();
+                planeSeats.get(SeatHelper.getRow(place)).get(SeatHelper.getColumn(place)).setAvailable(true, '*');
+            }
         }
     }
 

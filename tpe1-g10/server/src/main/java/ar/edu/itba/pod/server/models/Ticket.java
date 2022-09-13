@@ -53,9 +53,22 @@ public class Ticket implements Serializable {
         return seat;
     }
 
-
     public void setSeat(Seat seat) {
         this.seat = seat;
+    }
+    public void setSeatAndUpdateSeat(Seat seat, boolean available, char info) {
+        synchronized (this) {
+            this.seat = seat;
+            this.seat.setAvailable(available, info);
+        }
+    }
+
+    public void swapTicket(String flightCode, SeatCategory seatCategory) {
+        synchronized (this) {
+            this.seat = null;
+            this.flightCode = flightCode;
+            this.seatCategory = seatCategory;
+        }
     }
 
 

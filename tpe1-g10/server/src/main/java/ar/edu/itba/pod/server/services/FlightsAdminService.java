@@ -24,6 +24,7 @@ public class FlightsAdminService implements FlightAdminServiceInterface {
     private final Map<String, Plane> planes;
     private final Map<String, Flight> flights;
     private NotificationService notificationService;
+    private final String reassignLock = ""; // Lock for reassign cancelled flights
 
     private FlightsAdminService() {
         this.planes = new HashMap<>();
@@ -95,8 +96,7 @@ public class FlightsAdminService implements FlightAdminServiceInterface {
     public void confirmPendingFlight(String code) throws RemoteException {
         if (notificationService == null) init();
         Flight flight = getFlight(code);
-        if (flight.getStatus() != FlightStatus.PENDING) throw new RemoteException("Error: flight " + code + "is "+ flight.getStatus());
-        flight.setStatus(FlightStatus.CONFIRMED);
+        flight.chargePendingStatus(FlightStatus.CONFIRMED);
         for (Ticket ticket : flight.getTicketList()) {
           notificationService.newNotification(code, ticket.getName(), NotificationCategory.FLIGHT_CONFIRMED);
         }
@@ -107,28 +107,36 @@ public class FlightsAdminService implements FlightAdminServiceInterface {
         Flight flight = getFlight(code);
         if( flight == null)
             throw new RemoteException("Error: flight " + code + "does not exist");
-        if (flight.getStatus() != FlightStatus.PENDING) throw new RemoteException("Error: flight " + code + "is "+ flight.getStatus());
-        flight.setStatus(FlightStatus.CANCELLED);
+        flight.chargePendingStatus(FlightStatus.CANCELLED);
         for (Ticket ticket : flight.getTicketList()) {
             notificationService.newNotification(code, ticket.getName(), NotificationCategory.FLIGHT_CANCELLED);
         }
     }
 
     public ChangedTicketsDto findNewSeatsForCancelledFlights() throws RemoteException{
-        List<Flight> cancelledFlights = getCancelledFlights();
-        int totalTickets = 0;
-        List<TicketDto> notChangedTickets = new ArrayList<>();
-        for (Flight flight : cancelledFlights) {
-            totalTickets += flight.getTicketList().size();
-            findNewSeatsForFlight(flight);
-            totalTickets -= flight.getTicketList().size();
-            flight.getTicketList().forEach((ticket -> {
-                TicketDto ticketDto = new TicketDto(ticket.getName(), ticket.getSeatCategory(), ticket.getFlightCode());
-                notChangedTickets.add(ticketDto);
-            }));
+        if (notificationService == null) init();
+        synchronized (reassignLock) {
+            List<Flight> cancelledFlights = getCancelledFlights();
+            int totalTickets = 0;
+            List<TicketDto> notChangedTickets = new ArrayList<>();
+            try {
+                Thread.sleep(1000);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+            for (Flight flight : cancelledFlights) {
+                totalTickets += flight.getTicketList().size();
+                findNewSeatsForFlight(flight);
+                totalTickets -= flight.getTicketList().size();
+                flight.getTicketList().forEach((ticket -> {
+                    TicketDto ticketDto = new TicketDto(ticket.getName(), ticket.getSeatCategory(), ticket.getFlightCode());
+                    notChangedTickets.add(ticketDto);
+                }));
+            }
+
+            return new ChangedTicketsDto(notChangedTickets, totalTickets);
         }
 
-        return new ChangedTicketsDto(notChangedTickets, totalTickets);
     }
 
     public Map<String, Plane> getPlanes() {
@@ -140,12 +148,11 @@ public class FlightsAdminService implements FlightAdminServiceInterface {
     }
 
     private void findNewSeatsForFlight(Flight oldFlight) throws RemoteException {
-        if (notificationService == null) init();
         List<Flight> possibleFlights = flights.values().stream()
                 .filter(flight ->
                         flight.getDestination().equals(oldFlight.getDestination()) &&
-                        flight.getAvailableSeatsAmount() > 0 &&
-                        flight.getStatus() != FlightStatus.CANCELLED)
+                                flight.getAvailableSeatsAmount() > 0 &&
+                                !flight.getStatus().equals(FlightStatus.CANCELLED))
                 .collect(Collectors.toList());
 
         List<Ticket> economyTickets = oldFlight.getTicketList().stream().filter(ticket -> ticket.getSeatCategory() == SeatCategory.ECONOMY).sorted(Comparator.comparing(Ticket::getName)).collect(Collectors.toList());
@@ -154,22 +161,28 @@ public class FlightsAdminService implements FlightAdminServiceInterface {
 
 
         List<SeatCategory> seatCategories = Arrays.stream(SeatCategory.values()).sorted().collect(Collectors.toList());
-        for (int i =0 ; i < seatCategories.size() && businessTickets.size() > 0 ; i++) {
-            swapTickets(seatCategories.get(i), businessTickets, possibleFlights);
+        for (int i = 0; i < seatCategories.size() && businessTickets.size() > 0; i++) {
+            try {
+                swapTickets(seatCategories.get(i), businessTickets, possibleFlights);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
         }
-        for (int i = 1  ; i < seatCategories.size() && premiumEconomyTickets.size() > 0 ; i++) {
+        for (int i = 1; i < seatCategories.size() && premiumEconomyTickets.size() > 0; i++) {
             swapTickets(seatCategories.get(i), premiumEconomyTickets, possibleFlights);
         }
         swapTickets(SeatCategory.ECONOMY, economyTickets, possibleFlights);
     }
 
-    private void swapTickets(SeatCategory seatCategory, List<Ticket> oldTickets, List<Flight> flights) throws RemoteException {
+    private void swapTickets(SeatCategory seatCategory, List<Ticket> oldTickets, List<Flight> flights) {
         flights.stream().sorted(Comparator.comparing(Flight::getAvailableSeatsAmount).thenComparing(Flight::getCode)).forEach(flight -> {
             long validSeatSize = flight.getAvailableSeatsAmountByCategory(seatCategory);
             for (int i = 0; i < validSeatSize && !oldTickets.isEmpty(); i++) {
                 try {
+                    String oldFlightCode = oldTickets.get(0).getFlightCode();
+                    String oldDest = this.getFlight(oldFlightCode).getDestination();
                     swapTicket(oldTickets.get(0), flight, seatCategory);
-                    notificationService.newNotification(flight.getCode(), oldTickets.get(0).getName(), NotificationCategory.CHANGED_TICKET);
+                    notificationService.newNotificationChangeTicket(flight.getCode(), oldTickets.get(0).getName(), oldFlightCode, oldDest);
                     oldTickets.remove(0);
                 } catch (RemoteException e) {
                     logger.error("Fail to swap ticket "+ oldTickets.get(0).getName() +" for Flight "+oldTickets.get(0).getFlightCode());
@@ -179,13 +192,8 @@ public class FlightsAdminService implements FlightAdminServiceInterface {
     }
 
 
-    // TODO test this again
     private void swapTicket(Ticket oldTicket, Flight flight, SeatCategory seatCategory) throws RemoteException {
-        this.getFlight(oldTicket.getFlightCode()).removeTicketFromFlight(oldTicket);
-        oldTicket.setSeat(null);
-        oldTicket.setFlightCode(flight.getCode());
-        oldTicket.setSeatCategory(seatCategory);
-        flight.addTicketToFlight(oldTicket);
+        this.getFlight(oldTicket.getFlightCode()).swapTicket(oldTicket, flight, seatCategory);
     }
 
     private List<Flight> getCancelledFlights() {
