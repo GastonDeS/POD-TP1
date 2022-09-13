@@ -7,13 +7,14 @@ import ar.edu.itba.pod.interfaces.NotificationServiceInterface;
 import ar.edu.itba.pod.server.services.FlightsAdminService;
 import ar.edu.itba.pod.server.models.Flight;
 import ar.edu.itba.pod.server.models.Ticket;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import ar.edu.itba.pod.server.models.Seat;
 
 import java.rmi.RemoteException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+
 public class NotificationService implements NotificationServiceInterface {
 
     private static NotificationService instance;
@@ -47,8 +48,6 @@ public class NotificationService implements NotificationServiceInterface {
         newNotification(flightNumber, name, NotificationCategory.SUBSCRIBED);
     }
 
-
-
     public void newNotification(String flightNumber, String name, NotificationCategory notificationCategory) throws RemoteException {
         if (subscribedMap.containsKey(flightNumber)) {
             if (subscribedMap.get(flightNumber).containsKey(name)) {
@@ -57,21 +56,6 @@ public class NotificationService implements NotificationServiceInterface {
                     case SUBSCRIBED:
                         subscribedMap.get(flightNumber).get(name).subscribedNotification(flightNumber,
                                 flightsAdminService.getFlight(ticket.getFlightCode()).getDestination());
-                        break;
-                    case FLIGHT_CONFIRMED:
-                        subscribedMap.get(flightNumber).get(name).flightConfirmedNotification(flightNumber,
-                                flightsAdminService.getFlight(ticket.getFlightCode()).getDestination(),
-                                ticket.getSeatCategory().getMessage(), ticket.getSeat().getPlace());
-                        subscribedMap.get(flightNumber).get(name).finish();
-                        subscribedMap.get(flightNumber).remove(name);
-                        if (subscribedMap.get(flightNumber).isEmpty()) {
-                            subscribedMap.remove(flightNumber);
-                        }
-                        break;
-                    case FLIGHT_CANCELLED:
-                        subscribedMap.get(flightNumber).get(name).flightCancelledNotification(flightNumber,
-                                flightsAdminService.getFlight(ticket.getFlightCode()).getDestination(),
-                                ticket.getSeatCategory().getMessage(), ticket.getSeat().getPlace());
                         break;
                     case ASSIGNED_SEAT:
                         subscribedMap.get(flightNumber).get(name).assignedSeatNotification(flightNumber,
@@ -83,24 +67,52 @@ public class NotificationService implements NotificationServiceInterface {
         }
     }
 
-    public void newNotificationChangeTicket(String flightNumber, String name, String flightCode, String oldDestination) throws RemoteException {
+    public void newNotificationChangeTicket(String flightNumber, String name, String oldFlightNumber, String oldDestination) throws RemoteException {
         if (subscribedMap.containsKey(flightNumber)) {
             if (subscribedMap.get(flightNumber).containsKey(name)) {
                 Ticket ticket = this.flightsAdminService.getFlight(flightNumber).getPassengerTicket(name);
                 subscribedMap.get(flightNumber).get(name).changedTicketNotification( flightNumber,
-                        flightsAdminService.getFlight(ticket.getFlightCode()).getDestination(), flightCode, oldDestination);
+                        flightsAdminService.getFlight(ticket.getFlightCode()).getDestination(), oldFlightNumber, oldDestination);
             }
         }
     }
 
-    public void newNotificationChangeSeat(String flightNumber, String name, String oldMessage, String oldPlace) throws RemoteException {
+    public void newNotificationChangeSeat(String flightNumber, String name, String oldSeatCategory, String oldPlace) throws RemoteException {
         if (subscribedMap.containsKey(flightNumber)) {
             if (subscribedMap.get(flightNumber).containsKey(name)) {
                 Ticket ticket = this.flightsAdminService.getFlight(flightNumber).getPassengerTicket(name);
                 subscribedMap.get(flightNumber).get(name).changedSeatNotification( flightNumber,
                         flightsAdminService.getFlight(ticket.getFlightCode()).getDestination(),
                         ticket.getSeatCategory().getMessage(), ticket.getSeat().getPlace(),
-                        oldMessage, oldPlace);
+                        oldSeatCategory, oldPlace);
+            }
+        }
+    }
+
+    public void newNotification(String flightNumber, List<Ticket> ticketList, NotificationCategory notificationCategory) throws RemoteException {
+        if (subscribedMap.containsKey(flightNumber)) {
+            for (Ticket ticket : ticketList) {
+                if (subscribedMap.get(flightNumber).containsKey(ticket.getName())) {
+                    String name = ticket.getName();
+                    Optional<Seat> seat = Optional.ofNullable(ticket.getSeat());
+                    switch (notificationCategory) {
+                        case FLIGHT_CONFIRMED:
+                            subscribedMap.get(flightNumber).get(name).flightConfirmedNotification(flightNumber,
+                                    flightsAdminService.getFlight(ticket.getFlightCode()).getDestination(),
+                                    ticket.getSeatCategory().getMessage(), seat.get().getPlace());
+                            subscribedMap.get(flightNumber).get(name).finish();
+                            subscribedMap.get(flightNumber).remove(name);
+                            if (subscribedMap.get(flightNumber).isEmpty()) {
+                                subscribedMap.remove(flightNumber);
+                            }
+                            break;
+                        case FLIGHT_CANCELLED:
+                            subscribedMap.get(flightNumber).get(name).flightCancelledNotification(flightNumber,
+                                    flightsAdminService.getFlight(ticket.getFlightCode()).getDestination(),
+                                    ticket.getSeatCategory().getMessage(), seat.get().getPlace());
+                            break;
+                    }
+                }
             }
         }
     }

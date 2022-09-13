@@ -93,26 +93,20 @@ public class FlightsAdminService implements FlightAdminServiceInterface {
         return flight.getStatus();
     }
 
-    // TODO: change cycling to notification service
     public void confirmPendingFlight(String code) throws RemoteException {
         if (notificationService == null) init();
         Flight flight = getFlight(code);
         flight.chargePendingStatus(FlightStatus.CONFIRMED);
-        for (Ticket ticket : flight.getTicketList()) {
-          notificationService.newNotification(code, ticket.getName(), NotificationCategory.FLIGHT_CONFIRMED);
-        }
+        notificationService.newNotification(code, flight.getTicketList(), NotificationCategory.FLIGHT_CONFIRMED);
     }
 
-    // TODO: change cycling to notification service
     public void cancelPendingFlight(String code) throws RemoteException {
         if (notificationService == null) init();
         Flight flight = getFlight(code);
         if( flight == null)
             throw new RemoteException("Error: flight " + code + "does not exist");
         flight.chargePendingStatus(FlightStatus.CANCELLED);
-        for (Ticket ticket : flight.getTicketList()) {
-            notificationService.newNotification(code, ticket.getName(), NotificationCategory.FLIGHT_CANCELLED);
-        }
+        notificationService.newNotification(code, flight.getTicketList(), NotificationCategory.FLIGHT_CANCELLED);
     }
 
     public ChangedTicketsDto findNewSeatsForCancelledFlights() throws RemoteException{
