@@ -12,20 +12,20 @@ import java.util.Properties;
 
 public class NotificationClient {
 
-    private static Logger logger = LoggerFactory.getLogger(NotificationClient.class);
+    private static final Logger logger = LoggerFactory.getLogger(NotificationClient.class);
     private static String serverAddress;
     private static String flightCode;
     private static String name;
 
     private static void getProperties() {
         Properties props = System.getProperties();
-        serverAddress = System.getProperty("serverAddress");
-        flightCode = System.getProperty("Path");
-        name = System.getProperty("flight");
+        serverAddress = props.getProperty("serverAddress");
+        flightCode = props.getProperty("flight");
+        name = props.getProperty("passenger");
 
         logger.info("Server address: " + serverAddress);
-        logger.info("file Name: " + flightCode);
-        logger.info("Plane Code: " + name);
+        logger.info("Flight code: " + flightCode);
+        logger.info("Passenger name: " + name);
     }
 
     private static void subscribe(NotificationServiceInterface notificationService, String flightNumber, String name) throws RemoteException {
