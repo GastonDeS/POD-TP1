@@ -1,5 +1,6 @@
 package ar.edu.itba.pod.server.services;
 
+import ar.edu.itba.pod.models.ChangedTicketsDto;
 import ar.edu.itba.pod.constants.FlightStatus;
 import ar.edu.itba.pod.constants.NotificationCategory;
 import ar.edu.itba.pod.constants.SeatCategory;
@@ -108,23 +109,21 @@ public class FlightsAdminService implements FlightAdminServiceInterface {
         }
     }
 
-    // TODO Change we need a way to not return everything via String
-    // TODO add notification
-    public String findNewSeatsForCancelledFlights() throws RemoteException{
+    public ChangedTicketsDto findNewSeatsForCancelledFlights() throws RemoteException{
         List<Flight> cancelledFlights = getCancelledFlights();
         int totalTickets = 0;
-        StringBuilder response = new StringBuilder();
+        List<TicketDto> notChangedTickets = new ArrayList<>();
         for (Flight flight : cancelledFlights) {
             totalTickets += flight.getTicketList().size();
             findNewSeatsForFlight(flight);
             totalTickets -= flight.getTicketList().size();
             flight.getTicketList().forEach((ticket -> {
-                response.append("Cannot find alternative flight for ").append(ticket.getName()).append(" with Ticket ").append(ticket).append("\n");
+                TicketDto ticketDto = new TicketDto(ticket.getName(), ticket.getSeatCategory(), ticket.getFlightCode());
+                notChangedTickets.add(ticketDto);
             }));
         }
-        response.insert(0,totalTickets+" tickets were changed\n");
 
-        return response.toString();
+        return new ChangedTicketsDto(notChangedTickets, totalTickets);
     }
 
     public Map<String, Plane> getPlanes() {
