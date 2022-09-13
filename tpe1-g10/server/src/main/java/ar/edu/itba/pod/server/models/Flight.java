@@ -5,7 +5,6 @@ import ar.edu.itba.pod.constants.SeatCategory;
 import ar.edu.itba.pod.utils.SeatHelper;
 import ar.edu.itba.pod.server.models.Ticket;
 import ar.edu.itba.pod.server.models.Seat;
-import ar.edu.itba.pod.models.FlightDto;
 
 import java.io.Serializable;
 import java.rmi.RemoteException;

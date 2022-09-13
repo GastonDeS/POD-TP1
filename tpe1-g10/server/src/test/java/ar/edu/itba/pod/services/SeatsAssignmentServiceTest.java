@@ -5,7 +5,6 @@ import ar.edu.itba.pod.models.PlaneData;
 import ar.edu.itba.pod.server.models.Ticket;
 import ar.edu.itba.pod.server.models.Flight;
 import ar.edu.itba.pod.models.TicketDto;
-import ar.edu.itba.pod.models.FlightDto;
 import ar.edu.itba.pod.server.services.FlightsAdminService;
 import ar.edu.itba.pod.server.services.SeatsAssignmentService;
 import ar.edu.itba.pod.services.utils.TestUtils;
@@ -133,7 +132,7 @@ public class SeatsAssignmentServiceTest {
         flightsAdminService.confirmPendingFlight("BR");
         Flight alternative = flightsAdminService.getFlight("BR");
 
-        FlightDto availableFlights = seatsAssignmentService.getAvailableFlights("AA", "Brittu");
+        ar.edu.itba.pod.models.AvailableFlightDto availableFlights = seatsAssignmentService.getAvailableFlights("AA", "Brittu");
 
         Assertions.assertNull(availableFlights.getSeats().get(SeatCategory.BUSINESS));
         Assertions.assertEquals(20L, availableFlights.getSeats().get(SeatCategory.PREMIUM_ECONOMY).get(alternative.getCode()));

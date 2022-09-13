@@ -4,7 +4,6 @@ import ar.edu.itba.pod.interfaces.SeatsAssignmentServiceInterface;
 import ar.edu.itba.pod.exceptions.InvalidArgumentsException;
 import ar.edu.itba.pod.utils.SeatsAssignmentClientParser;
 import ar.edu.itba.pod.constants.SeatCategory;
-import ar.edu.itba.pod.models.FlightDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,7 +17,7 @@ public class SeatsAssignmentClient {
     private static void alternativeFlights(
             SeatsAssignmentServiceInterface service,
             SeatsAssignmentClientParser parser) throws RemoteException {
-        FlightDto availableFlights = service.getAvailableFlights(parser.getFlight(), parser.getPassenger());
+        ar.edu.itba.pod.models.AvailableFlightDto availableFlights = service.getAvailableFlights(parser.getFlight(), parser.getPassenger());
         for (Map.Entry<SeatCategory, Map<String, Long>> entry : availableFlights.getSeats().entrySet()) {
             SeatCategory category = entry.getKey();
             for (Map.Entry<String, Long> count : entry.getValue().entrySet()) {

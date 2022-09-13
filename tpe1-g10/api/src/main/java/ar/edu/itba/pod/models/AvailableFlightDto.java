@@ -4,12 +4,12 @@ import java.io.Serializable;
 import java.util.Map;
 import ar.edu.itba.pod.constants.SeatCategory;
 
-public class FlightDto implements Serializable {
+public class AvailableFlightDto implements Serializable {
 
     private final String destination;
     private final Map<SeatCategory, Map<String, Long>> seats;
 
-    public FlightDto(String destination, Map<SeatCategory, Map<String, Long>> seats) {
+    public AvailableFlightDto(String destination, Map<SeatCategory, Map<String, Long>> seats) {
         this.destination = destination;
         this.seats = seats;
     }
