@@ -1,11 +1,12 @@
 package ar.edu.itba.pod.client;
 
+import ar.edu.itba.pod.models.TicketDto;
+import ar.edu.itba.pod.models.ChangedTicketsDto;
 import ar.edu.itba.pod.constants.FlightStatus;
 import ar.edu.itba.pod.interfaces.FlightAdminServiceInterface;
 import ar.edu.itba.pod.constants.ActionsFlightsAdmin;
 import ar.edu.itba.pod.constants.SeatCategory;
 import ar.edu.itba.pod.models.PlaneData;
-import ar.edu.itba.pod.models.TicketDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,13 +60,17 @@ public class FlightsAdminClient {
     }
 
     private static void reticketingMethod(FlightAdminServiceInterface service) {
-        String answer = "";
+        ChangedTicketsDto ticketDto = new ChangedTicketsDto(new ArrayList<>(), 0);
         try {
-            answer = service.findNewSeatsForCancelledFlights();
+            ticketDto = service.findNewSeatsForCancelledFlights();
         } catch (RemoteException ex) {
             logger.error("The reticketing could not be completed");
         }
-        logger.info(answer);
+        logger.info(ticketDto.getTicketsChangedAmount() + " tickets were changed\n");
+        ticketDto.getTicketDtoList().forEach(ticket -> {
+            logger.info("Cannot find alternative flight for " + ticket.getName() + " with Ticket " + ticket.getFlightCode() +"\n");
+
+        });
     }
 
     private static void uploadModels(FlightAdminServiceInterface service, String fileName) {
