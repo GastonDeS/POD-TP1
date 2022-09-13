@@ -1,4 +1,4 @@
-package client.src.main.java.ar.edu.itba.pod.client;
+package ar.edu.itba.pod.client;
 
 import ar.edu.itba.pod.interfaces.NotificationServiceInterface;
 import ar.edu.itba.pod.interfaces.NotificationCallbackHandler;
@@ -29,8 +29,11 @@ public class NotificationClient {
     }
 
     private static void subscribe(NotificationServiceInterface notificationService, String flightNumber, String name) throws RemoteException {
-        NotificationCallbackHandler handler = new NotificationCallbackHandlerImpl();
+        NotificationCallbackHandlerImpl handler = new NotificationCallbackHandlerImpl();
         notificationService.subscribe(flightNumber, name, handler);
+        while (!handler.isFinished()) {
+
+        };
     }
 
     public static void main(String[] args) {
@@ -38,9 +41,9 @@ public class NotificationClient {
             System.out.println("Notification client starting...");
 
             getProperties();
+            String path = "//" + serverAddress + "/notificationService";
 
-            final NotificationServiceInterface service = (NotificationServiceInterface) Naming.lookup("//" + serverAddress +
-                    "/notificationService");
+            final NotificationServiceInterface service = (NotificationServiceInterface) Naming.lookup(path);
 
             subscribe(service, flightCode, name);
 

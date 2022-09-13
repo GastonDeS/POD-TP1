@@ -1,9 +1,10 @@
 package ar.edu.itba.pod.models;
 import ar.edu.itba.pod.models.TicketDto;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class ChangedTicketsDto {
+public class ChangedTicketsDto implements Serializable {
 
     private List<TicketDto> ticketDtoList;
     private int ticketsChangedAmount;

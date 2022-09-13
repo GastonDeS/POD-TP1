@@ -7,6 +7,8 @@ import ar.edu.itba.pod.interfaces.SeatsAssignmentServiceInterface;
 import ar.edu.itba.pod.server.services.FlightsAdminService;
 import ar.edu.itba.pod.server.services.SeatMapService;
 import ar.edu.itba.pod.server.services.SeatsAssignmentService;
+import ar.edu.itba.pod.server.services.NotificationService;
+import ar.edu.itba.pod.interfaces.NotificationServiceInterface;
 
 import java.rmi.Remote;
 import java.rmi.registry.LocateRegistry;
@@ -21,11 +23,13 @@ public class Server {
             final FlightAdminServiceInterface flightsAdminService = FlightsAdminService.getInstance();
             final SeatMapServiceInterface seatMapService = SeatMapService.getInstance();
             final SeatsAssignmentServiceInterface seatsAssignmentService = SeatsAssignmentService.getInstance();
+            final NotificationServiceInterface notificationService = NotificationService.getInstance();
 
             final Registry registry = LocateRegistry.createRegistry(1099);
             final Remote remoteFlightsAdmin = UnicastRemoteObject.exportObject(flightsAdminService, 0);
             final Remote remoteSeatsAssignment = UnicastRemoteObject.exportObject(seatsAssignmentService, 0);
             final Remote remoteMapQuery = UnicastRemoteObject.exportObject(seatMapService, 0);
+            final Remote remoteNotification = UnicastRemoteObject.exportObject(notificationService,0);
 
             registry.rebind("flightAdminService", remoteFlightsAdmin);
             System.out.println("flightAdminService bound");
@@ -35,6 +39,9 @@ public class Server {
 
             registry.rebind("seatMapService", remoteMapQuery);
             System.out.println("seatMapService bound");
+
+            registry.rebind("notificationService", remoteNotification);
+            System.out.println("notificationService bound");
 
             System.out.println("server online");
         } catch (Exception ex ) {

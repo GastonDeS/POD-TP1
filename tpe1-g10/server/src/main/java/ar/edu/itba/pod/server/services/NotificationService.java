@@ -3,7 +3,7 @@ package ar.edu.itba.pod.server.services;
 import ar.edu.itba.pod.constants.FlightStatus;
 import ar.edu.itba.pod.constants.NotificationCategory;
 import ar.edu.itba.pod.interfaces.NotificationCallbackHandler;
-import ar.edu.itba.pod.server.interfaces.NotificationServicePrivateInterface;
+import ar.edu.itba.pod.interfaces.NotificationServiceInterface;
 import ar.edu.itba.pod.server.services.FlightsAdminService;
 import ar.edu.itba.pod.server.models.Flight;
 import ar.edu.itba.pod.server.models.Ticket;
@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 import java.rmi.RemoteException;
 import java.util.HashMap;
 import java.util.Map;
-public class NotificationService implements NotificationServicePrivateInterface {
+public class NotificationService implements NotificationServiceInterface {
 
     private static NotificationService instance;
 

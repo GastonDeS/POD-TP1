@@ -5,9 +5,10 @@ import ar.edu.itba.pod.interfaces.NotificationCallbackHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.Serializable;
 import java.rmi.RemoteException;
 
-public class NotificationCallbackHandlerImpl implements NotificationCallbackHandler {
+public class NotificationCallbackHandlerImpl implements NotificationCallbackHandler, Serializable {
 
     private static final Logger logger = LoggerFactory.getLogger(NotificationCallbackHandler.class);
 

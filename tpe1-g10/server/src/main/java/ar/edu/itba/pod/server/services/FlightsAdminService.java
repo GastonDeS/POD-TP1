@@ -121,11 +121,6 @@ public class FlightsAdminService implements FlightAdminServiceInterface {
             List<Flight> cancelledFlights = getCancelledFlights();
             int totalTickets = 0;
             List<TicketDto> notChangedTickets = new ArrayList<>();
-            try {
-                Thread.sleep(1000);
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
             for (Flight flight : cancelledFlights) {
                 totalTickets += flight.getTicketList().size();
                 findNewSeatsForFlight(flight);
