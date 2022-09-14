@@ -19,69 +19,76 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class FlightCrewClient {
-    private static Logger logger = LoggerFactory.getLogger(FlightCrewClient.class);
+    private static final Logger logger = LoggerFactory.getLogger(FlightCrewClient.class);
 
     private static String serverAddressInput;
     private static String flightCodeInput;
     private static String outPathInput = "./";
-    private static Optional<String> optionalCategoryInput;
-    private static Optional<String> optionalRowInput;
     private static SeatCategory categoryInput;
     private static String rowInput;
-    private static Map<String, Map<String, SeatDto>> planeMap;
-    private static Map<String, SeatDto> rowPlaneMap;
 
     public static void main(String[] args) throws RemoteException,
             NotBoundException, MalformedURLException {
-        logger.info("tpe1-g10 Flight Crew Client Starting ...");
         try {
+            logger.info("tpe1-g10 Flight Crew Client Starting ...");
             getSystemProperties();
             getResults();
-        } catch (IOException e) {
-            System.err.println(e.getMessage());
-            System.exit(-1);
+        } catch (Exception e) {
+            logger.error("An exception happened");
         }
-        logger.info("Flight Crew Client has succesfully done his job");
     }
 
-    private static void getSystemProperties() throws RemoteException {
+    private static void getSystemProperties() {
         serverAddressInput = System.getProperty("serverAddress");
         flightCodeInput = System.getProperty("flightCode");
-        optionalCategoryInput = Optional.ofNullable(System.getProperty("category"));
-        optionalRowInput = Optional.ofNullable(System.getProperty("row"));
+        String optionalCategoryInput = System.getProperty("category");
+        String optionalRowInput = System.getProperty("row");
 
 
-        if(optionalCategoryInput.isPresent() && optionalRowInput.isPresent()){
-            throw new RemoteException("You cannot consult for category and row at the same time");
-        } else if (optionalRowInput.isPresent()) {
-            rowInput = optionalRowInput.get();
-        } else optionalCategoryInput.ifPresent(s -> categoryInput = SeatCategory.valueOf(s));
-
-//        StringBuilder str = new StringBuilder();
-//        str.append(outPathInput);
-//        str.append(System.getProperty("outPath"));
+        if(optionalCategoryInput != null && optionalRowInput!= null){
+            logger.error("You cannot consult for category and row at the same time");
+            return;
+        } else if (optionalRowInput!= null) {
+            rowInput = optionalRowInput;
+        } else {
+            if (optionalCategoryInput != null)
+                categoryInput = SeatCategory.valueOf(optionalCategoryInput);
+        }
         outPathInput = System.getProperty("outPath");
     }
 
-    private static void getResults() throws IOException {
+    private static void getResults() {
         try {
             String ip = "//" + serverAddressInput + "/" + "seatMapService";
 
             final SeatMapServiceInterface handle = (SeatMapServiceInterface)
                     Naming.lookup(ip);
+            Map<String, Map<String, SeatDto>> planeMap;
+
             if (rowInput == null && categoryInput == null) {
+                if( flightCodeInput == null) {
+                    logger.error("There must be a valid flight code");
+                    return;
+                }
                 planeMap = handle.peekAllSeats(flightCodeInput);
                 writeOutputPlaneResults(planeMap);
             } else if (categoryInput != null) {
+                if (flightCodeInput == null){
+                    logger.error("There must be a valid flight code");
+                    return;
+                }
                 planeMap = handle.peekCategorySeats(flightCodeInput, categoryInput);
                 writeOutputPlaneResults(planeMap);
             } else {
-                rowPlaneMap = handle.peekRowSeats(flightCodeInput, rowInput);
+                if (flightCodeInput == null) {
+                    logger.error("There must be a valid flight code");
+                    return;
+                }
+                Map<String, SeatDto> rowPlaneMap = handle.peekRowSeats(flightCodeInput, rowInput);
                 writeOutputRowResults(rowPlaneMap, rowInput);
             }
-        } catch (MalformedURLException | NotBoundException | RemoteException e) {
-            System.err.println(e.getMessage());
-            System.exit(-1);
+        } catch (Exception e) {
+            logger.error(e.getCause().getMessage());
         }
     }
 
