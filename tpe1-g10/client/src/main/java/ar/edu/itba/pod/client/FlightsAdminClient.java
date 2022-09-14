@@ -201,7 +201,6 @@ public class FlightsAdminClient {
 
         } catch (Exception ex) {
             logger.error("An exception happened");
-            ex.printStackTrace();
         }
     }
 
