@@ -11,24 +11,25 @@ import ar.edu.itba.pod.server.models.Plane;
 import ar.edu.itba.pod.server.models.Ticket;
 import ar.edu.itba.pod.models.PlaneData;
 import ar.edu.itba.pod.models.TicketDto;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.rmi.RemoteException;
 import java.util.*;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Collectors;
 
 public class FlightsAdminService implements FlightAdminServiceInterface {
-    private static final Logger logger = LoggerFactory.getLogger(FlightsAdminService.class);
     private static FlightsAdminService instance;
     private final Map<String, Plane> planes;
     private final Map<String, Flight> flights;
+    private final ReentrantReadWriteLock flightsLock;
+    private final ReentrantReadWriteLock planesLock;
     private NotificationService notificationService;
-    private final String reassignLock = ""; // Lock for reassign cancelled flights
 
     private FlightsAdminService() {
         this.planes = new HashMap<>();
         this.flights = new HashMap<>();
+        this.flightsLock = new ReentrantReadWriteLock();
+        this.planesLock = new ReentrantReadWriteLock();
     }
 
     public static FlightsAdminService getInstance() {
@@ -43,6 +44,7 @@ public class FlightsAdminService implements FlightAdminServiceInterface {
     }
 
     // For test purposes
+    // Its not synchronized because its only used for tests
     public void restart() {
         List<String> planeModels = new ArrayList<>(this.planes.keySet());
         for (String planeModel : planeModels) {
@@ -56,95 +58,170 @@ public class FlightsAdminService implements FlightAdminServiceInterface {
     }
 
     public Plane getPlane(String planeName) throws RemoteException {
-        Plane plane = planes.get(planeName);
+        Plane plane;
+        try {
+            planesLock.readLock().lock();
+            plane = this.planes.get(planeName);
+        } finally {
+            planesLock.readLock().lock();
+        }
         if (plane == null) throw new RemoteException("Error: flight with code " + planeName + " does not exist");
         return plane;
     }
+
     public Flight getFlight(String code) throws RemoteException {
-        Flight flight = flights.get(code);
-        if (flight == null) throw new RemoteException("Error: flight with code " + code + " does not exist");
+        Flight flight;
+        try {
+            flightsLock.readLock().lock();
+            flight = this.flights.get(code);
+            if (flight == null) throw new RemoteException("Error: flight with code " + code + " does not exist");
+        } finally {
+            flightsLock.readLock().unlock();
+        }
         return flight;
     }
 
     public void createPlane(String name, Map<SeatCategory, PlaneData> planeDataMap) throws RemoteException {
-        if(planes.containsKey(name)){
-            throw new RemoteException("Error: plane " +name+ " already exists");
+        try {
+            planesLock.readLock().lock();
+            if (this.planes.containsKey(name)) {
+                throw new RemoteException("Error: plane " + name + " already exists");
+            }
+        } finally {
+            planesLock.readLock().unlock();
         }
-        Plane plane = new Plane(name, planeDataMap);
-        planes.put(plane.getName(), plane);
-        logger.info("plane created");
+        try {
+            planesLock.writeLock().lock();
+            Plane plane = new Plane(name, planeDataMap);
+            this.planes.put(plane.getName(), plane);
+        } finally {
+            planesLock.writeLock().lock();
+        }
     }
 
     public void createFlight(String planeName, String code, String destination, List<TicketDto> tickets) throws RemoteException {
-        if (flights.containsKey(code)) {
-            throw new RemoteException("Error: flight " +code+ " already exists");
+        try {
+            flightsLock.readLock().lock();
+            if (this.flights.containsKey(code)) {
+                throw new RemoteException("Error: flight " +code+ " already exists");
+            }
+        } finally {
+            flightsLock.readLock().unlock();
         }
-        if (planeName == null || !planes.containsKey(planeName))
-            throw new RemoteException("Error: plane doesn't exists");
-        Flight flight = new Flight(planeName, planes.get(planeName).getSeats(), code, destination);
+        Flight flight;
+        try {
+            planesLock.readLock().lock();
+            if (planeName == null || !this.planes.containsKey(planeName))
+                throw new RemoteException("Error: plane doesn't exists");
+            flight = new Flight(planeName, this.planes.get(planeName).getSeats(), code, destination);
+        } finally {
+            planesLock.readLock().unlock();
+        }
+        // add synchronize
         tickets.forEach(ticketDto -> flight.addTicketToFlight(Ticket.createFromDto(ticketDto)));
-        flights.put(flight.getCode(), flight);
-        logger.info("flightAdded: "+code+" "+tickets.size());
+        try {
+            flightsLock.writeLock().lock();
+            this.flights.put(flight.getCode(), flight);
+        } finally {
+            flightsLock.writeLock().unlock();
+        }
+
     }
 
     public FlightStatus checkFlightStatus(String code) throws RemoteException {
-        Flight flight = getFlight(code);
-        if (flight == null) throw new RemoteException("Error: flight "+ code + "does not exist");
-        return flight.getStatus();
+        try {
+            flightsLock.readLock().lock();
+            Flight flight = getFlight(code);
+            if (flight == null) throw new RemoteException("Error: flight " + code + "does not exist");
+            return flight.getStatus();
+        } finally {
+            flightsLock.readLock().unlock();
+        }
     }
 
     public void confirmPendingFlight(String code) throws RemoteException {
         if (notificationService == null) init();
-        Flight flight = getFlight(code);
-        flight.chargePendingStatus(FlightStatus.CONFIRMED);
+        Flight flight;
+        try {
+            flightsLock.readLock().lock();
+            flight = getFlight(code);
+            flight.chargePendingStatus(FlightStatus.CONFIRMED);
+        } finally {
+            flightsLock.readLock().unlock();
+        }
         notificationService.newNotification(code, flight.getTicketList(), NotificationCategory.FLIGHT_CONFIRMED);
     }
 
     public void cancelPendingFlight(String code) throws RemoteException {
         if (notificationService == null) init();
-        Flight flight = getFlight(code);
-        if( flight == null)
-            throw new RemoteException("Error: flight " + code + "does not exist");
-        flight.chargePendingStatus(FlightStatus.CANCELLED);
+        Flight flight;
+        try {
+            flightsLock.readLock().lock();
+            flight = getFlight(code);
+            if (flight == null)
+                throw new RemoteException("Error: flight " + code + "does not exist");
+            flight.chargePendingStatus(FlightStatus.CANCELLED);
+        } finally {
+            flightsLock.readLock().unlock();
+        }
         notificationService.newNotification(code, flight.getTicketList(), NotificationCategory.FLIGHT_CANCELLED);
+
     }
 
     public ChangedTicketsDto findNewSeatsForCancelledFlights() throws RemoteException{
         if (notificationService == null) init();
-        synchronized (reassignLock) {
-            List<Flight> cancelledFlights = getCancelledFlights();
-            int totalTickets = 0;
-            List<TicketDto> notChangedTickets = new ArrayList<>();
-            for (Flight flight : cancelledFlights) {
-                totalTickets += flight.getTicketList().size();
-                findNewSeatsForFlight(flight);
-                totalTickets -= flight.getTicketList().size();
-                flight.getTicketList().forEach((ticket -> {
-                    TicketDto ticketDto = new TicketDto(ticket.getName(), ticket.getSeatCategory(), ticket.getFlightCode());
-                    notChangedTickets.add(ticketDto);
-                }));
-            }
-
-            return new ChangedTicketsDto(notChangedTickets, totalTickets);
+        List<Flight> cancelledFlights;
+        try {
+            flightsLock.readLock().lock();
+            cancelledFlights = getCancelledFlights();
+        } finally {
+            flightsLock.readLock().lock();
+        }
+        int totalTickets = 0;
+        List<TicketDto> notChangedTickets = new ArrayList<>();
+        for (Flight flight : cancelledFlights) {
+            totalTickets += flight.getTicketList().size();
+            findNewSeatsForFlight(flight);
+            totalTickets -= flight.getTicketList().size();
+            flight.getTicketList().forEach((ticket -> {
+                TicketDto ticketDto = new TicketDto(ticket.getName(), ticket.getSeatCategory(), ticket.getFlightCode());
+                notChangedTickets.add(ticketDto);
+            }));
         }
 
+        return new ChangedTicketsDto(notChangedTickets, totalTickets);
+
+
     }
 
-    public Map<String, Plane> getPlanes() {
-        return planes;
-    }
 
-    public Map<String, Flight> getFlights() {
-        return flights;
+    public List<Flight> getAlternativeFlights(String destination, String distinctToFlightCode) {
+        try {
+            flightsLock.readLock().lock();
+            return this.flights.values()
+                    .stream()
+                    .filter(f -> f.getDestination().equals(destination)
+                            && !f.getStatus().equals(FlightStatus.CANCELLED)
+                            && !f.getCode().equals(distinctToFlightCode))
+                    .collect(Collectors.toList());
+        } finally {
+            flightsLock.readLock().unlock();
+        }
     }
 
     private void findNewSeatsForFlight(Flight oldFlight) throws RemoteException {
-        List<Flight> possibleFlights = flights.values().stream()
-                .filter(flight ->
-                        flight.getDestination().equals(oldFlight.getDestination()) &&
-                                flight.getAvailableSeatsAmount() > 0 &&
-                                !flight.getStatus().equals(FlightStatus.CANCELLED))
-                .collect(Collectors.toList());
+        List<Flight> alternativeFlights;
+        try {
+            flightsLock.readLock().lock();
+            alternativeFlights = this.flights.values().stream()
+                    .filter(flight ->
+                            flight.getDestination().equals(oldFlight.getDestination()) &&
+                                    flight.getAvailableSeatsAmount() > 0 &&
+                                    !flight.getStatus().equals(FlightStatus.CANCELLED))
+                    .collect(Collectors.toList());
+        } finally {
+            flightsLock.readLock().unlock();
+        }
 
         List<Ticket> economyTickets = oldFlight.getTicketList().stream().filter(ticket -> ticket.getSeatCategory() == SeatCategory.ECONOMY).sorted(Comparator.comparing(Ticket::getName)).collect(Collectors.toList());
         List<Ticket> premiumEconomyTickets = oldFlight.getTicketList().stream().filter(ticket -> ticket.getSeatCategory() == SeatCategory.PREMIUM_ECONOMY).sorted(Comparator.comparing(Ticket::getName)).collect(Collectors.toList());
@@ -153,28 +230,26 @@ public class FlightsAdminService implements FlightAdminServiceInterface {
 
         List<SeatCategory> seatCategories = Arrays.stream(SeatCategory.values()).sorted().collect(Collectors.toList());
         for (int i = 0; i < seatCategories.size() && businessTickets.size() > 0; i++) {
-            try {
-                swapTickets(seatCategories.get(i), businessTickets, possibleFlights);
-            } catch (Exception ex) {
-                ex.getCause().getMessage();
-            }
+            swapTickets(seatCategories.get(i), businessTickets, alternativeFlights);
         }
         for (int i = 1; i < seatCategories.size() && premiumEconomyTickets.size() > 0; i++) {
-            swapTickets(seatCategories.get(i), premiumEconomyTickets, possibleFlights);
+            swapTickets(seatCategories.get(i), premiumEconomyTickets, alternativeFlights);
         }
-        swapTickets(SeatCategory.ECONOMY, economyTickets, possibleFlights);
+        swapTickets(SeatCategory.ECONOMY, economyTickets, alternativeFlights);
     }
 
     private void swapTickets(SeatCategory seatCategory, List<Ticket> oldTickets, List<Flight> flights) {
-        List<Flight> sortedFlight = flights.stream().sorted(Comparator.comparing(Flight::getAvailableSeatsAmount).reversed().thenComparing(Flight::getCode, Comparator.naturalOrder())).collect(Collectors.toList());
+        List<Flight> sortedFlight = flights.stream()
+                .sorted(
+                        Comparator.comparing(Flight::getAvailableSeatsAmount)
+                                .reversed()
+                                .thenComparing(Flight::getCode, Comparator.naturalOrder()))
+                .collect(Collectors.toList());
         for (int j = 0; j < sortedFlight.size(); j++) {
             Flight flight = sortedFlight.get(j);
             long validSeatSize = flight.getAvailableSeatsAmountByCategory(seatCategory);
             for (int i = 0; i < validSeatSize && !oldTickets.isEmpty(); i++) {
                 try {
-                    if ("Flor0".equals(oldTickets.get(0).getName()))
-                        System.out.println("flor: "+oldTickets.get(0).getFlightCode()+" "+oldTickets.get(0).getSeatCategory().getMessage());
-
                     String oldFlightCode = oldTickets.get(0).getFlightCode();
                     String oldDest = this.getFlight(oldFlightCode).getDestination();
                     swapTicket(oldTickets.get(0), flight, seatCategory);
@@ -193,6 +268,13 @@ public class FlightsAdminService implements FlightAdminServiceInterface {
     }
 
     private List<Flight> getCancelledFlights() {
-        return flights.values().stream().filter(flight -> flight.getStatus() == FlightStatus.CANCELLED).collect(Collectors.toList());
+        List<Flight> flights;
+        try {
+            flightsLock.readLock().lock();
+            flights = new ArrayList<>(this.flights.values());
+        } finally {
+            flightsLock.readLock().unlock();
+        }
+        return flights.stream().filter(flight -> flight.getStatus() == FlightStatus.CANCELLED).collect(Collectors.toList());
     }
 }

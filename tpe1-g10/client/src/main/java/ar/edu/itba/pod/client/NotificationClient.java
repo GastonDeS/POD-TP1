@@ -50,7 +50,7 @@ public class NotificationClient {
                 UnicastRemoteObject.unexportObject(handler,true);
             }
         } catch (RemoteException e) {
-            logger.error("An exception happened");
+            logger.error(e.getCause().getMessage());
         }
     }
 

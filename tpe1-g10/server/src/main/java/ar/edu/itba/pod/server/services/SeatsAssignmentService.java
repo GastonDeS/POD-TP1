@@ -50,13 +50,7 @@ public class SeatsAssignmentService implements SeatsAssignmentServiceInterface {
         Ticket ticket = currentFlight.getPassengerTicket(name);
         if (currentFlight.getStatus().equals(FlightStatus.CONFIRMED)) throw new RemoteException("Error: flight is already confirmed");
 
-        List<Flight> similarFlights = flightsAdminService.getFlights().values()
-                .stream()
-                .filter(f -> f.getDestination().equals(currentFlight.getDestination())
-                        && !f.getStatus().equals(FlightStatus.CANCELLED)
-                        && !f.getCode().equals(flightCode))
-                .collect(Collectors.toList());
-
+        List<Flight> similarFlights = flightsAdminService.getAlternativeFlights(currentFlight.getDestination(), flightCode);
 
         Map<SeatCategory, Map<String, Long>> availableFlights = new HashMap<>();
         similarFlights.forEach(flight -> {
