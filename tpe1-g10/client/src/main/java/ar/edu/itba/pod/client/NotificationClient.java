@@ -1,7 +1,6 @@
 package ar.edu.itba.pod.client;
 
 import ar.edu.itba.pod.interfaces.NotificationServiceInterface;
-import ar.edu.itba.pod.interfaces.NotificationCallbackHandler;
 import ar.edu.itba.pod.models.NotificationCallbackHandlerImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,18 +21,29 @@ public class NotificationClient {
         serverAddress = props.getProperty("serverAddress");
         flightCode = props.getProperty("flight");
         name = props.getProperty("passenger");
-
-        logger.info("Server address: " + serverAddress);
-        logger.info("Flight code: " + flightCode);
-        logger.info("Passenger name: " + name);
     }
 
-    private static void subscribe(NotificationServiceInterface notificationService, String flightNumber, String name) throws RemoteException {
-        NotificationCallbackHandlerImpl handler = new NotificationCallbackHandlerImpl();
-        notificationService.subscribe(flightNumber, name, handler);
-        while (!handler.isFinished()) {
+    private static void subscribe(NotificationServiceInterface notificationService, String flightNumber, String name) {
 
-        };
+
+        NotificationCallbackHandlerImpl handler = new NotificationCallbackHandlerImpl();
+
+        try {
+            if(flightNumber == null){
+                logger.error("There must be a valid flight code");
+                return;
+            }
+            if (name == null) {
+                logger.error("There must be a valid name");
+                return;
+            }
+            notificationService.subscribe(flightNumber, name, handler);
+            while (!handler.isFinished()) {
+
+            }
+        } catch (RemoteException e) {
+            logger.error("An exception happened");
+        }
     }
 
     public static void main(String[] args) {
