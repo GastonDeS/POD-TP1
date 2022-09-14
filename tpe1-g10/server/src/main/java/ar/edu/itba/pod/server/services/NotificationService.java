@@ -68,11 +68,16 @@ public class NotificationService implements NotificationServiceInterface {
     }
 
     public void newNotificationChangeTicket(String flightNumber, String name, String oldFlightNumber, String oldDestination) throws RemoteException {
-        if (subscribedMap.containsKey(flightNumber)) {
-            if (subscribedMap.get(flightNumber).containsKey(name)) {
+        if (subscribedMap.containsKey(oldFlightNumber)) {
+            if (subscribedMap.get(oldFlightNumber).containsKey(name)) {
                 Ticket ticket = this.flightsAdminService.getFlight(flightNumber).getPassengerTicket(name);
-                subscribedMap.get(flightNumber).get(name).changedTicketNotification( flightNumber,
+                subscribedMap.get(oldFlightNumber).get(name).changedTicketNotification( flightNumber,
                         flightsAdminService.getFlight(ticket.getFlightCode()).getDestination(), oldFlightNumber, oldDestination);
+
+                subscribedMap.putIfAbsent(flightNumber, new HashMap<>());
+                subscribedMap.get(flightNumber).putIfAbsent(name, subscribedMap.get(oldFlightNumber).get(name));
+                subscribedMap.get(oldFlightNumber).remove(name);
+
             }
         }
     }
@@ -99,20 +104,20 @@ public class NotificationService implements NotificationServiceInterface {
                         case FLIGHT_CONFIRMED:
                             subscribedMap.get(flightNumber).get(name).flightConfirmedNotification(flightNumber,
                                     flightsAdminService.getFlight(ticket.getFlightCode()).getDestination(),
-                                    ticket.getSeatCategory().getMessage(), seat.get().getPlace());
+                                    ticket.getSeatCategory().getMessage(), seat.map(Seat::getPlace).orElse(null));
                             subscribedMap.get(flightNumber).get(name).finish();
                             subscribedMap.get(flightNumber).remove(name);
-                            if (subscribedMap.get(flightNumber).isEmpty()) {
-                                subscribedMap.remove(flightNumber);
-                            }
                             break;
                         case FLIGHT_CANCELLED:
                             subscribedMap.get(flightNumber).get(name).flightCancelledNotification(flightNumber,
                                     flightsAdminService.getFlight(ticket.getFlightCode()).getDestination(),
-                                    ticket.getSeatCategory().getMessage(), seat.get().getPlace());
+                                    ticket.getSeatCategory().getMessage(), seat.map(Seat::getPlace).orElse(null));
                             break;
                     }
                 }
+            }
+            if (subscribedMap.get(flightNumber).isEmpty()) {
+                subscribedMap.remove(flightNumber);
             }
         }
     }

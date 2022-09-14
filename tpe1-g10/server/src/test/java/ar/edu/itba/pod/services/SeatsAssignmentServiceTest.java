@@ -115,7 +115,7 @@ public class SeatsAssignmentServiceTest {
         seatsAssignmentService.changeSeat("AA", "Brittu", 7, "A");
 
         Assertions.assertFalse(flightsAdminService.getFlight("AA").getSeat(7, "A").isAvailable());
-        Assertions.assertTrue(flightsAdminService.getFlight("AA").getSeat(4, "A").isAvailable()); // TODO @linbrittany lo cambie de 4 a 1 pq no se pq mirabas la 1
+        Assertions.assertTrue(flightsAdminService.getFlight("AA").getSeat(4, "A").isAvailable());
     }
 
     @Test

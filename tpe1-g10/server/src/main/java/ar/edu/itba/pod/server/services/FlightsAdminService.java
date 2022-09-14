@@ -166,20 +166,25 @@ public class FlightsAdminService implements FlightAdminServiceInterface {
     }
 
     private void swapTickets(SeatCategory seatCategory, List<Ticket> oldTickets, List<Flight> flights) {
-        flights.stream().sorted(Comparator.comparing(Flight::getAvailableSeatsAmount).thenComparing(Flight::getCode)).forEach(flight -> {
+        List<Flight> sortedFlight = flights.stream().sorted(Comparator.comparing(Flight::getAvailableSeatsAmount).reversed().thenComparing(Flight::getCode, Comparator.naturalOrder())).collect(Collectors.toList());
+        for (int j = 0; j < sortedFlight.size(); j++) {
+            Flight flight = sortedFlight.get(j);
             long validSeatSize = flight.getAvailableSeatsAmountByCategory(seatCategory);
             for (int i = 0; i < validSeatSize && !oldTickets.isEmpty(); i++) {
                 try {
+                    if ("Flor0".equals(oldTickets.get(0).getName()))
+                        System.out.println("flor: "+oldTickets.get(0).getFlightCode()+" "+oldTickets.get(0).getSeatCategory().getMessage());
+
                     String oldFlightCode = oldTickets.get(0).getFlightCode();
                     String oldDest = this.getFlight(oldFlightCode).getDestination();
                     swapTicket(oldTickets.get(0), flight, seatCategory);
                     notificationService.newNotificationChangeTicket(flight.getCode(), oldTickets.get(0).getName(), oldFlightCode, oldDest);
                     oldTickets.remove(0);
                 } catch (RemoteException e) {
-                    logger.error("Fail to swap ticket "+ oldTickets.get(0).getName() +" for Flight "+oldTickets.get(0).getFlightCode());
+                    e.printStackTrace();
                 }
             }
-        });
+        };
     }
 
 

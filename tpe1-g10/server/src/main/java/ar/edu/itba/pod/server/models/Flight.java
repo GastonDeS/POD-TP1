@@ -86,7 +86,7 @@ public class Flight implements Serializable {
         }
     }
 
-    public Ticket getPassengerTicket(String name) throws RemoteException {
+    public Ticket getPassengerTicket(String name) throws RemoteException {;
         Optional<Ticket> ticket = ticketList.stream().filter(t -> t.getName().equals(name)).findFirst();
         if (!ticket.isPresent()) throw new RemoteException("Error: no ticket found for passenger " + name);
         return ticket.get();
@@ -94,8 +94,9 @@ public class Flight implements Serializable {
 
     public Seat getSeat(int row, String column) throws RemoteException {
         String rowS =  (row) < 10 ? ("0"+(row)) :""+(row);
-        Seat seat = planeSeats.get(rowS).get(column);
-        if (seat == null) throw new RemoteException();
+        Map<String, Seat> seatMap = planeSeats.get(rowS);
+        if (seatMap == null) throw new RemoteException("Seat doesn't exists row: "+rowS+ " col: "+column);
+        if (seat == null) throw new RemoteException("Seat doesn't exists row: "+rowS+" col: "+column);
         return seat;
     }
 

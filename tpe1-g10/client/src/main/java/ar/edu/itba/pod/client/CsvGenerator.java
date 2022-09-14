@@ -61,7 +61,7 @@ public class CsvGenerator {
                     planeBuilder.append(PREMIUM_ECONOMY);
                 else planeBuilder.append(ECONOMY);
 
-                planeBuilder.append("#").append(names[j % names.length]).append(j);
+                planeBuilder.append("#").append(names[j % names.length]).append(i).append(j);
                 if (j < ticketAmount - 1) planeBuilder.append(",");
             }
             planeBuilder.append("\n");

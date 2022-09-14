@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import java.rmi.Naming;
 import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
 import java.util.Properties;
 
 public class NotificationClient {
@@ -30,10 +31,17 @@ public class NotificationClient {
 
     private static void subscribe(NotificationServiceInterface notificationService, String flightNumber, String name) throws RemoteException {
         NotificationCallbackHandlerImpl handler = new NotificationCallbackHandlerImpl();
+        UnicastRemoteObject.exportObject(handler, 0);
         notificationService.subscribe(flightNumber, name, handler);
-        while (!handler.isFinished()) {
 
-        };
+        try {
+            while (!handler.sleep()) {
+
+            }
+        } catch (InterruptedException ex) {
+            logger.error("ups! interrupedException");
+        }
+
     }
 
     public static void main(String[] args) {
@@ -47,7 +55,8 @@ public class NotificationClient {
 
             subscribe(service, flightCode, name);
 
-            System.out.println("Notification client started");
+            System.out.println("Notification client finished");
+            System.exit(0);
         } catch (Exception ex) {
             System.out.println("An exception happened");
             ex.printStackTrace();

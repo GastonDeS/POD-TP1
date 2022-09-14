@@ -1,6 +1,8 @@
 package ar.edu.itba.pod.services;
 
+import ar.edu.itba.pod.constants.FlightStatus;
 import ar.edu.itba.pod.constants.SeatCategory;
+import ar.edu.itba.pod.models.NotificationCallbackHandlerImpl;
 import ar.edu.itba.pod.models.PlaneData;
 import ar.edu.itba.pod.models.TicketDto;
 import ar.edu.itba.pod.server.services.FlightsAdminService;
@@ -9,6 +11,7 @@ import ar.edu.itba.pod.models.ChangedTicketsDto;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.slf4j.LoggerFactory;
 
 import java.rmi.RemoteException;
 import java.util.ArrayList;
@@ -18,6 +21,7 @@ import java.util.Map;
 public class FlightsAdminServiceTest {
 
     private final FlightsAdminService flightsAdminService = FlightsAdminService.getInstance();
+    private final ar.edu.itba.pod.server.services.NotificationService notificationService = ar.edu.itba.pod.server.services.NotificationService.getInstance();
 
     private static final String PLANE_1 = "PLANE_1";
     private static final String PLANE_2 = "PLANE_2";
