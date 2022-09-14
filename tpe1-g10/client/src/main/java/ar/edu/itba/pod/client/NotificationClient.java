@@ -46,6 +46,8 @@ public class NotificationClient {
                 }
             } catch (InterruptedException ex) {
                 logger.error("ups! interrupted exception");
+            } finally {
+                UnicastRemoteObject.unexportObject(handler,true);
             }
         } catch (RemoteException e) {
             logger.error("An exception happened");
@@ -64,7 +66,6 @@ public class NotificationClient {
             subscribe(service, flightCode, name);
 
             System.out.println("Notification client finished");
-            System.exit(0);
         } catch (Exception ex) {
             System.out.println("An exception happened");
             ex.printStackTrace();
