@@ -4,16 +4,14 @@ import ar.edu.itba.pod.constants.FlightStatus;
 import ar.edu.itba.pod.constants.NotificationCategory;
 import ar.edu.itba.pod.interfaces.NotificationCallbackHandler;
 import ar.edu.itba.pod.interfaces.NotificationServiceInterface;
+import ar.edu.itba.pod.models.NotificationCallbackHandlerImpl;
 import ar.edu.itba.pod.server.services.FlightsAdminService;
 import ar.edu.itba.pod.server.models.Flight;
 import ar.edu.itba.pod.server.models.Ticket;
 import ar.edu.itba.pod.server.models.Seat;
 
 import java.rmi.RemoteException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 public class NotificationService implements NotificationServiceInterface {
 
@@ -21,7 +19,7 @@ public class NotificationService implements NotificationServiceInterface {
 
     private FlightsAdminService flightsAdminService;
 
-    private final Map<String, Map<String, NotificationCallbackHandler>> subscribedMap = new HashMap<>();
+    private final Map<String, Map<String, List<NotificationCallbackHandler>>> subscribedMap = new HashMap<>();
 
     public NotificationService() {
         this.flightsAdminService = FlightsAdminService.getInstance();
@@ -44,7 +42,8 @@ public class NotificationService implements NotificationServiceInterface {
             throw new RemoteException("Error: flight with code " + flightNumber + " is already confirmed");
         }
         subscribedMap.putIfAbsent(flightNumber, new HashMap<>());
-        subscribedMap.get(flightNumber).putIfAbsent(name, handler);
+        subscribedMap.get(flightNumber).putIfAbsent(name, new ArrayList<>());
+        subscribedMap.get(flightNumber).get(name).add(new NotificationCallbackHandlerImpl());
         newNotification(flightNumber, name, NotificationCategory.SUBSCRIBED);
     }
 
@@ -54,13 +53,17 @@ public class NotificationService implements NotificationServiceInterface {
                 Ticket ticket = this.flightsAdminService.getFlight(flightNumber).getPassengerTicket(name);
                 switch (notificationCategory) {
                     case SUBSCRIBED:
-                        subscribedMap.get(flightNumber).get(name).subscribedNotification(flightNumber,
-                                flightsAdminService.getFlight(ticket.getFlightCode()).getDestination());
+                        for (NotificationCallbackHandler handler : subscribedMap.get(flightNumber).get(name)) {
+                            handler.subscribedNotification(flightNumber,
+                                    flightsAdminService.getFlight(ticket.getFlightCode()).getDestination());
+                        }
                         break;
                     case ASSIGNED_SEAT:
-                        subscribedMap.get(flightNumber).get(name).assignedSeatNotification(flightNumber,
-                                flightsAdminService.getFlight(ticket.getFlightCode()).getDestination(),
-                                ticket.getSeatCategory().getMessage(), ticket.getSeat().getPlace());
+                        for (NotificationCallbackHandler handler : subscribedMap.get(flightNumber).get(name)) {
+                            handler.assignedSeatNotification(flightNumber,
+                                    flightsAdminService.getFlight(ticket.getFlightCode()).getDestination(),
+                                    ticket.getSeatCategory().getMessage(), ticket.getSeat().getPlace());
+                        }
                         break;
                 }
             }
@@ -71,13 +74,13 @@ public class NotificationService implements NotificationServiceInterface {
         if (subscribedMap.containsKey(oldFlightNumber)) {
             if (subscribedMap.get(oldFlightNumber).containsKey(name)) {
                 Ticket ticket = this.flightsAdminService.getFlight(flightNumber).getPassengerTicket(name);
-                subscribedMap.get(oldFlightNumber).get(name).changedTicketNotification( flightNumber,
-                        flightsAdminService.getFlight(ticket.getFlightCode()).getDestination(), oldFlightNumber, oldDestination);
-
+                for (NotificationCallbackHandler handler : subscribedMap.get(oldFlightNumber).get(name)) {
+                    handler.changedTicketNotification(flightNumber,
+                            flightsAdminService.getFlight(ticket.getFlightCode()).getDestination(), oldFlightNumber, oldDestination);
+                }
                 subscribedMap.putIfAbsent(flightNumber, new HashMap<>());
                 subscribedMap.get(flightNumber).putIfAbsent(name, subscribedMap.get(oldFlightNumber).get(name));
                 subscribedMap.get(oldFlightNumber).remove(name);
-
             }
         }
     }
@@ -86,10 +89,12 @@ public class NotificationService implements NotificationServiceInterface {
         if (subscribedMap.containsKey(flightNumber)) {
             if (subscribedMap.get(flightNumber).containsKey(name)) {
                 Ticket ticket = this.flightsAdminService.getFlight(flightNumber).getPassengerTicket(name);
-                subscribedMap.get(flightNumber).get(name).changedSeatNotification( flightNumber,
-                        flightsAdminService.getFlight(ticket.getFlightCode()).getDestination(),
-                        ticket.getSeatCategory().getMessage(), ticket.getSeat().getPlace(),
-                        oldSeatCategory, oldPlace);
+                for (NotificationCallbackHandler handler : subscribedMap.get(flightNumber).get(name)) {
+                    handler.changedSeatNotification(flightNumber,
+                            flightsAdminService.getFlight(ticket.getFlightCode()).getDestination(),
+                            ticket.getSeatCategory().getMessage(), ticket.getSeat().getPlace(),
+                            oldSeatCategory, oldPlace);
+                }
             }
         }
     }
@@ -102,16 +107,20 @@ public class NotificationService implements NotificationServiceInterface {
                     Optional<Seat> seat = Optional.ofNullable(ticket.getSeat());
                     switch (notificationCategory) {
                         case FLIGHT_CONFIRMED:
-                            subscribedMap.get(flightNumber).get(name).flightConfirmedNotification(flightNumber,
-                                    flightsAdminService.getFlight(ticket.getFlightCode()).getDestination(),
-                                    ticket.getSeatCategory().getMessage(), seat.map(Seat::getPlace).orElse(null));
-                            subscribedMap.get(flightNumber).get(name).finish();
+                            for (NotificationCallbackHandler handler : subscribedMap.get(flightNumber).get(name)) {
+                                handler.flightCancelledNotification(flightNumber,
+                                        flightsAdminService.getFlight(ticket.getFlightCode()).getDestination(),
+                                        ticket.getSeatCategory().getMessage(), seat.map(Seat::getPlace).orElse(null));
+                                handler.finish();
+                            }
                             subscribedMap.get(flightNumber).remove(name);
                             break;
                         case FLIGHT_CANCELLED:
-                            subscribedMap.get(flightNumber).get(name).flightCancelledNotification(flightNumber,
-                                    flightsAdminService.getFlight(ticket.getFlightCode()).getDestination(),
-                                    ticket.getSeatCategory().getMessage(), seat.map(Seat::getPlace).orElse(null));
+                            for (NotificationCallbackHandler handler : subscribedMap.get(flightNumber).get(name)) {
+                                handler.flightCancelledNotification(flightNumber,
+                                        flightsAdminService.getFlight(ticket.getFlightCode()).getDestination(),
+                                        ticket.getSeatCategory().getMessage(), seat.map(Seat::getPlace).orElse(null));
+                            }
                             break;
                     }
                 }
