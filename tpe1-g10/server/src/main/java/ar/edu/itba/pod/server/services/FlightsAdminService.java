@@ -156,7 +156,7 @@ public class FlightsAdminService implements FlightAdminServiceInterface {
             try {
                 swapTickets(seatCategories.get(i), businessTickets, possibleFlights);
             } catch (Exception ex) {
-                ex.printStackTrace();
+                ex.getCause().getMessage();
             }
         }
         for (int i = 1; i < seatCategories.size() && premiumEconomyTickets.size() > 0; i++) {
@@ -181,7 +181,7 @@ public class FlightsAdminService implements FlightAdminServiceInterface {
                     notificationService.newNotificationChangeTicket(flight.getCode(), oldTickets.get(0).getName(), oldFlightCode, oldDest);
                     oldTickets.remove(0);
                 } catch (RemoteException e) {
-                    e.printStackTrace();
+                    e.getCause().getMessage();
                 }
             }
         };

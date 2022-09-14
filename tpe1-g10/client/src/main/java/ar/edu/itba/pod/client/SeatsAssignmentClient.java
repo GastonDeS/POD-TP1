@@ -14,7 +14,6 @@ import java.util.Map;
 import java.util.Properties;
 
 public class SeatsAssignmentClient {
-
     private static String serverAddress;
     private static ActionsSeatsAssignment action;
     private static String flight;
@@ -26,7 +25,6 @@ public class SeatsAssignmentClient {
 
     private static void printError(String message){
         logger.error(message);
-        return;
     }
 
     private static void getProperties() throws InvalidArgumentsException {
@@ -189,7 +187,6 @@ public class SeatsAssignmentClient {
 
         } catch (Exception ex) {
             logger.info("An exception happened");
-            ex.printStackTrace();
         }
     }
 }

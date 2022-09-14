@@ -32,12 +32,6 @@ public class FlightsAdminClient {
         actionName = ActionsFlightsAdmin.valueOf(props.getProperty("action").toUpperCase());
         fileName = props.getProperty("inPath");
         planeCode = props.getProperty("flight");
-
-        if (serverAddress == null)
-            logger.error("The server address must be valid");
-
-        if (fileName != null && planeCode != null)
-            logger.error("You cannot consult for a file and a flight code at the same time");
     }
 
     private static void cancelMethod(FlightAdminServiceInterface service, String planeCode) {
@@ -190,6 +184,16 @@ public class FlightsAdminClient {
             logger.info("tpe1-g10 Client Starting ...");
 
             getProperties();
+
+            if (serverAddress == null) {
+                logger.error("The server address must be valid");
+                return;
+            }
+
+            if (fileName != null && planeCode != null) {
+                logger.error("You cannot consult for a file and a flight code at the same time");
+                return;
+            }
 
             final FlightAdminServiceInterface service = (FlightAdminServiceInterface) Naming.lookup("//" + serverAddress + "/flightAdminService");
 

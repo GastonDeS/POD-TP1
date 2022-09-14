@@ -33,7 +33,6 @@ public class Client {
             System.out.println("client started");
         } catch (Exception ex) {
             System.out.println("An exception happened");
-            ex.printStackTrace();
         }
     }
 }
