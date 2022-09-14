@@ -96,6 +96,8 @@ public class Flight implements Serializable {
         String rowS =  (row) < 10 ? ("0"+(row)) :""+(row);
         Map<String, Seat> seatMap = planeSeats.get(rowS);
         if (seatMap == null) throw new RemoteException("Seat doesn't exists row: "+rowS+ " col: "+column);
+        Seat seat = seatMap.get(column);
+
         if (seat == null) throw new RemoteException("Seat doesn't exists row: "+rowS+" col: "+column);
         return seat;
     }
