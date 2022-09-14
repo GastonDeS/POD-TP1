@@ -1,7 +1,5 @@
 package ar.edu.itba.pod.constants;
 
-import ar.edu.itba.pod.exceptions.InvalidArgumentsException;
-
 public enum ActionsSeatsAssignment {
     STATUS("status"),
     ASSIGN("assign"),
@@ -19,13 +17,13 @@ public enum ActionsSeatsAssignment {
         return action;
     }
 
-    public static ActionsSeatsAssignment fromString(String action) throws InvalidArgumentsException {
+    public static ActionsSeatsAssignment fromString(String action) {
         for (ActionsSeatsAssignment a: values()) {
             if (a.getAction().equals(action)) {
                 return a;
             }
         }
-        throw new InvalidArgumentsException("The action provided does not exist");
+        return null;
     }
 
 }

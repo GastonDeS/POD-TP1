@@ -1,77 +1,178 @@
 package ar.edu.itba.pod.client;
 
-import ar.edu.itba.pod.interfaces.SeatsAssignmentServiceInterface;
-import ar.edu.itba.pod.exceptions.InvalidArgumentsException;
-import ar.edu.itba.pod.utils.SeatsAssignmentClientParser;
 import ar.edu.itba.pod.constants.SeatCategory;
+import ar.edu.itba.pod.interfaces.SeatsAssignmentServiceInterface;
 import ar.edu.itba.pod.models.AvailableFlightDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ar.edu.itba.pod.constants.ActionsSeatsAssignment;
+import ar.edu.itba.pod.exceptions.InvalidArgumentsException;
 
 import java.rmi.Naming;
 import java.rmi.RemoteException;
 import java.util.Map;
+import java.util.Properties;
 
 public class SeatsAssignmentClient {
+
+    private static String serverAddress;
+    private static ActionsSeatsAssignment action;
+    private static String flight;
+    private static String passenger;
+    private static Integer row;
+    private static String col;
+    private static String originalFlight;
     private static final Logger logger = LoggerFactory.getLogger(SeatsAssignmentClient.class);
 
-    private static void alternativeFlights(
-            SeatsAssignmentServiceInterface service,
-            SeatsAssignmentClientParser parser) throws RemoteException {
-        AvailableFlightDto availableFlights = service.getAvailableFlights(parser.getFlight(), parser.getPassenger());
-        for (Map.Entry<SeatCategory, Map<String, Long>> entry : availableFlights.getSeats().entrySet()) {
-            SeatCategory category = entry.getKey();
-            for (Map.Entry<String, Long> count : entry.getValue().entrySet()) {
-                System.out.println(availableFlights.getDestination() + " | " + count.getKey() + " | " + count.getValue() + " " + category);
+    private static void printError(String message){
+        logger.error(message);
+        return;
+    }
+
+    private static void getProperties() throws InvalidArgumentsException {
+        Properties props = System.getProperties();
+        serverAddress = props.getProperty("serverAddress");
+        action = ActionsSeatsAssignment.fromString(props.getProperty("action"));
+        flight = props.getProperty("flight");
+        passenger = props.getProperty("passenger");
+        row = Integer.valueOf(props.getProperty("row"));
+        col = props.getProperty("col");
+        originalFlight = props.getProperty("originalFlight");
+    }
+
+    private static void alternativeFlights(SeatsAssignmentServiceInterface service) {
+        try {
+            AvailableFlightDto availableFlights = service.getAvailableFlights(flight, passenger);
+            for (Map.Entry<SeatCategory, Map<String, Long>> entry : availableFlights.getSeats().entrySet()) {
+                SeatCategory category = entry.getKey();
+                for (Map.Entry<String, Long> count : entry.getValue().entrySet()) {
+                    logger.info(availableFlights.getDestination() + " | " + count.getKey() + " | " + count.getValue() + " " + category);
+                }
             }
+        } catch (RemoteException ex) {
+            logger.error(ex.getCause().getMessage());
         }
     }
 
-    private static void changeTicket(
-            SeatsAssignmentServiceInterface service,
-            SeatsAssignmentClientParser parser) throws RemoteException {
-        service.changeTicket(parser.getPassenger(), parser.getOriginalFlight(), parser.getFlight());
+    private static void changeTicket(SeatsAssignmentServiceInterface service) {
+        try {
+            service.changeTicket(passenger,originalFlight, flight);
+        } catch (RemoteException ex) {
+            logger.error(ex.getCause().getMessage());
+        }
     }
 
-    private static void changeSeat(
-            SeatsAssignmentServiceInterface service,
-            SeatsAssignmentClientParser parser) throws RemoteException {
-        service.changeSeat(parser.getFlight(), parser.getPassenger(), parser.getRow(), parser.getCol());
+    private static void changeSeat(SeatsAssignmentServiceInterface service) {
+        try {
+            service.changeSeat(flight, passenger, row, col);
+        } catch (RemoteException ex) {
+            logger.error(ex.getCause().getMessage());
+        }
     }
 
-    private static void assignSeat(
-            SeatsAssignmentServiceInterface service,
-            SeatsAssignmentClientParser parser) throws RemoteException {
-        service.assignSeat(parser.getFlight(), parser.getPassenger(), parser.getRow(), parser.getCol());
+    private static void assignSeat(SeatsAssignmentServiceInterface service) {
+        try {
+            service.assignSeat(flight, passenger, row, col);
+        } catch (RemoteException ex) {
+            logger.error(ex.getCause().getMessage());
+        }
     }
 
     private static void checkSeatStatus(
-            SeatsAssignmentServiceInterface service,
-            SeatsAssignmentClientParser parser) throws RemoteException {
-        String passenger = service.checkEmptySeat(parser.getFlight(), parser.getRow(), parser.getCol());
-        String status = passenger == null ? "FREE" : "ASSIGNED to " + passenger;
-        System.out.println("Seat " + parser.getRow() + parser.getCol() + " is " + status);
+            SeatsAssignmentServiceInterface service) {
+        try {
+            String passenger = service.checkEmptySeat(flight, row, col);
+            String status = passenger == null ? "FREE" : "ASSIGNED to " + passenger;
+            logger.info("Seat " + row + col + " is " + status);
+        } catch (RemoteException ex) {
+            logger.error(ex.getCause().getMessage());
+        }
     }
 
     private static void callMethodFromAction(
-            SeatsAssignmentClientParser parser,
-            SeatsAssignmentServiceInterface service) throws RemoteException {
-        switch (parser.getAction()) {
+            SeatsAssignmentServiceInterface service) {
+        switch (action) {
             case STATUS:
-                checkSeatStatus(service, parser);
+                if (flight == null) {
+                    printError("There must be a valid flight code");
+                    break;
+                }
+                if( row == null) {
+                    printError("There must be a valid row");
+                    break;
+                }
+                if (col == null) {
+                    printError("There must be a valid column");
+                    break;
+                }
+                checkSeatStatus(service);
                 break;
             case ASSIGN:
-                assignSeat(service, parser);
+                if (flight == null) {
+                    printError("There must be a valid flight code");
+                    break;
+                }
+                if( passenger == null) {
+                    printError("There must be a valid passenger");
+                    break;
+                }
+                if( row == null) {
+                    printError("There must be a valid row");
+                    break;
+                }
+                if (col == null) {
+                    printError("There must be a valid column");
+                    break;
+                }
+                assignSeat(service);
                 break;
             case MOVE:
-                changeSeat(service, parser);
+                if (flight == null) {
+                    printError("There must be a valid flight code");
+                    break;
+                }
+                if( passenger == null) {
+                    printError("There must be a valid passenger");
+                    break;
+                }
+                if( row == null) {
+                    printError("There must be a valid row");
+                    break;
+                }
+                if (col == null) {
+                    printError("There must be a valid column");
+                    break;
+                }
+                changeSeat(service);
                 break;
             case ALTERNATIVES:
-                alternativeFlights(service, parser);
+                if (flight == null) {
+                    printError("There must be a valid flight code");
+                    break;
+                }
+                if( passenger == null) {
+                    printError("There must be a valid passenger");
+                    break;
+                }
+                alternativeFlights(service);
                 break;
             case CHANGE:
-                changeTicket(service, parser);
+                if (flight == null) {
+                    printError("There must be a valid flight code");
+                    break;
+                }
+                if( passenger == null) {
+                    printError("There must be a valid passenger");
+                    break;
+                }
+                if( originalFlight == null) {
+                    printError("There must be a valid original flight");
+                    break;
+                }
+                changeTicket(service);
                 break;
+            default:
+                logger.error("Please enter a valid action");
         }
     }
 
@@ -79,19 +180,12 @@ public class SeatsAssignmentClient {
         try {
             logger.info("tpe1-g10 Seats Assignment Client Starting ...");
 
-            SeatsAssignmentClientParser parser = new SeatsAssignmentClientParser();
-
-            try {
-                parser.parseArguments();
-            } catch (InvalidArgumentsException e) {
-                System.out.println(e.getMessage());
-                return;
-            }
+            getProperties();
 
             final SeatsAssignmentServiceInterface service = (SeatsAssignmentServiceInterface)
-                    Naming.lookup("//" + parser.getServerAddress() + "/seatsAssignmentService");
+                    Naming.lookup("//" + serverAddress + "/seatsAssignmentService");
 
-            callMethodFromAction(parser, service);
+            callMethodFromAction(service);
 
         } catch (Exception ex) {
             logger.info("An exception happened");

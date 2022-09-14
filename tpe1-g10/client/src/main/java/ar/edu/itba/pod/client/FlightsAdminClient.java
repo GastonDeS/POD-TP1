@@ -26,7 +26,7 @@ public class FlightsAdminClient {
     private static String fileName;
     private static String planeCode;
 
-    private static void getProperties() throws RemoteException {
+    private static void getProperties() {
         Properties props = System.getProperties();
         serverAddress = props.getProperty("serverAddress");
         actionName = ActionsFlightsAdmin.valueOf(props.getProperty("action").toUpperCase());
@@ -145,28 +145,38 @@ public class FlightsAdminClient {
     private static void callMethod(ActionsFlightsAdmin actionsFlightsAdmin, FlightAdminServiceInterface service, String fileName, String planeCode) throws RemoteException {
         switch (actionsFlightsAdmin) {
             case CANCEL:
-                if (planeCode == null)
+                if (planeCode == null) {
                     logger.error("There must be a valid flight code");
+                    break;
+                }
                 cancelMethod(service, planeCode);
                 break;
             case MODELS:
-                if (fileName == null)
+                if (fileName == null) {
                     logger.error("There must be a valid filename");
+                    break;
+                }
                 uploadModels(service, fileName);
                 break;
             case FLIGHTS:
-                if (fileName == null)
+                if (fileName == null) {
                     logger.error("There must be a valid filename");
+                    break;
+                }
                 uploadFlights(service, fileName);
                 break;
             case STATUS:
-                if (planeCode == null)
+                if (planeCode == null) {
                     logger.error("There must be a valid flight code");
+                    break;
+                }
                 statusMethod(service, planeCode);
                 break;
             case CONFIRM:
-                if (planeCode == null)
+                if (planeCode == null) {
                     logger.error("There must be a valid flight code");
+                    break;
+                }
                 confirmMethod(service, planeCode);
                 break;
             case RETICKETING:
