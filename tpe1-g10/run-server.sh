@@ -1,5 +1,5 @@
 #!/bin/bash
 
 cd `PWD`/server/target/tpe1-g10-server-1.0-SNAPSHOT
-chmod -R +x ./run-server.sh
-sh ./run-server.sh
+chmod -R +x ./run-server
+sh ./run-server

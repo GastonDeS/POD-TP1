@@ -98,7 +98,6 @@ public class FlightsAdminClient {
 
         } catch (Exception ex) {
             logger.error("File cannot be opened");
-            ex.printStackTrace();
         }
     }
 
@@ -127,7 +126,6 @@ public class FlightsAdminClient {
 
         } catch (Exception ex) {
             logger.error("File cannot be opened");
-            ex.printStackTrace();
         }
     }
 
