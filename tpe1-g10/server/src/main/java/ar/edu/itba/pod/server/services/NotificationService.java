@@ -43,7 +43,7 @@ public class NotificationService implements NotificationServiceInterface {
         }
         subscribedMap.putIfAbsent(flightNumber, new HashMap<>());
         subscribedMap.get(flightNumber).putIfAbsent(name, new ArrayList<>());
-        subscribedMap.get(flightNumber).get(name).add(new NotificationCallbackHandlerImpl());
+        subscribedMap.get(flightNumber).get(name).add(handler);
         newNotification(flightNumber, name, NotificationCategory.SUBSCRIBED);
     }
 
