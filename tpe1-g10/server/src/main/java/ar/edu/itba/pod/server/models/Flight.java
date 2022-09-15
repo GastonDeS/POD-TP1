@@ -201,6 +201,7 @@ public class Flight implements Serializable {
     public Optional<Ticket> getTicketFromSeat(int row, String column) {
         try {
             ticketListLock.readLock().lock();
+            System.out.println("" + row + column);
             return ticketList.stream().filter(t ->
                     t.getSeat() != null && t.getSeat().getPlace().equals("" + row + column)
             ).findFirst();
