@@ -41,12 +41,13 @@ public class SeatMapService implements SeatMapServiceInterface {
         return flight.getPlaneSeatsDto();
     }
 
-    public Map<String, SeatDto> peekRowSeats(String flightCode, String rowNumber) throws RemoteException {
+    public Map<String, SeatDto> peekRowSeats(String flightCode, int rowNumber) throws RemoteException {
         Flight flight = existsFlight(flightCode);
         Map<String, Map<String, SeatDto>> planeMap;
         planeMap = flight.getPlaneSeatsDto();
-        if (planeMap.containsKey(rowNumber))
-            return planeMap.get(rowNumber);
+        String row = (rowNumber + 1) < 10 ? ("0" + (rowNumber + 1)) : "" + (rowNumber + 1);
+        if (planeMap.containsKey(row))
+            return planeMap.get(row);
         throw new RemoteException("Error: Row number " + rowNumber + " does not exist in flight " + flightCode);
     }
 

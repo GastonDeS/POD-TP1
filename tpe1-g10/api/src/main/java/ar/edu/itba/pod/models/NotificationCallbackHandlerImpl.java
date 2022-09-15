@@ -29,16 +29,16 @@ public class NotificationCallbackHandlerImpl implements NotificationCallbackHand
 
     @Override
     public void subscribedNotification(String flightCode, String dest) throws RemoteException {
-        logger.info("You are following flight " + flightCode + " with destination " + dest);
+        logger.info("You are following flight " + flightCode + " with destination " + dest+".");
         this.notifyClient();
     }
 
     @Override
     public void flightConfirmedNotification(String flightCode, String dest, String seatCategory, String place) throws RemoteException {
         if (seatCategory != null && place != null) {
-            logger.info("Your flight " + flightCode + " with destination " + dest + " was confirmed and your seat is " + seatCategory + " " + place);
+            logger.info("Your flight " + flightCode + " with destination " + dest + " was confirmed and your seat is " + seatCategory + " " + place+".");
         } else {
-            logger.info("Your flight " + flightCode + " with destination " + dest + " was confirmed");
+            logger.info("Your flight " + flightCode + " with destination " + dest + " was confirmed.");
         }
         this.notifyClient();
     }
@@ -46,29 +46,29 @@ public class NotificationCallbackHandlerImpl implements NotificationCallbackHand
     @Override
     public void flightCancelledNotification(String flightCode, String dest, String seatCategory, String place) throws RemoteException {
         if (seatCategory != null && place != null) {
-            logger.info("Your flight " + flightCode + " with destination " + dest + " was cancelled and your seat is " + seatCategory + " " + place);
+            logger.info("Your flight " + flightCode + " with destination " + dest + " was cancelled and your seat is " + seatCategory + " " + place+".");
         } else {
-            logger.info("Your flight " + flightCode + " with destination " + dest + " was cancelled");
+            logger.info("Your flight " + flightCode + " with destination " + dest + " was cancelled.");
         }
         this.notifyClient();
     }
 
     @Override
     public void assignedSeatNotification(String flightCode, String dest, String seatCategory, String place) throws RemoteException {
-        logger.info("Your seat is " + seatCategory + " " + place + " for flight " + flightCode + " with destination " + dest);
+        logger.info("Your seat is " + seatCategory + " " + place + " for flight " + flightCode + " with destination " + dest+".");
         this.notifyClient();
     }
 
     @Override
     public void changedSeatNotification(String flightCode, String dest, String seatCategory, String place,
                                         String oldSeatCategory, String oldPlace) throws RemoteException {
-        logger.info("Your seat changed to " + seatCategory + " " + place + " from " + oldSeatCategory + " " + oldPlace + " for flight " + flightCode + " with destination " + dest);
+        logger.info("Your seat changed to " + seatCategory + " " + place + " from " + oldSeatCategory + " " + oldPlace + " for flight " + flightCode + " with destination " + dest+".");
         this.notifyClient();
     }
 
     @Override
     public void changedTicketNotification(String flightCode, String dest, String oldFlightCode, String oldDest) throws RemoteException {
-        logger.info("Your ticket changed to flight " + flightCode + " with destination " + dest + " from flight " + oldFlightCode + " with destination " + oldDest);
+        logger.info("Your ticket changed to flight " + flightCode + " with destination " + dest + " from flight " + oldFlightCode + " with destination " + oldDest+".");
         this.notifyClient();
     }
 

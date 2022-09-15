@@ -27,20 +27,22 @@ public class FlightCrewClient {
     private static SeatCategory categoryInput;
     private static String rowInput;
 
-    public static void main(String[] args) throws RemoteException,
-            NotBoundException, MalformedURLException {
+    public static void main(String[] args) {
         try {
             logger.info("tpe1-g10 Flight Crew Client Starting ...");
             getSystemProperties();
             getResults();
         } catch (Exception e) {
-            logger.error(e.getCause().getMessage());
+//            logger.error(e.getCause().getMessage());
+            e.printStackTrace();
+        } finally {
+            logger.info("Crew Client ended");
         }
     }
 
     private static void getSystemProperties() {
         serverAddressInput = System.getProperty("serverAddress");
-        flightCodeInput = System.getProperty("flightCode");
+        flightCodeInput = System.getProperty("flight");
         String optionalCategoryInput = System.getProperty("category");
         String optionalRowInput = System.getProperty("row");
 
@@ -59,10 +61,9 @@ public class FlightCrewClient {
 
     private static void getResults() {
         try {
-            String ip = "//" + serverAddressInput + "/" + "seatMapService";
+            String ip = "//" + serverAddressInput + "/seatMapService";
 
-            final SeatMapServiceInterface handle = (SeatMapServiceInterface)
-                    Naming.lookup(ip);
+            final SeatMapServiceInterface handle = (SeatMapServiceInterface) Naming.lookup(ip);
             Map<String, Map<String, SeatDto>> planeMap;
 
             if (rowInput == null && categoryInput == null) {
@@ -84,11 +85,12 @@ public class FlightCrewClient {
                     logger.error("There must be a valid flight code");
                     return;
                 }
-                Map<String, SeatDto> rowPlaneMap = handle.peekRowSeats(flightCodeInput, rowInput);
+                Map<String, SeatDto> rowPlaneMap = handle.peekRowSeats(flightCodeInput, Integer.valueOf(rowInput)); // TODO flor check
                 writeOutputRowResults(rowPlaneMap, rowInput);
             }
         } catch (Exception e) {
-            logger.error(e.getCause().getMessage());
+//            logger.error(e.getCause().getMessage());
+            e.printStackTrace();
         }
     }
 

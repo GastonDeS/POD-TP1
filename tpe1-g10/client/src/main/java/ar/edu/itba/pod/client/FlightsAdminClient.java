@@ -29,7 +29,11 @@ public class FlightsAdminClient {
     private static void getProperties() {
         Properties props = System.getProperties();
         serverAddress = props.getProperty("serverAddress");
-        actionName = ActionsFlightsAdmin.valueOf(props.getProperty("action").toUpperCase());
+        if(props.containsKey("action")) {
+            actionName = ActionsFlightsAdmin.valueOf(props.getProperty("action").toUpperCase());
+        } else {
+            actionName = null;
+        }
         fileName = props.getProperty("inPath");
         planeCode = props.getProperty("flight");
     }
@@ -45,10 +49,10 @@ public class FlightsAdminClient {
     }
 
     private static void statusMethod(FlightAdminServiceInterface service, String planeCode) {
-        FlightStatus flightStatus = FlightStatus.PENDING;
+        FlightStatus flightStatus;
         try {
             flightStatus = service.checkFlightStatus(planeCode);
-            logger.info("Flight" + planeCode + " new status is: " + flightStatus);
+            logger.info("Flight " + planeCode + " is " + flightStatus+".");
         } catch (RemoteException ex) {
             logger.error(ex.getCause().getMessage());
         }
@@ -71,9 +75,9 @@ public class FlightsAdminClient {
             logger.error("The reticketing could not be completed");
             return;
         }
-        logger.info(ticketDto.getSuccessAmount() + " tickets were changed\n");
+        logger.info(ticketDto.getSuccessAmount() + " tickets were changed.");
         ticketDto.getErrorList().forEach(ticket -> {
-            logger.info("Cannot find alternative flight for " + ticket.getName() + " with Ticket " + ticket.getFlightCode() + "\n");
+            logger.info("Cannot find alternative flight for " + ticket.getName() + " with Ticket " + ticket.getFlightCode());
 
         });
     }
@@ -187,7 +191,7 @@ public class FlightsAdminClient {
                 reticketingMethod(service);
                 break;
             default:
-                throw new RemoteException("Please enter a valid action");
+                logger.error("Please enter a valid action");
         }
     }
 
@@ -196,6 +200,11 @@ public class FlightsAdminClient {
             logger.info("tpe1-g10 Client Starting ...");
 
             getProperties();
+
+            if(actionName == null){
+                logger.error("Please enter a valid action");
+                return;
+            }
 
             if (serverAddress == null) {
                 logger.error("The server address must be valid");
@@ -214,7 +223,7 @@ public class FlightsAdminClient {
             callMethod(actionName, service, fileName, planeCode);
 
         } catch (Exception ex) {
-            ex.getCause().getMessage();
+            logger.error(ex.getMessage());
         }
     }
 
