@@ -12,17 +12,20 @@ import ar.edu.itba.pod.server.models.Seat;
 
 import java.rmi.RemoteException;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class NotificationService implements NotificationServiceInterface {
 
     private static NotificationService instance;
 
-    private FlightsAdminService flightsAdminService;
-
-    private final Map<String, Map<String, List<NotificationCallbackHandler>>> subscribedMap = new HashMap<>();
+    private final FlightsAdminService flightsAdminService;
+    private final Map<String, Map<String, List<NotificationCallbackHandler>>> subscribers = new HashMap<>();
+    private final ExecutorService executor;
 
     public NotificationService() {
         this.flightsAdminService = FlightsAdminService.getInstance();
+        this.executor = Executors.newFixedThreadPool(5);
     }
 
     public static NotificationService getInstance() {
@@ -33,101 +36,174 @@ public class NotificationService implements NotificationServiceInterface {
     }
 
     public void subscribe(String flightNumber, String name, NotificationCallbackHandler handler) throws RemoteException {
-        Flight flight;
-        flight = this.flightsAdminService.getFlight(flightNumber);
+        Flight flight = this.flightsAdminService.getFlight(flightNumber);
         if (flight.getPassengerTicket(name) == null) {
             throw new RemoteException("Error: no ticket found for passenger " + name);
         }
         if (flight.getStatus() == FlightStatus.CONFIRMED) {
             throw new RemoteException("Error: flight with code " + flightNumber + " is already confirmed");
         }
-        subscribedMap.putIfAbsent(flightNumber, new HashMap<>());
-        subscribedMap.get(flightNumber).putIfAbsent(name, new ArrayList<>());
-        subscribedMap.get(flightNumber).get(name).add(handler);
+
+        subscribers.putIfAbsent(flightNumber, new HashMap<>());
+        List<NotificationCallbackHandler> handlers = new ArrayList<>();
+        if (subscribers.get(flightNumber).containsKey(name)) {
+            handlers = subscribers.get(flightNumber).get(name);
+        }
+        handlers.add(handler);
+        subscribers.get(flightNumber).put(name, handlers);
+
         newNotification(flightNumber, name, NotificationCategory.SUBSCRIBED);
     }
 
     public void newNotification(String flightNumber, String name, NotificationCategory notificationCategory) throws RemoteException {
-        if (subscribedMap.containsKey(flightNumber)) {
-            if (subscribedMap.get(flightNumber).containsKey(name)) {
+        if (subscribers.containsKey(flightNumber)) {
+            if (subscribers.get(flightNumber).containsKey(name)) {
                 Ticket ticket = this.flightsAdminService.getFlight(flightNumber).getPassengerTicket(name);
                 switch (notificationCategory) {
                     case SUBSCRIBED:
-                        for (NotificationCallbackHandler handler : subscribedMap.get(flightNumber).get(name)) {
-                            handler.subscribedNotification(flightNumber,
-                                    flightsAdminService.getFlight(ticket.getFlightCode()).getDestination());
-                        }
+                        sendSubscribedNotification(flightNumber, name);
                         break;
                     case ASSIGNED_SEAT:
-                        for (NotificationCallbackHandler handler : subscribedMap.get(flightNumber).get(name)) {
-                            handler.assignedSeatNotification(flightNumber,
-                                    flightsAdminService.getFlight(ticket.getFlightCode()).getDestination(),
-                                    ticket.getSeatCategory().getMessage(), ticket.getSeat().getPlace());
-                        }
+                        sendSeatAssignedNotification(flightNumber, name, ticket);
+//                        subscribers.get(flightNumber).get(name).assignedSeatNotification(flightNumber,
+//                                flightsAdminService.getFlight(ticket.getFlightCode()).getDestination(),
+//                                ticket.getSeatCategory().getMessage(), ticket.getSeat().getPlace());
                         break;
                 }
             }
         }
     }
 
-    public void newNotificationChangeTicket(String flightNumber, String name, String oldFlightNumber, String oldDestination) throws RemoteException {
-        if (subscribedMap.containsKey(oldFlightNumber)) {
-            if (subscribedMap.get(oldFlightNumber).containsKey(name)) {
-                Ticket ticket = this.flightsAdminService.getFlight(flightNumber).getPassengerTicket(name);
-                for (NotificationCallbackHandler handler : subscribedMap.get(oldFlightNumber).get(name)) {
-                    handler.changedTicketNotification(flightNumber,
-                            flightsAdminService.getFlight(ticket.getFlightCode()).getDestination(), oldFlightNumber, oldDestination);
-                }
-                subscribedMap.putIfAbsent(flightNumber, new HashMap<>());
-                subscribedMap.get(flightNumber).putIfAbsent(name, subscribedMap.get(oldFlightNumber).get(name));
-                subscribedMap.get(oldFlightNumber).remove(name);
+    public void newNotificationChangeTicket(String flightNumber, String name, String oldFlightNumber, String destination) throws RemoteException {
+        if (subscribers.containsKey(oldFlightNumber)) {
+            if (subscribers.get(oldFlightNumber).containsKey(name)) {
+                //Ticket ticket = this.flightsAdminService.getFlight(flightNumber).getPassengerTicket(name);
+                sendChangedTicketNotification(flightNumber, name, oldFlightNumber, destination);
+//                subscribers.get(oldFlightNumber).get(name).changedTicketNotification( flightNumber,
+//                        flightsAdminService.getFlight(ticket.getFlightCode()).getDestination(), oldFlightNumber, oldDestination);
+                subscribers.putIfAbsent(flightNumber, new HashMap<>());
+                subscribers.get(flightNumber).putIfAbsent(name, subscribers.get(oldFlightNumber).get(name));
+                subscribers.get(oldFlightNumber).remove(name);
             }
         }
     }
 
     public void newNotificationChangeSeat(String flightNumber, String name, String oldSeatCategory, String oldPlace) throws RemoteException {
-        if (subscribedMap.containsKey(flightNumber)) {
-            if (subscribedMap.get(flightNumber).containsKey(name)) {
+        if (subscribers.containsKey(flightNumber)) {
+            if (subscribers.get(flightNumber).containsKey(name)) {
                 Ticket ticket = this.flightsAdminService.getFlight(flightNumber).getPassengerTicket(name);
-                for (NotificationCallbackHandler handler : subscribedMap.get(flightNumber).get(name)) {
-                    handler.changedSeatNotification(flightNumber,
-                            flightsAdminService.getFlight(ticket.getFlightCode()).getDestination(),
-                            ticket.getSeatCategory().getMessage(), ticket.getSeat().getPlace(),
-                            oldSeatCategory, oldPlace);
-                }
+                sendChangedSeatNotification(flightNumber, ticket, oldSeatCategory, oldPlace);
+//                subscribers.get(flightNumber).get(name).changedSeatNotification( flightNumber,
+//                        flightsAdminService.getFlight(ticket.getFlightCode()).getDestination(),
+//                        ticket.getSeatCategory().getMessage(), ticket.getSeat().getPlace(),
+//                        oldSeatCategory, oldPlace);
             }
         }
     }
 
     public void newNotification(String flightNumber, List<Ticket> ticketList, NotificationCategory notificationCategory) throws RemoteException {
-        if (subscribedMap.containsKey(flightNumber)) {
+        if (subscribers.containsKey(flightNumber)) {
             for (Ticket ticket : ticketList) {
-                if (subscribedMap.get(flightNumber).containsKey(ticket.getName())) {
+                if (subscribers.get(flightNumber).containsKey(ticket.getName())) {
                     String name = ticket.getName();
                     Optional<Seat> seat = Optional.ofNullable(ticket.getSeat());
                     switch (notificationCategory) {
                         case FLIGHT_CONFIRMED:
-                            for (NotificationCallbackHandler handler : subscribedMap.get(flightNumber).get(name)) {
-                                handler.flightCancelledNotification(flightNumber,
-                                        flightsAdminService.getFlight(ticket.getFlightCode()).getDestination(),
-                                        ticket.getSeatCategory().getMessage(), seat.map(Seat::getPlace).orElse(null));
-                                handler.finish();
-                            }
-                            subscribedMap.get(flightNumber).remove(name);
+                            sendFlightConfirmedNotification(flightNumber, ticket, seat.map(Seat::getPlace).orElse(null));
+//                            subscribers.get(flightNumber).get(name).flightConfirmedNotification(flightNumber,
+//                                    flightsAdminService.getFlight(ticket.getFlightCode()).getDestination(),
+//                                    ticket.getSeatCategory().getMessage(), seat.map(Seat::getPlace).orElse(null));
+                            subscribers.get(flightNumber).remove(name);
                             break;
                         case FLIGHT_CANCELLED:
-                            for (NotificationCallbackHandler handler : subscribedMap.get(flightNumber).get(name)) {
-                                handler.flightCancelledNotification(flightNumber,
-                                        flightsAdminService.getFlight(ticket.getFlightCode()).getDestination(),
-                                        ticket.getSeatCategory().getMessage(), seat.map(Seat::getPlace).orElse(null));
-                            }
+                            sendFlightCancelledNotification(flightNumber, ticket, seat.map(Seat::getPlace).orElse(null));
+//                            subscribers.get(flightNumber).get(name).flightCancelledNotification(flightNumber,
+//                                    flightsAdminService.getFlight(ticket.getFlightCode()).getDestination(),
+//                                    ticket.getSeatCategory().getMessage(), seat.map(Seat::getPlace).orElse(null));
                             break;
                     }
                 }
             }
-            if (subscribedMap.get(flightNumber).isEmpty()) {
-                subscribedMap.remove(flightNumber);
+            if (subscribers.get(flightNumber).isEmpty()) {
+                subscribers.remove(flightNumber);
             }
         }
+    }
+
+    private void sendSubscribedNotification(String flightNumber, String name) {
+        executor.submit(() -> {
+            try {
+                List<NotificationCallbackHandler> toNotify = subscribers.get(flightNumber).get(name);
+                for(NotificationCallbackHandler handler : toNotify) {
+                    handler.subscribedNotification(flightNumber, flightsAdminService.getFlight(flightNumber).getDestination());
+                }
+            } catch (RemoteException ignored) {}
+        });
+    }
+
+    private void sendSeatAssignedNotification(String flightNumber, String name, Ticket ticket) {
+        executor.submit(() -> {
+            try {
+                List<NotificationCallbackHandler> toNotify = subscribers.get(flightNumber).get(name);
+                for(NotificationCallbackHandler handler : toNotify) {
+                    handler.assignedSeatNotification(flightNumber,
+                            flightsAdminService.getFlight(flightNumber).getDestination(),
+                            ticket.getSeatCategory().getMessage(), ticket.getSeat().getPlace());
+                }
+            } catch (RemoteException ignored) {}
+        });
+    }
+
+    private void sendChangedTicketNotification(String flightNumber, String name, String oldFlightNumber, String destination) {
+        executor.submit(() -> {
+            try {
+                List<NotificationCallbackHandler> toNotify = subscribers.get(flightNumber).get(name);
+                for(NotificationCallbackHandler handler : toNotify) {
+                    handler.changedTicketNotification(flightNumber,
+                            destination, oldFlightNumber, destination);
+                }
+            } catch (RemoteException ignored) {}
+        });
+    }
+
+    private void sendChangedSeatNotification(String flightNumber, Ticket ticket, String oldSeatCategory, String oldPlace) {
+        executor.submit(() -> {
+            try {
+                List<NotificationCallbackHandler> toNotify = subscribers.get(flightNumber).get(ticket.getName());
+                for(NotificationCallbackHandler handler : toNotify) {
+                    handler.changedSeatNotification(flightNumber,
+                            flightsAdminService.getFlight(flightNumber).getDestination(),
+                            ticket.getSeatCategory().getMessage(), ticket.getSeat().getPlace(),
+                            oldSeatCategory, oldPlace);
+                }
+            } catch (RemoteException ignored) {}
+        });
+    }
+
+    private void sendFlightConfirmedNotification(String flightNumber, Ticket ticket, String place) {
+        executor.submit(() -> {
+            try {
+                List<NotificationCallbackHandler> toNotify = subscribers.get(flightNumber).get(ticket.getName());
+                for(NotificationCallbackHandler handler : toNotify) {
+                    handler.flightConfirmedNotification(flightNumber,
+                            flightsAdminService.getFlight(flightNumber).getDestination(),
+                            ticket.getSeatCategory().getMessage(), place);
+                    handler.finish();
+                }
+            } catch (RemoteException ignored) {}
+        });
+    }
+
+    private void sendFlightCancelledNotification(String flightNumber, Ticket ticket, String place) {
+        executor.submit(() -> {
+            try {
+                List<NotificationCallbackHandler> toNotify = subscribers.get(flightNumber).get(ticket.getName());
+                for(NotificationCallbackHandler handler : toNotify) {
+                    handler.flightCancelledNotification(flightNumber,
+                            flightsAdminService.getFlight(flightNumber).getDestination(),
+                            ticket.getSeatCategory().getMessage(), place);
+                }
+            } catch (RemoteException ignored) {}
+        });
     }
 }

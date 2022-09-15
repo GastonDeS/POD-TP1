@@ -39,7 +39,6 @@ public class NotificationCallbackHandlerImpl implements NotificationCallbackHand
             logger.info("Your flight " + flightCode + " with destination " + dest + " was confirmed and your seat is " + seatCategory + " " + place);
         } else {
             logger.info("Your flight " + flightCode + " with destination " + dest + " was confirmed");
-
         }
         this.notifyClient();
     }
