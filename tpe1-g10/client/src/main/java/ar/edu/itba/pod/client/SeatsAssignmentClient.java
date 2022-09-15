@@ -47,10 +47,9 @@ public class SeatsAssignmentClient {
     private static void alternativeFlights(SeatsAssignmentServiceInterface service) {
         try {
             AvailableFlightDto availableFlights = service.getAvailableFlights(flight, passenger);
-            for (Map.Entry<SeatCategory, Map<String, Long>> entry : availableFlights.getSeats().entrySet()) {
-                SeatCategory category = entry.getKey();
-                for (Map.Entry<String, Long> count : entry.getValue().entrySet()) {
-                    logger.info(availableFlights.getDestination() + " | " + count.getKey() + " | " + count.getValue() + " " + category);
+            for (SeatCategory value : SeatCategory.values()) {
+                for (Map.Entry<String, Long> count : availableFlights.getSeats().get(value).entrySet()) {
+                    logger.info(availableFlights.getDestination() + " | " + count.getKey() + " | " + count.getValue() + " " + value);
                 }
             }
         } catch (RemoteException ex) {
