@@ -10,19 +10,14 @@ import ar.edu.itba.pod.server.models.Seat;
 import java.rmi.RemoteException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Collectors;
 
 public class SeatMapService implements SeatMapServiceInterface {
     private static SeatMapService instance;
     private final FlightsAdminService flightsAdminService;
-    private final ReentrantReadWriteLock flightsLock;
-    private final ReentrantReadWriteLock publicSeatsLock;
 
     public SeatMapService() {
         this.flightsAdminService = FlightsAdminService.getInstance();
-        this.flightsLock = new ReentrantReadWriteLock();
-        this.publicSeatsLock = new ReentrantReadWriteLock();
     }
 
     public static SeatMapService getInstance() {
@@ -34,12 +29,7 @@ public class SeatMapService implements SeatMapServiceInterface {
     private Flight existsFlight(String flightCode) throws RemoteException {
         Flight flight;
         try {
-            try {
-                flightsLock.readLock().lock();
-                flight = flightsAdminService.getFlight(flightCode);
-            } finally {
-                flightsLock.readLock().unlock();
-            }
+            flight = flightsAdminService.getFlight(flightCode);
         } catch (RemoteException e) {
             throw new RemoteException("Error: flight with code " + flightCode + " does not exist");
         }
@@ -47,65 +37,31 @@ public class SeatMapService implements SeatMapServiceInterface {
     }
 
     public Map<String, Map<String, SeatDto>> peekAllSeats(String flightCode) throws RemoteException {
-        Flight flight;
-        try {
-            flightsLock.readLock().lock();
-            flight = existsFlight(flightCode);
-        } finally {
-            flightsLock.readLock().unlock();
-        }
+        Flight flight = existsFlight(flightCode);
         return flight.getPlaneSeatsDto();
     }
 
     public Map<String, SeatDto> peekRowSeats(String flightCode, String rowNumber) throws RemoteException {
-        Flight flight;
-        try {
-            flightsLock.readLock().lock();
-            flight = existsFlight(flightCode);
-        } finally {
-            flightsLock.readLock().unlock();
-        }
+        Flight flight = existsFlight(flightCode);
         Map<String, Map<String, SeatDto>> planeMap;
-        try {
-            publicSeatsLock.readLock().lock();
-            planeMap = flight.getPlaneSeatsDto();
-            if (planeMap.containsKey(rowNumber))
-                return planeMap.get(rowNumber);
-        } finally {
-            publicSeatsLock.readLock().unlock();
-        }
+        planeMap = flight.getPlaneSeatsDto();
+        if (planeMap.containsKey(rowNumber))
+            return planeMap.get(rowNumber);
         throw new RemoteException("Error: Row number " + rowNumber + " does not exist in flight " + flightCode);
     }
 
     public Map<String, Map<String, SeatDto>> peekCategorySeats(String flightCode, SeatCategory category) throws RemoteException {
-        Flight flight;
-        try {
-            flightsLock.readLock().lock();
-            flight = existsFlight(flightCode);
-        } finally {
-            flightsLock.readLock().unlock();
-        }
-        Map<String, Map<String, SeatDto>> planeMap;
-        try {
-            publicSeatsLock.readLock().lock();
-            planeMap = flight.getPlaneSeatsDto();
-        } finally {
-            publicSeatsLock.readLock().unlock();
-        }
+        Flight flight = existsFlight(flightCode);
+        Map<String, Map<String, SeatDto>> planeMap = flight.getPlaneSeatsDto();
         Map<String, Map<String, SeatDto>> categoryMap = new HashMap<>();
         boolean found = false;
-        try {
-            publicSeatsLock.writeLock().lock();
-            for (String row : planeMap.keySet().stream().sorted().collect(Collectors.toList())) {
-                if (flight.getRowCategory(row).equals(category)) {
-                    found = true;
-                    categoryMap.put(row, planeMap.get(row));
-                } else if (found) {
-                    break;
-                }
+        for (String row : planeMap.keySet().stream().sorted().collect(Collectors.toList())) {
+            if (flight.getRowCategory(row).equals(category)) {
+                found = true;
+                categoryMap.put(row, planeMap.get(row));
+            } else if (found) {
+                break;
             }
-        } finally {
-            publicSeatsLock.writeLock().unlock();
         }
         if (found)
             return categoryMap;

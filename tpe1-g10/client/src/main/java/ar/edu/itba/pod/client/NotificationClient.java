@@ -66,7 +66,7 @@ public class NotificationClient {
 
             System.out.println("Notification client finished");
         } catch (Exception ex) {
-            System.out.println("An exception happened");
+            logger.error(ex.getCause().getMessage());
         }
     }
 }

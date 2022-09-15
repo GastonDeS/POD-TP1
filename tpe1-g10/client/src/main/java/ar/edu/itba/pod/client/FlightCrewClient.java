@@ -34,7 +34,7 @@ public class FlightCrewClient {
             getSystemProperties();
             getResults();
         } catch (Exception e) {
-            logger.error("An exception happened");
+            logger.error(e.getCause().getMessage());
         }
     }
 

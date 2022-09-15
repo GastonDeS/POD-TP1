@@ -131,7 +131,7 @@ public class FlightsAdminClient {
             }
             logger.info(flightAddedCount+" flights added.");
         } catch (Exception ex) {
-            logger.error("File: "+fileName+" cannot be opened or was invalid");
+            logger.error("File: " + fileName + " cannot be opened or was invalid");
         }
     }
 
@@ -214,7 +214,7 @@ public class FlightsAdminClient {
             callMethod(actionName, service, fileName, planeCode);
 
         } catch (Exception ex) {
-            logger.error("An exception happened");
+            ex.getCause().getMessage();
         }
     }
 

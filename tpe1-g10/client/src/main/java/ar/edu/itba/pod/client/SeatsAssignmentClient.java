@@ -186,7 +186,7 @@ public class SeatsAssignmentClient {
             callMethodFromAction(service);
 
         } catch (Exception ex) {
-            logger.info("An exception happened");
+            logger.error(ex.getCause().getMessage());
         }
     }
 }
