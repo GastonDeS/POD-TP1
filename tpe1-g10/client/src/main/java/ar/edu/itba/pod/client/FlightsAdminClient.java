@@ -119,7 +119,7 @@ public class FlightsAdminClient {
             }
 
         } catch (Exception ex) {
-            logger.error("File: "+fileName+" cannot be opened ");
+            logger.error("File: " + fileName + " cannot be opened ");
         }
     }
 
@@ -202,7 +202,7 @@ public class FlightsAdminClient {
             callMethod(actionName, service, fileName, planeCode);
 
         } catch (Exception ex) {
-            logger.error("An exception happened");
+            ex.getCause().getMessage();
         }
     }
 
