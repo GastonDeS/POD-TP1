@@ -6,11 +6,13 @@ import ar.edu.itba.pod.utils.SeatHelper;
 import ar.edu.itba.pod.server.models.Ticket;
 import ar.edu.itba.pod.server.models.Seat;
 import ar.edu.itba.pod.models.SeatDto;
+import ar.edu.itba.pod.models.TicketDto;
 
 import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.util.*;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.stream.Collectors;
 
 public class Flight implements Serializable {
     private final String planeName;
@@ -19,6 +21,7 @@ public class Flight implements Serializable {
     private FlightStatus status;
     private final ReentrantReadWriteLock statusLock = new ReentrantReadWriteLock();
     private final List<Ticket> ticketList;
+    private final ReentrantReadWriteLock ticketListLock = new ReentrantReadWriteLock();
     private final Map<String, Map<String, Seat>> planeSeats; // we don't synchronized because its only changed in the constructor
 
     public Flight(String planeName, Map<String, Map<String, Seat>> planeSeats, String code, String destination) {
@@ -85,27 +88,39 @@ public class Flight implements Serializable {
     }
 
     public void addTicketToFlight(Ticket ticket) {
-        synchronized (ticketList) {
+        try {
+            ticketListLock.writeLock().lock();
             ticketList.add(ticket);
+        } finally {
+            ticketListLock.writeLock().unlock();
         }
     }
 
     public void swapTicket(Ticket oldTicket, Flight newFlight, SeatCategory seatCategory) {
-        synchronized (ticketList) {
-            boolean removed = ticketList.remove(oldTicket);
-            if (removed && oldTicket.getSeat() != null) {
-                String place = oldTicket.getSeat().getPlace();
-                planeSeats.get(SeatHelper.getRow(place)).get(SeatHelper.getColumn(place)).setAvailable(true, '*');
-            }
-            oldTicket.swapTicket(newFlight.getCode(), seatCategory);
-            newFlight.addTicketToFlight(oldTicket);
+        boolean removed;
+        try {
+            ticketListLock.writeLock().lock();
+            removed = ticketList.remove(oldTicket);
+        } finally {
+            ticketListLock.writeLock().unlock();
         }
+        if (removed && oldTicket.getSeat() != null) {
+            String place = oldTicket.getSeat().getPlace();
+            planeSeats.get(SeatHelper.getRow(place)).get(SeatHelper.getColumn(place)).setAvailable(true, '*');
+        }
+        oldTicket.swapTicket(newFlight.getCode(), seatCategory); // TODO check sync
+        newFlight.addTicketToFlight(oldTicket);
     }
 
-    public Ticket getPassengerTicket(String name) throws RemoteException {;
-        Optional<Ticket> ticket = ticketList.stream().filter(t -> t.getName().equals(name)).findFirst();
-        if (!ticket.isPresent()) throw new RemoteException("Error: no ticket found for passenger " + name);
-        return ticket.get();
+    public Ticket getPassengerTicket(String name) throws RemoteException {
+        try {
+            ticketListLock.readLock().lock();
+            Optional<Ticket> ticket = ticketList.stream().filter(t -> t.getName().equals(name)).findFirst();
+            if (!ticket.isPresent()) throw new RemoteException("Error: no ticket found for passenger " + name);
+            return ticket.get();
+        } finally {
+            ticketListLock.readLock().unlock();
+        }
     }
 
     public Seat getSeat(int row, String column) throws RemoteException {
@@ -118,6 +133,7 @@ public class Flight implements Serializable {
         return seat;
     }
 
+    // check if this is done manually
     public void assignSeatToTicket(Ticket ticket, String seatCode) {
         Seat seat = planeSeats.get(SeatHelper.getRow(seatCode)).get(SeatHelper.getColumn(seatCode));
         if (seat.isAvailable()) {
@@ -127,8 +143,36 @@ public class Flight implements Serializable {
             throw new IllegalArgumentException("seat already in use");
     }
 
-    public List<Ticket> getTicketList() {
-        return ticketList;
+    public List<TicketDto> getTicketDtoList() {
+        try {
+            ticketListLock.readLock().lock();
+            List<TicketDto> ticketDtoList = new ArrayList<>();
+            for (Ticket ticket : ticketList) {
+                TicketDto ticketDto = new TicketDto(ticket.getName(), ticket.getSeatCategory(), ticket.getFlightCode(), ticket.getSeat() != null ? ticket.getSeat().getPlace() : null);
+                ticketDtoList.add(ticketDto);
+            }
+            return ticketDtoList;
+        } finally {
+            ticketListLock.readLock().unlock();
+        }
+    }
+
+    public List<Ticket> getTicketListByCategorySortedByName(SeatCategory seatCategory) {
+        try {
+            ticketListLock.readLock().lock();
+            return this.ticketList.stream().filter(ticket -> ticket.getSeatCategory() == seatCategory).sorted(Comparator.comparing(Ticket::getName)).collect(Collectors.toList());
+        } finally {
+            ticketListLock.readLock().unlock();
+        }
+    }
+
+    public int getTicketListSize() {
+        try {
+            ticketListLock.readLock().lock();
+            return ticketList.size();
+        } finally {
+            ticketListLock.readLock().unlock();
+        }
     }
 
     public List<Seat> getAvailableSeats() {
@@ -138,7 +182,12 @@ public class Flight implements Serializable {
     }
 
     public int getAvailableSeatsAmount() {
-        return (int) planeSeats.values().stream().map(Map::values).count() - ticketList.size();
+        try {
+            ticketListLock.readLock().lock();
+            return (int) planeSeats.values().stream().map(Map::values).count() - ticketList.size();
+        } finally {
+            ticketListLock.readLock().unlock();
+        }
     }
 
     public SeatCategory getRowCategory(String row) {
@@ -149,14 +198,25 @@ public class Flight implements Serializable {
         int planeSeatsCount = (Integer.parseInt(planeSeats.values().stream().map((map) ->
                         map.values().stream().filter(seat -> seat.getSeatCategory() == category).count())
                         .reduce((long) 0, (acum, value) -> (long) acum + value).toString()));
-        int ticketListCategoryCount = (int) ticketList.stream().filter(ticket -> ticket.getSeatCategory() == category).count();
+        int ticketListCategoryCount;
+        try {
+            ticketListLock.readLock().lock();
+            ticketListCategoryCount = (int) ticketList.stream().filter(ticket -> ticket.getSeatCategory() == category).count();
+        } finally {
+            ticketListLock.readLock().unlock();
+        }
         return planeSeatsCount - ticketListCategoryCount;
     }
 
     public Optional<Ticket> getTicketFromSeat(int row, String column) {
-        return ticketList.stream().filter(t ->
-            t.getSeat() != null && t.getSeat().getPlace().equals("" + row + column)
-        ).findFirst();
+        try {
+            ticketListLock.readLock().lock();
+            return ticketList.stream().filter(t ->
+                    t.getSeat() != null && t.getSeat().getPlace().equals("" + row + column)
+            ).findFirst();
+        } finally {
+            ticketListLock.readLock().unlock();
+        }
     }
 
     @Override

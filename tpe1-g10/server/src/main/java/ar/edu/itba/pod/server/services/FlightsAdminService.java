@@ -145,7 +145,7 @@ public class FlightsAdminService implements FlightAdminServiceInterface {
         } finally {
             flightsLock.readLock().unlock();
         }
-        notificationService.newNotification(code, flight.getTicketList(), NotificationCategory.FLIGHT_CONFIRMED);
+        notificationService.newNotification(code, flight.getTicketDtoList(), NotificationCategory.FLIGHT_CONFIRMED);
     }
 
     public void cancelPendingFlight(String code) throws RemoteException {
@@ -158,7 +158,7 @@ public class FlightsAdminService implements FlightAdminServiceInterface {
         } finally {
             flightsLock.readLock().unlock();
         }
-        notificationService.newNotification(code, flight.getTicketList(), NotificationCategory.FLIGHT_CANCELLED);
+        notificationService.newNotification(code, flight.getTicketDtoList(), NotificationCategory.FLIGHT_CANCELLED);
 
     }
 
@@ -174,13 +174,10 @@ public class FlightsAdminService implements FlightAdminServiceInterface {
         int totalTickets = 0;
         List<TicketDto> notChangedTickets = new ArrayList<>();
         for (Flight flight : cancelledFlights) {
-            totalTickets += flight.getTicketList().size();
+            totalTickets += flight.getTicketListSize();
             findNewSeatsForFlight(flight);
-            totalTickets -= flight.getTicketList().size();
-            flight.getTicketList().forEach((ticket -> {
-                TicketDto ticketDto = new TicketDto(ticket.getName(), ticket.getSeatCategory(), ticket.getFlightCode());
-                notChangedTickets.add(ticketDto);
-            }));
+            totalTickets -= flight.getTicketListSize();
+            notChangedTickets.addAll(flight.getTicketDtoList());
         }
 
         return new ChangedTicketsDto(notChangedTickets, totalTickets);
@@ -215,9 +212,9 @@ public class FlightsAdminService implements FlightAdminServiceInterface {
             flightsLock.readLock().unlock();
         }
 
-        List<Ticket> economyTickets = oldFlight.getTicketList().stream().filter(ticket -> ticket.getSeatCategory() == SeatCategory.ECONOMY).sorted(Comparator.comparing(Ticket::getName)).collect(Collectors.toList());
-        List<Ticket> premiumEconomyTickets = oldFlight.getTicketList().stream().filter(ticket -> ticket.getSeatCategory() == SeatCategory.PREMIUM_ECONOMY).sorted(Comparator.comparing(Ticket::getName)).collect(Collectors.toList());
-        List<Ticket> businessTickets = oldFlight.getTicketList().stream().filter(ticket -> ticket.getSeatCategory() == SeatCategory.BUSINESS).sorted(Comparator.comparing(Ticket::getName)).collect(Collectors.toList());
+        List<Ticket> economyTickets = oldFlight.getTicketListByCategorySortedByName(SeatCategory.ECONOMY);
+        List<Ticket> premiumEconomyTickets = oldFlight.getTicketListByCategorySortedByName(SeatCategory.PREMIUM_ECONOMY);
+        List<Ticket> businessTickets = oldFlight.getTicketListByCategorySortedByName(SeatCategory.BUSINESS);
 
 
         List<SeatCategory> seatCategories = Arrays.stream(SeatCategory.values()).sorted().collect(Collectors.toList());

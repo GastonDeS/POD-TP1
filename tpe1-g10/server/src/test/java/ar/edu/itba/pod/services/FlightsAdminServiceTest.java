@@ -2,7 +2,6 @@ package ar.edu.itba.pod.services;
 
 import ar.edu.itba.pod.constants.FlightStatus;
 import ar.edu.itba.pod.constants.SeatCategory;
-import ar.edu.itba.pod.models.NotificationCallbackHandlerImpl;
 import ar.edu.itba.pod.models.PlaneData;
 import ar.edu.itba.pod.models.TicketDto;
 import ar.edu.itba.pod.server.services.FlightsAdminService;
@@ -21,7 +20,6 @@ import java.util.Map;
 public class FlightsAdminServiceTest {
 
     private final FlightsAdminService flightsAdminService = FlightsAdminService.getInstance();
-    private final ar.edu.itba.pod.server.services.NotificationService notificationService = ar.edu.itba.pod.server.services.NotificationService.getInstance();
 
     private static final String PLANE_1 = "PLANE_1";
     private static final String PLANE_2 = "PLANE_2";
@@ -42,7 +40,7 @@ public class FlightsAdminServiceTest {
         flightsAdminService.cancelPendingFlight("AA");
         flightsAdminService.findNewSeatsForCancelledFlights();
 
-        Assertions.assertEquals(5, flightsAdminService.getFlight("AA").getTicketList().size());
+        Assertions.assertEquals(5, flightsAdminService.getFlight("AA").getTicketListSize());
     }
 
     @Test
@@ -61,8 +59,8 @@ public class FlightsAdminServiceTest {
         flightsAdminService.findNewSeatsForCancelledFlights();
 
         // Checks that all tickets has been swapped
-        Assertions.assertEquals(0, flightsAdminService.getFlight("AA").getTicketList().size());
-        Assertions.assertEquals(5, flightsAdminService.getFlight("AB").getTicketList().size());
+        Assertions.assertEquals(0, flightsAdminService.getFlight("AA").getTicketListSize());
+        Assertions.assertEquals(5, flightsAdminService.getFlight("AB").getTicketListSize());
 
     }
 
@@ -83,8 +81,8 @@ public class FlightsAdminServiceTest {
 
 
         // Checks that all tickets has been swapped
-        Assertions.assertEquals(5, flightsAdminService.getFlight("AA").getTicketList().size());
-        Assertions.assertEquals(0, flightsAdminService.getFlight("AB").getTicketList().size());
+        Assertions.assertEquals(5, flightsAdminService.getFlight("AA").getTicketListSize());
+        Assertions.assertEquals(0, flightsAdminService.getFlight("AB").getTicketListSize());
     }
 
     @Test
@@ -104,16 +102,16 @@ public class FlightsAdminServiceTest {
 
         Assertions.assertEquals(1,flightsAdminService.getPlane(PLANE_2).getTotalSeats());
 
-        Assertions.assertEquals(5, flightsAdminService.getFlight("AA").getTicketList().size());
+        Assertions.assertEquals(5, flightsAdminService.getFlight("AA").getTicketListSize());
 
         flightsAdminService.cancelPendingFlight("AA");
         flightsAdminService.findNewSeatsForCancelledFlights();
 
         // Checks that all tickets has been swapped
-        Assertions.assertEquals(2, flightsAdminService.getFlight("AA").getTicketList().size());
-        Assertions.assertEquals(1, flightsAdminService.getFlight("AB").getTicketList().size());
-        Assertions.assertEquals(1, flightsAdminService.getFlight("ABC").getTicketList().size());
-        Assertions.assertEquals(1, flightsAdminService.getFlight("AC").getTicketList().size());
+        Assertions.assertEquals(2, flightsAdminService.getFlight("AA").getTicketListSize());
+        Assertions.assertEquals(1, flightsAdminService.getFlight("AB").getTicketListSize());
+        Assertions.assertEquals(1, flightsAdminService.getFlight("ABC").getTicketListSize());
+        Assertions.assertEquals(1, flightsAdminService.getFlight("AC").getTicketListSize());
     }
 
     @Test
@@ -131,8 +129,8 @@ public class FlightsAdminServiceTest {
         flightsAdminService.findNewSeatsForCancelledFlights();
 
         // Checks that all tickets has been swapped
-        Assertions.assertEquals(5, flightsAdminService.getFlight("AA").getTicketList().size());
-        Assertions.assertEquals(0, flightsAdminService.getFlight("AB").getTicketList().size());
+        Assertions.assertEquals(5, flightsAdminService.getFlight("AA").getTicketListSize());
+        Assertions.assertEquals(0, flightsAdminService.getFlight("AB").getTicketListSize());
     }
 
 }

@@ -165,8 +165,8 @@ public class SeatsAssignmentServiceTest {
         flightsAdminService.createFlight(PLANE_2, "BR", "CDG", new ArrayList<>());
         seatsAssignmentService.changeTicket("Brittu", "AA", "BR");
 
-        Assertions.assertEquals(1, flightsAdminService.getFlight("BR").getTicketList().size());
-        Assertions.assertEquals(4, flightsAdminService.getFlight("AA").getTicketList().size());
+        Assertions.assertEquals(1, flightsAdminService.getFlight("BR").getTicketListSize());
+        Assertions.assertEquals(4, flightsAdminService.getFlight("AA").getTicketListSize());
     }
 
     @Test

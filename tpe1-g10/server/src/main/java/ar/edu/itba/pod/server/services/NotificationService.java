@@ -9,6 +9,7 @@ import ar.edu.itba.pod.server.services.FlightsAdminService;
 import ar.edu.itba.pod.server.models.Flight;
 import ar.edu.itba.pod.server.models.Ticket;
 import ar.edu.itba.pod.server.models.Seat;
+import ar.edu.itba.pod.models.TicketDto;
 
 import java.rmi.RemoteException;
 import java.util.*;
@@ -101,25 +102,27 @@ public class NotificationService implements NotificationServiceInterface {
         }
     }
 
-    public void newNotification(String flightNumber, List<Ticket> ticketList, NotificationCategory notificationCategory) throws RemoteException {
-        if (subscribers.containsKey(flightNumber)) {
-            for (Ticket ticket : ticketList) {
-                if (subscribers.get(flightNumber).containsKey(ticket.getName())) {
+
+    public void newNotification(String flightNumber, List<TicketDto> ticketList, NotificationCategory notificationCategory) throws RemoteException {
+            if (subscribers.containsKey(flightNumber)) {
+                for (TicketDto ticket : ticketList) {
+                    if (subscribers.get(flightNumber).containsKey(ticket.getName())) {
                     String name = ticket.getName();
-                    Optional<Seat> seat = Optional.ofNullable(ticket.getSeat());
+                    Optional<String> seat = ticket.getSeatPlace();
                     switch (notificationCategory) {
                         case FLIGHT_CONFIRMED:
-                            sendFlightConfirmedNotification(flightNumber, ticket, seat.map(Seat::getPlace).orElse(null));
+                            sendFlightConfirmedNotification(flightNumber, ticket, seat.orElseGet(null));
 //                            subscribers.get(flightNumber).get(name).flightConfirmedNotification(flightNumber,
 //                                    flightsAdminService.getFlight(ticket.getFlightCode()).getDestination(),
 //                                    ticket.getSeatCategory().getMessage(), seat.map(Seat::getPlace).orElse(null));
                             subscribers.get(flightNumber).remove(name);
                             break;
                         case FLIGHT_CANCELLED:
-                            sendFlightCancelledNotification(flightNumber, ticket, seat.map(Seat::getPlace).orElse(null));
+                            sendFlightCancelledNotification(flightNumber, ticket, seat.orElseGet(null));
 //                            subscribers.get(flightNumber).get(name).flightCancelledNotification(flightNumber,
 //                                    flightsAdminService.getFlight(ticket.getFlightCode()).getDestination(),
 //                                    ticket.getSeatCategory().getMessage(), seat.map(Seat::getPlace).orElse(null));
+
                             break;
                     }
                 }
@@ -180,7 +183,7 @@ public class NotificationService implements NotificationServiceInterface {
         });
     }
 
-    private void sendFlightConfirmedNotification(String flightNumber, Ticket ticket, String place) {
+    private void sendFlightConfirmedNotification(String flightNumber, TicketDto ticket, String place) {
         executor.submit(() -> {
             try {
                 List<NotificationCallbackHandler> toNotify = subscribers.get(flightNumber).get(ticket.getName());
@@ -194,7 +197,7 @@ public class NotificationService implements NotificationServiceInterface {
         });
     }
 
-    private void sendFlightCancelledNotification(String flightNumber, Ticket ticket, String place) {
+    private void sendFlightCancelledNotification(String flightNumber, TicketDto ticket, String place) {
         executor.submit(() -> {
             try {
                 List<NotificationCallbackHandler> toNotify = subscribers.get(flightNumber).get(ticket.getName());
