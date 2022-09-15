@@ -92,10 +92,11 @@ public class SeatsAssignmentService implements SeatsAssignmentServiceInterface {
             notificationService.newNotificationChangeSeat(flightCode, name, ticket.getSeat().getSeatCategory().getMessage(), ticket.getSeat().getPlace());
             if (ticket.getSeat() != null) ticket.getSeat().setAvailable(true, '*');
         } else {
-            notificationService.newNotification(flightCode, name, NotificationCategory.CHANGED_SEAT);
+            notificationService.newNotification(flightCode, name, NotificationCategory.ASSIGNED_SEAT);
         }
 
         ticket.setSeatAndUpdateSeat(seat, false, name.charAt(0));
+        ticket.setSeatCategory(seat.getSeatCategory());
     }
 
 }

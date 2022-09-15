@@ -35,6 +35,15 @@ public class Ticket implements Serializable {
         }
     }
 
+    public void setSeatCategory(SeatCategory seatCategory) {
+        try {
+            seatCategoryLock.writeLock().lock();
+            this.seatCategory = seatCategory;
+        } finally {
+            seatCategoryLock.writeLock().unlock();
+        }
+    }
+
     public String getName() {
         return name;
     }

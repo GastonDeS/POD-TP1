@@ -27,13 +27,19 @@ public class SeatsAssignmentClient {
         logger.error(message);
     }
 
-    private static void getProperties() throws InvalidArgumentsException {
+    private static void getProperties() {
         Properties props = System.getProperties();
         serverAddress = props.getProperty("serverAddress");
-        action = ActionsSeatsAssignment.fromString(props.getProperty("action"));
+        if (props.containsKey("action")) {
+            action = ActionsSeatsAssignment.fromString(props.getProperty("action"));
+        } else {
+            action = null;
+        }
         flight = props.getProperty("flight");
         passenger = props.getProperty("passenger");
-        row = Integer.valueOf(props.getProperty("row"));
+        if (props.containsKey("row")) {
+            row = Integer.valueOf(props.getProperty("row"));
+        }
         col = props.getProperty("col");
         originalFlight = props.getProperty("originalFlight");
     }
@@ -179,6 +185,16 @@ public class SeatsAssignmentClient {
             logger.info("tpe1-g10 Seats Assignment Client Starting ...");
 
             getProperties();
+
+            if (serverAddress == null) {
+                logger.error("Please enter a valid server address");
+                return;
+            }
+
+            if (action == null) {
+                logger.error("Please enter a valid action");
+                return;
+            }
 
             final SeatsAssignmentServiceInterface service = (SeatsAssignmentServiceInterface)
                     Naming.lookup("//" + serverAddress + "/seatsAssignmentService");
