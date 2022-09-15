@@ -115,7 +115,6 @@ public class NotificationService implements NotificationServiceInterface {
 //                            subscribers.get(flightNumber).get(name).flightConfirmedNotification(flightNumber,
 //                                    flightsAdminService.getFlight(ticket.getFlightCode()).getDestination(),
 //                                    ticket.getSeatCategory().getMessage(), seat.map(Seat::getPlace).orElse(null));
-                            subscribers.get(flightNumber).remove(name);
                             break;
                         case FLIGHT_CANCELLED:
                             sendFlightCancelledNotification(flightNumber, ticket, seat.orElseGet(null));
@@ -193,6 +192,7 @@ public class NotificationService implements NotificationServiceInterface {
                             ticket.getSeatCategory().getMessage(), place);
                     handler.finish();
                 }
+                subscribers.get(flightNumber).remove(ticket.getName());
             } catch (RemoteException ignored) {}
         });
     }

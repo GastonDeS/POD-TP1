@@ -80,7 +80,7 @@ public class Flight implements Serializable {
     public void chargePendingStatus(FlightStatus flightStatus) throws RemoteException {
         try {
             statusLock.writeLock().lock();
-            if (this.status != FlightStatus.PENDING) throw new RemoteException("Error: flight " + code + "is "+ this.status);
+            if (this.status != FlightStatus.PENDING) throw new RemoteException("Error: flight " + code + " is "+ this.status);
             this.status = flightStatus;
         } finally {
              statusLock.writeLock().unlock();
