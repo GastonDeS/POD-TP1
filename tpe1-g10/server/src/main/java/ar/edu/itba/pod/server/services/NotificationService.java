@@ -107,13 +107,13 @@ public class NotificationService implements NotificationServiceInterface {
             if (subscribers.containsKey(flightNumber)) {
                 for (TicketDto ticket : ticketList) {
                     if (subscribers.get(flightNumber).containsKey(ticket.getName())) {
-                    Optional<String> seat = ticket.getSeatPlace();
+                    String seat = ticket.getSeatPlace().isPresent() ? ticket.getSeatPlace().get() : null;
                     switch (notificationCategory) {
                         case FLIGHT_CONFIRMED:
-                            sendFlightConfirmedNotification(flightNumber, ticket, seat.orElseGet(null));
+                            sendFlightConfirmedNotification(flightNumber, ticket, seat);
                             break;
                         case FLIGHT_CANCELLED:
-                            sendFlightCancelledNotification(flightNumber, ticket, seat.orElseGet(null));
+                            sendFlightCancelledNotification(flightNumber, ticket, seat);
                             break;
                     }
                 }
