@@ -34,13 +34,16 @@ public class FlightCrewClient {
             getSystemProperties();
             getResults();
         } catch (Exception e) {
-            logger.error(e.getCause().getMessage());
+//            logger.error(e.getCause().getMessage());
+            e.printStackTrace();
+        } finally {
+            logger.info("Crew Client ended");
         }
     }
 
     private static void getSystemProperties() {
         serverAddressInput = System.getProperty("serverAddress");
-        flightCodeInput = System.getProperty("flightCode");
+        flightCodeInput = System.getProperty("flight");
         String optionalCategoryInput = System.getProperty("category");
         String optionalRowInput = System.getProperty("row");
 
@@ -59,10 +62,9 @@ public class FlightCrewClient {
 
     private static void getResults() {
         try {
-            String ip = "//" + serverAddressInput + "/" + "seatMapService";
+            String ip = "//" + serverAddressInput + "/seatMapService";
 
-            final SeatMapServiceInterface handle = (SeatMapServiceInterface)
-                    Naming.lookup(ip);
+            final SeatMapServiceInterface handle = (SeatMapServiceInterface) Naming.lookup(ip);
             Map<String, Map<String, SeatDto>> planeMap;
 
             if (rowInput == null && categoryInput == null) {
@@ -88,7 +90,8 @@ public class FlightCrewClient {
                 writeOutputRowResults(rowPlaneMap, rowInput);
             }
         } catch (Exception e) {
-            logger.error(e.getCause().getMessage());
+//            logger.error(e.getCause().getMessage());
+            e.printStackTrace();
         }
     }
 
