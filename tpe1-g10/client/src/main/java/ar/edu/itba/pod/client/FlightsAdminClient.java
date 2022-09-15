@@ -45,10 +45,10 @@ public class FlightsAdminClient {
     }
 
     private static void statusMethod(FlightAdminServiceInterface service, String planeCode) {
-        FlightStatus flightStatus = FlightStatus.PENDING;
+        FlightStatus flightStatus;
         try {
             flightStatus = service.checkFlightStatus(planeCode);
-            logger.info("Flight" + planeCode + " new status is: " + flightStatus);
+            logger.info("Flight " + planeCode + " is " + flightStatus+".");
         } catch (RemoteException ex) {
             logger.error(ex.getCause().getMessage());
         }
@@ -71,9 +71,9 @@ public class FlightsAdminClient {
             logger.error("The reticketing could not be completed");
             return;
         }
-        logger.info(ticketDto.getSuccessAmount() + " tickets were changed\n");
+        logger.info(ticketDto.getSuccessAmount() + " tickets were changed.");
         ticketDto.getErrorList().forEach(ticket -> {
-            logger.info("Cannot find alternative flight for " + ticket.getName() + " with Ticket " + ticket.getFlightCode() + "\n");
+            logger.info("Cannot find alternative flight for " + ticket.getName() + " with Ticket " + ticket.getFlightCode());
 
         });
     }
