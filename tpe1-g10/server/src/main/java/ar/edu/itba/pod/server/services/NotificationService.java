@@ -15,6 +15,7 @@ import java.rmi.RemoteException;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class NotificationService implements NotificationServiceInterface {
 
@@ -27,6 +28,11 @@ public class NotificationService implements NotificationServiceInterface {
     public NotificationService() {
         this.flightsAdminService = FlightsAdminService.getInstance();
         this.executor = Executors.newFixedThreadPool(5);
+    }
+
+    public boolean awaitTermination() throws InterruptedException {
+        executor.shutdown();
+        return executor.awaitTermination(30, TimeUnit.MINUTES);
     }
 
     public static NotificationService getInstance() {
@@ -66,9 +72,6 @@ public class NotificationService implements NotificationServiceInterface {
                         break;
                     case ASSIGNED_SEAT:
                         sendSeatAssignedNotification(flightNumber, name, ticket);
-//                        subscribers.get(flightNumber).get(name).assignedSeatNotification(flightNumber,
-//                                flightsAdminService.getFlight(ticket.getFlightCode()).getDestination(),
-//                                ticket.getSeatCategory().getMessage(), ticket.getSeat().getPlace());
                         break;
                 }
             }
@@ -78,10 +81,7 @@ public class NotificationService implements NotificationServiceInterface {
     public void newNotificationChangeTicket(String flightNumber, String name, String oldFlightNumber, String destination) throws RemoteException {
         if (subscribers.containsKey(oldFlightNumber)) {
             if (subscribers.get(oldFlightNumber).containsKey(name)) {
-                //Ticket ticket = this.flightsAdminService.getFlight(flightNumber).getPassengerTicket(name);
                 sendChangedTicketNotification(flightNumber, name, oldFlightNumber, destination);
-//                subscribers.get(oldFlightNumber).get(name).changedTicketNotification( flightNumber,
-//                        flightsAdminService.getFlight(ticket.getFlightCode()).getDestination(), oldFlightNumber, oldDestination);
                 subscribers.putIfAbsent(flightNumber, new HashMap<>());
                 subscribers.get(flightNumber).putIfAbsent(name, subscribers.get(oldFlightNumber).get(name));
                 subscribers.get(oldFlightNumber).remove(name);
@@ -94,10 +94,6 @@ public class NotificationService implements NotificationServiceInterface {
             if (subscribers.get(flightNumber).containsKey(name)) {
                 Ticket ticket = this.flightsAdminService.getFlight(flightNumber).getPassengerTicket(name);
                 sendChangedSeatNotification(flightNumber, ticket, oldSeatCategory, oldPlace);
-//                subscribers.get(flightNumber).get(name).changedSeatNotification( flightNumber,
-//                        flightsAdminService.getFlight(ticket.getFlightCode()).getDestination(),
-//                        ticket.getSeatCategory().getMessage(), ticket.getSeat().getPlace(),
-//                        oldSeatCategory, oldPlace);
             }
         }
     }
@@ -107,21 +103,13 @@ public class NotificationService implements NotificationServiceInterface {
             if (subscribers.containsKey(flightNumber)) {
                 for (TicketDto ticket : ticketList) {
                     if (subscribers.get(flightNumber).containsKey(ticket.getName())) {
-                    String name = ticket.getName();
                     Optional<String> seat = ticket.getSeatPlace();
                     switch (notificationCategory) {
                         case FLIGHT_CONFIRMED:
                             sendFlightConfirmedNotification(flightNumber, ticket, seat.orElseGet(null));
-//                            subscribers.get(flightNumber).get(name).flightConfirmedNotification(flightNumber,
-//                                    flightsAdminService.getFlight(ticket.getFlightCode()).getDestination(),
-//                                    ticket.getSeatCategory().getMessage(), seat.map(Seat::getPlace).orElse(null));
                             break;
                         case FLIGHT_CANCELLED:
                             sendFlightCancelledNotification(flightNumber, ticket, seat.orElseGet(null));
-//                            subscribers.get(flightNumber).get(name).flightCancelledNotification(flightNumber,
-//                                    flightsAdminService.getFlight(ticket.getFlightCode()).getDestination(),
-//                                    ticket.getSeatCategory().getMessage(), seat.map(Seat::getPlace).orElse(null));
-
                             break;
                     }
                 }

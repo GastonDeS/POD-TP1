@@ -9,6 +9,8 @@ import ar.edu.itba.pod.server.services.SeatMapService;
 import ar.edu.itba.pod.server.services.SeatsAssignmentService;
 import ar.edu.itba.pod.server.services.NotificationService;
 import ar.edu.itba.pod.interfaces.NotificationServiceInterface;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.rmi.Remote;
 import java.rmi.registry.LocateRegistry;
@@ -16,9 +18,10 @@ import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 
 public class Server {
+    private static final Logger logger = LoggerFactory.getLogger(Server.class);
 
     public static void main(String[] args) {
-        System.out.println("tpe1-g10 Server Starting ...");
+        logger.info("tpe1-g10 Server Starting ...");
         try {
             final FlightAdminServiceInterface flightsAdminService = FlightsAdminService.getInstance();
             final SeatMapServiceInterface seatMapService = SeatMapService.getInstance();
@@ -32,20 +35,30 @@ public class Server {
             final Remote remoteNotification = UnicastRemoteObject.exportObject(notificationService,0);
 
             registry.rebind("flightAdminService", remoteFlightsAdmin);
-            System.out.println("flightAdminService bound");
+            logger.info("flightAdminService bound");
 
             registry.rebind("seatsAssignmentService", remoteSeatsAssignment);
-            System.out.println("seatsAssignmentService bound");
+            logger.info("seatsAssignmentService bound");
 
             registry.rebind("seatMapService", remoteMapQuery);
-            System.out.println("seatMapService bound");
+            logger.info("seatMapService bound");
 
             registry.rebind("notificationService", remoteNotification);
-            System.out.println("notificationService bound");
+            logger.info("notificationService bound");
 
-            System.out.println("server online");
+            logger.info("server online");
+
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+                try {
+                    if (!notificationService.awaitTermination())
+                        logger.error("Could not terminate executor successfully.");
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                    logger.error("Could not terminate executor successfully.");
+                }
+            }));
         } catch (Exception ex ) {
-            System.out.println("An exception happened");
+            logger.error("An exception happened");
             ex.printStackTrace();
         }
     }
