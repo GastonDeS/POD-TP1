@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.rmi.Remote;
+import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
@@ -52,7 +53,7 @@ public class Server {
                 try {
                     if (!notificationService.awaitTermination())
                         logger.error("Could not terminate executor successfully.");
-                } catch (InterruptedException e) {
+                } catch (RemoteException e) {
                     e.printStackTrace();
                     logger.error("Could not terminate executor successfully.");
                 }

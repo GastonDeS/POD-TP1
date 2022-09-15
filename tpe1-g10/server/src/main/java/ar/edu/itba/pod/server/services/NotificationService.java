@@ -30,9 +30,13 @@ public class NotificationService implements NotificationServiceInterface {
         this.executor = Executors.newFixedThreadPool(5);
     }
 
-    public boolean awaitTermination() throws InterruptedException {
-        executor.shutdown();
-        return executor.awaitTermination(30, TimeUnit.MINUTES);
+    public boolean awaitTermination() throws RemoteException {
+        try {
+            executor.shutdown();
+            return executor.awaitTermination(30, TimeUnit.MINUTES);
+        } catch (InterruptedException ex) {
+            throw new RemoteException("InterruptedException: "+ex.getMessage());
+        }
     }
 
     public static NotificationService getInstance() {

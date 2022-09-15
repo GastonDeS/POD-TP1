@@ -10,7 +10,7 @@ public class TicketDto implements Serializable {
     private final String name;
     private final SeatCategory seatCategory;
     private final String flightCode;
-    private final Optional<String> seatPlace;
+    private transient final Optional<String> seatPlace;
 
     public TicketDto(String name, SeatCategory seatCategory, String flightCode) {
         this.name = name;

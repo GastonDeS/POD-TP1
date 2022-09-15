@@ -8,5 +8,5 @@ public interface NotificationServiceInterface extends Remote {
 
     void subscribe(String flightNumber, String name, NotificationCallbackHandler handler) throws RemoteException;
 
-    boolean awaitTermination() throws InterruptedException;
+    boolean awaitTermination() throws RemoteException;
 }
