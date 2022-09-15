@@ -4,12 +4,14 @@ import ar.edu.itba.pod.constants.SeatCategory;
 import ar.edu.itba.pod.models.SeatDto;
 
 import java.io.Serializable;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class Seat implements Serializable {
     private final SeatCategory seatCategory;
     private boolean available;
     private char info;
     private final String place;
+    private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock(true);
 
     public Seat(SeatCategory seatCategory, String place) {
         this.seatCategory = seatCategory;
@@ -38,19 +40,24 @@ public class Seat implements Serializable {
     }
 
     public boolean isAvailable() {
-        return available;
-    }
-
-    public void setAvailable(boolean available, char initialName) {
-        synchronized (this) {
-            this.info = initialName;
-            this.available = available;
+        try {
+            lock.readLock().lock();
+            return available;
+        } finally {
+            lock.readLock().unlock();
         }
     }
 
-    public char getInfo() {
-        return info;
+    public void setAvailable(boolean available, char initialName) {
+        try {
+            lock.writeLock().lock();
+            this.info = initialName;
+            this.available = available;
+        } finally {
+            lock.writeLock().unlock();
+        }
     }
+
 
     public static class Builder
     {

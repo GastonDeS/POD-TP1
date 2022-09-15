@@ -133,16 +133,6 @@ public class Flight implements Serializable {
         return seat;
     }
 
-    // check if this is done manually
-    public void assignSeatToTicket(Ticket ticket, String seatCode) {
-        Seat seat = planeSeats.get(SeatHelper.getRow(seatCode)).get(SeatHelper.getColumn(seatCode));
-        if (seat.isAvailable()) {
-            seat.setAvailable(false, '*');
-            ticket.setSeat(seat);
-        } else
-            throw new IllegalArgumentException("seat already in use");
-    }
-
     public List<TicketDto> getTicketDtoList() {
         try {
             ticketListLock.readLock().lock();

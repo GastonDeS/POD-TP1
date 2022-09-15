@@ -5,12 +5,16 @@ import ar.edu.itba.pod.models.TicketDto;
 import ar.edu.itba.pod.server.models.Seat;
 
 import java.io.Serializable;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class Ticket implements Serializable {
     private final String name;
     private SeatCategory seatCategory;
     private Seat seat;
     private String flightCode;
+    private final ReentrantReadWriteLock seatCategoryLock = new ReentrantReadWriteLock();
+    private final ReentrantReadWriteLock flightCodeLock = new ReentrantReadWriteLock();
+    private final ReentrantReadWriteLock seatLock = new ReentrantReadWriteLock();
 
     public Ticket(String name, SeatCategory seatCategory, String flightCode) {
         this.name = name;
@@ -22,12 +26,59 @@ public class Ticket implements Serializable {
         return new Ticket(ticketDto.getName(), ticketDto.getSeatCategory(), ticketDto.getFlightCode());
     }
 
-    public String getFlightCode() {
-        return flightCode;
+    public  String getFlightCode() {
+        try {
+            flightCodeLock.readLock().lock();
+            return flightCode;
+        } finally {
+            flightCodeLock.readLock().unlock();
+        }
     }
 
-    public void setFlightCode(String flightCode) {
-        this.flightCode = flightCode;
+    public String getName() {
+        return name;
+    }
+
+    public SeatCategory getSeatCategory() {
+        try {
+            seatCategoryLock.readLock().lock();
+            return seatCategory;
+        } finally {
+            seatCategoryLock.readLock().unlock();
+        }
+    }
+
+    public Seat getSeat() {
+        try {
+            seatLock.readLock().lock();
+            return seat;
+        } finally {
+            seatLock.readLock().unlock();
+        }
+    }
+
+    public void setSeatAndUpdateSeat(Seat newSeat, boolean available, char info) {
+        try {
+            seatLock.writeLock().lock();
+            if (this.seat != null) this.seat.setAvailable(true, '*');
+            this.seat = newSeat;
+            if (newSeat != null) this.seat.setAvailable(available, info);
+        } finally {
+            seatLock.writeLock().unlock();
+        }
+    }
+
+    public void swapTicket(String flightCode, SeatCategory seatCategory) {
+        try {
+            flightCodeLock.writeLock().lock();
+            seatCategoryLock.writeLock().lock();
+            this.setSeatAndUpdateSeat(null, true, '*');
+            this.flightCode = flightCode;
+            this.seatCategory = seatCategory;
+        } finally {
+            seatCategoryLock.writeLock().unlock();
+            flightCodeLock.writeLock().unlock();
+        }
     }
 
     private Ticket(Builder builder) {
@@ -36,41 +87,6 @@ public class Ticket implements Serializable {
         this.seat = builder.seat;
         this.flightCode = builder.flightCode;
     }
-
-    public void setSeatCategory(SeatCategory seatCategory) {
-        this.seatCategory = seatCategory;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public SeatCategory getSeatCategory() {
-        return seatCategory;
-    }
-
-    public Seat getSeat() {
-        return seat;
-    }
-
-    public void setSeat(Seat seat) {
-        this.seat = seat;
-    }
-    public void setSeatAndUpdateSeat(Seat seat, boolean available, char info) {
-        synchronized (this) {
-            this.seat = seat;
-            this.seat.setAvailable(available, info);
-        }
-    }
-
-    public void swapTicket(String flightCode, SeatCategory seatCategory) {
-        synchronized (this) {
-            this.seat = null;
-            this.flightCode = flightCode;
-            this.seatCategory = seatCategory;
-        }
-    }
-
 
     public static class Builder
     {
