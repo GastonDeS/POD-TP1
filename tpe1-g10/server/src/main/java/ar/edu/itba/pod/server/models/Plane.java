@@ -4,6 +4,7 @@ package ar.edu.itba.pod.server.models;
 import ar.edu.itba.pod.constants.SeatCategory;
 import ar.edu.itba.pod.models.PlaneData;
 import ar.edu.itba.pod.server.models.Seat;
+import ar.edu.itba.pod.utils.SeatHelper;
 
 import java.io.Serializable;
 import java.rmi.RemoteException;
@@ -50,7 +51,7 @@ public class Plane implements Serializable {
             PlaneData value = planeDataMap.get(key);
             if (value == null) continue;
             for (int w =0; w < value.getRows(); w++, i++) {
-                String row =  (i+1) < 10 ? ("0"+(i+1)) :""+(i+1);
+                String row = SeatHelper.getRowFromInt(i);
                 seats.put(row, new HashMap<>());
                 for (int j = 0; j < value.getColumns(); j++) {
                     String place = row + (char) (65 + j);

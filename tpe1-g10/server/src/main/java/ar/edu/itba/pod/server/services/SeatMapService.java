@@ -4,6 +4,7 @@ import ar.edu.itba.pod.constants.SeatCategory;
 import ar.edu.itba.pod.interfaces.SeatMapServiceInterface;
 import ar.edu.itba.pod.server.services.FlightsAdminService;
 import ar.edu.itba.pod.models.SeatDto;
+import ar.edu.itba.pod.utils.SeatHelper;
 import ar.edu.itba.pod.server.models.Flight;
 import ar.edu.itba.pod.server.models.Seat;
 
@@ -45,7 +46,7 @@ public class SeatMapService implements SeatMapServiceInterface {
         Flight flight = existsFlight(flightCode);
         Map<String, Map<String, SeatDto>> planeMap;
         planeMap = flight.getPlaneSeatsDto();
-        String row = (rowNumber + 1) < 10 ? ("0" + (rowNumber + 1)) : "" + (rowNumber + 1);
+        String row = SeatHelper.getRowFromInt(rowNumber);
         if (planeMap.containsKey(row))
             return planeMap.get(row);
         throw new RemoteException("Error: Row number " + rowNumber + " does not exist in flight " + flightCode);

@@ -47,7 +47,7 @@ public class SeatMapServiceTest {
             PlaneData value = mockMap.get(key);
             if (value == null) continue;
             for (int w =0; w < value.getRows(); w++, i++) {
-                String rowS = (i + 1) < 10 ? ("0" + (i + 1)) : "" + (i + 1);
+                String rowS = SeatHelper.getRowFromInt(i);
                 Assertions.assertTrue(map.containsKey(rowS));
                 for (int j = 0; j < value.getColumns(); j++) {
                     String col = "" + (char) (65 + j);
@@ -63,7 +63,7 @@ public class SeatMapServiceTest {
     @Test
     public void testGetRow() throws RemoteException {
 
-        Map<String, SeatDto> map = service.peekRowSeats("AA","10");
+        Map<String, SeatDto> map = service.peekRowSeats("AA",10);
 
         map.values().forEach(seatDto -> {
             Assertions.assertEquals("10", SeatHelper.getRow(seatDto.getPlace()));

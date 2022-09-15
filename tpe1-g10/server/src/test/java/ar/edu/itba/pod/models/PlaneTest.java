@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import ar.edu.itba.pod.services.utils.TestUtils;
-
+import ar.edu.itba.pod.utils.SeatHelper;
 
 import ar.edu.itba.pod.constants.SeatCategory;
 import ar.edu.itba.pod.server.models.Plane;
@@ -29,7 +29,7 @@ public class PlaneTest {
         int i=0;
         for (SeatCategory value : SeatCategory.values()) {
             for (int w = 0; w < planeDataMap.get(value).getRows(); w++, i++) {
-                String row =  (i+1) < 10 ? ("0"+(i+1)) :""+(i+1);
+                String row = SeatHelper.getRowFromInt(i);
                 for (int j = 0; j < planeDataMap.get(value).getRows(); j++) {
                     Assertions.assertEquals( value,seats.get(row).getOrDefault("" + (char) (65 + j), null).getSeatCategory());
                 }
