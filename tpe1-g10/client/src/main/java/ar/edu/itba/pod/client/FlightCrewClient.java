@@ -26,14 +26,32 @@ public class FlightCrewClient {
     private static String outPathInput = "./";
     private static SeatCategory categoryInput;
     private static String rowInput;
+    private static String optionalCategoryInput;
+    private static String optionalRowInput;
 
     public static void main(String[] args) {
         try {
             logger.info("tpe1-g10 Flight Crew Client Starting ...");
             getSystemProperties();
+
+            if(serverAddressInput == null){
+                logger.error("Please enter a valid server adddress");
+                return;
+            }
+            if(optionalCategoryInput != null && optionalRowInput!= null){
+                logger.error("You cannot consult for category and row at the same time");
+                return;
+            } else if (optionalRowInput!= null) {
+                rowInput = optionalRowInput;
+            } else {
+                if (optionalCategoryInput != null)
+                    categoryInput = SeatCategory.valueOf(optionalCategoryInput);
+            }
+            outPathInput = System.getProperty("outPath");
+
             getResults();
         } catch (Exception e) {
-//            logger.error(e.getCause().getMessage());
+            logger.error(e.getCause().getMessage());
             e.printStackTrace();
         } finally {
             logger.info("Crew Client ended");
@@ -43,20 +61,8 @@ public class FlightCrewClient {
     private static void getSystemProperties() {
         serverAddressInput = System.getProperty("serverAddress");
         flightCodeInput = System.getProperty("flight");
-        String optionalCategoryInput = System.getProperty("category");
-        String optionalRowInput = System.getProperty("row");
-
-
-        if(optionalCategoryInput != null && optionalRowInput!= null){
-            logger.error("You cannot consult for category and row at the same time");
-            return;
-        } else if (optionalRowInput!= null) {
-            rowInput = optionalRowInput;
-        } else {
-            if (optionalCategoryInput != null)
-                categoryInput = SeatCategory.valueOf(optionalCategoryInput);
-        }
-        outPathInput = System.getProperty("outPath");
+        optionalCategoryInput = System.getProperty("category");
+        optionalRowInput = System.getProperty("row");
     }
 
     private static void getResults() {
