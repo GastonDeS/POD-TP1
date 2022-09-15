@@ -73,6 +73,8 @@ $ ./run-notifcations -DserverAddress={ip}:{puerto} -Dflight={flightCode} -Dpasse
 ````
 $ ./run-seatMap -DserverAddress={ip}:{puerto} -Dflight={flightCode} [ -Dcategory={catName} | -Drow={rowNumber} ] -DoutPath={output.csv}
 ````
+#####Consideraciones
+1- Si se desea consultar o cambiar un vuelo 
 
 # Integrantes
 

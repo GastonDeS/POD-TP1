@@ -7,7 +7,7 @@ public class SeatHelper {
     }
 
     public static String getRowFromInt(int row) {
-        return (row + 1) < 10 ? ("0" + (row + 1)) : "" + (row + 1);
+        return (row + 1) < 10 ? ("0" + row) : "" + (row );
     }
 
     public static String getColumn(String place) {

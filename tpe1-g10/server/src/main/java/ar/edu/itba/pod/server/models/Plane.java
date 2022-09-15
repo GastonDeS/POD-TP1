@@ -51,7 +51,7 @@ public class Plane implements Serializable {
             PlaneData value = planeDataMap.get(key);
             if (value == null) continue;
             for (int w =0; w < value.getRows(); w++, i++) {
-                String row = SeatHelper.getRowFromInt(i);
+                String row = SeatHelper.getRowFromInt(i+1);
                 seats.put(row, new HashMap<>());
                 for (int j = 0; j < value.getColumns(); j++) {
                     String place = row + (char) (65 + j);

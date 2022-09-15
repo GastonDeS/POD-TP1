@@ -47,7 +47,7 @@ public class SeatMapServiceTest {
             PlaneData value = mockMap.get(key);
             if (value == null) continue;
             for (int w =0; w < value.getRows(); w++, i++) {
-                String rowS = SeatHelper.getRowFromInt(i);
+                String rowS = SeatHelper.getRowFromInt(i+1);
                 Assertions.assertTrue(map.containsKey(rowS));
                 for (int j = 0; j < value.getColumns(); j++) {
                     String col = "" + (char) (65 + j);
