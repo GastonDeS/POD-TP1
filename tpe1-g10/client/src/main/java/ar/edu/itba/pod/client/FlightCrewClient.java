@@ -27,8 +27,7 @@ public class FlightCrewClient {
     private static SeatCategory categoryInput;
     private static String rowInput;
 
-    public static void main(String[] args) throws RemoteException,
-            NotBoundException, MalformedURLException {
+    public static void main(String[] args) {
         try {
             logger.info("tpe1-g10 Flight Crew Client Starting ...");
             getSystemProperties();
@@ -86,7 +85,7 @@ public class FlightCrewClient {
                     logger.error("There must be a valid flight code");
                     return;
                 }
-                Map<String, SeatDto> rowPlaneMap = handle.peekRowSeats(flightCodeInput, rowInput);
+                Map<String, SeatDto> rowPlaneMap = handle.peekRowSeats(flightCodeInput, Integer.valueOf(rowInput)); // TODO flor check
                 writeOutputRowResults(rowPlaneMap, rowInput);
             }
         } catch (Exception e) {

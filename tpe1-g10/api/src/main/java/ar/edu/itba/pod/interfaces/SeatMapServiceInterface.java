@@ -11,7 +11,7 @@ public interface SeatMapServiceInterface extends Remote {
 
     Map<String, Map<String, SeatDto>> peekAllSeats(String flightCode) throws RemoteException;
 
-    Map<String, SeatDto> peekRowSeats(String flightCode, String rowNumber) throws RemoteException;
+    Map<String, SeatDto> peekRowSeats(String flightCode, int rowNumber) throws RemoteException;
 
     Map<String, Map<String, SeatDto>> peekCategorySeats(String flightCode, SeatCategory category) throws RemoteException;
 }
