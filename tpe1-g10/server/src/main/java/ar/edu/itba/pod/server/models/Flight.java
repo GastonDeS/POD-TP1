@@ -5,18 +5,21 @@ import ar.edu.itba.pod.constants.SeatCategory;
 import ar.edu.itba.pod.utils.SeatHelper;
 import ar.edu.itba.pod.server.models.Ticket;
 import ar.edu.itba.pod.server.models.Seat;
+import ar.edu.itba.pod.models.SeatDto;
 
 import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.util.*;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class Flight implements Serializable {
     private final String planeName;
     private final String code;
     private final String destination;
     private FlightStatus status;
+    private final ReentrantReadWriteLock statusLock = new ReentrantReadWriteLock();
     private final List<Ticket> ticketList;
-    private final Map<String, Map<String, Seat>> planeSeats;
+    private final Map<String, Map<String, Seat>> planeSeats; // we don't synchronized because its only changed in the constructor
 
     public Flight(String planeName, Map<String, Map<String, Seat>> planeSeats, String code, String destination) {
         this.planeName = planeName;
@@ -40,22 +43,45 @@ public class Flight implements Serializable {
     }
 
     public final FlightStatus getStatus() {
-        return status;
+        try {
+            statusLock.readLock().lock();
+            return status;
+        } finally {
+            statusLock.readLock().unlock();
+        }
     }
 
-    public Map<String, Map<String, Seat>> getPlaneSeats() {
-        return planeSeats;
+    public Map<String, Map<String, SeatDto>> getPlaneSeatsDto() {
+        Map<String, Map<String, SeatDto>> publicSeatsDto = new HashMap<>();
+        for (Map.Entry<String, Map<String, Seat>> entry : this.planeSeats.entrySet()) {
+            String key = entry.getKey();
+            Map<String, Seat> value = entry.getValue();
+            Map<String, SeatDto> seatsDto;
+            seatsDto = rowSeatDtoMap(value);
+            publicSeatsDto.put(key, seatsDto);
+        }
+        return publicSeatsDto;
     }
 
-    public void setStatus(FlightStatus status) {
-        this.status = status;
+    private Map<String, SeatDto> rowSeatDtoMap(Map<String, Seat> seatMap) {
+        Map<String, SeatDto> rowSeatsToDto = new HashMap<>();
+        for (Map.Entry<String, Seat> entry : seatMap.entrySet()) {
+            String key = entry.getKey();
+            Seat seat = entry.getValue();
+            SeatDto seatDto = seat.toSeatDto();
+            rowSeatsToDto.put(key, seatDto);
+        }
+        return rowSeatsToDto;
     }
 
     public void chargePendingStatus(FlightStatus flightStatus) throws RemoteException {
-        synchronized (this.status) {
+        try {
+            statusLock.writeLock().lock();
             if (this.status != FlightStatus.PENDING) throw new RemoteException("Error: flight " + code + "is "+ this.status);
             this.status = flightStatus;
-        }
+        } finally {
+             statusLock.writeLock().unlock();
+         }
     }
 
     public void addTicketToFlight(Ticket ticket) {
@@ -73,16 +99,6 @@ public class Flight implements Serializable {
             }
             oldTicket.swapTicket(newFlight.getCode(), seatCategory);
             newFlight.addTicketToFlight(oldTicket);
-        }
-    }
-
-    public void removeTicketFromFlight(Ticket ticket) {
-        synchronized (ticketList) {
-            boolean removed = ticketList.remove(ticket);
-            if (removed && ticket.getSeat() != null) {
-                String place = ticket.getSeat().getPlace();
-                planeSeats.get(SeatHelper.getRow(place)).get(SeatHelper.getColumn(place)).setAvailable(true, '*');
-            }
         }
     }
 

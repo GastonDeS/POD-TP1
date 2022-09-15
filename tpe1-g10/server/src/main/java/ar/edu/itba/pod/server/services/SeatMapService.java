@@ -35,10 +35,10 @@ public class SeatMapService implements SeatMapServiceInterface {
         Flight flight;
         try {
             try {
-                flightsLock.readLock();
+                flightsLock.readLock().lock();
                 flight = flightsAdminService.getFlight(flightCode);
             } finally {
-                flightsLock.readLock().lock();
+                flightsLock.readLock().unlock();
             }
         } catch (RemoteException e) {
             throw new RemoteException("Error: flight with code " + flightCode + " does not exist");
@@ -49,26 +49,26 @@ public class SeatMapService implements SeatMapServiceInterface {
     public Map<String, Map<String, SeatDto>> peekAllSeats(String flightCode) throws RemoteException {
         Flight flight;
         try {
-            flightsLock.readLock();
+            flightsLock.readLock().lock();
             flight = existsFlight(flightCode);
         } finally {
             flightsLock.readLock().unlock();
         }
-        return seatsToDto(flight.getPlaneSeats());
+        return flight.getPlaneSeatsDto();
     }
 
     public Map<String, SeatDto> peekRowSeats(String flightCode, String rowNumber) throws RemoteException {
         Flight flight;
         try {
-            flightsLock.readLock();
+            flightsLock.readLock().lock();
             flight = existsFlight(flightCode);
         } finally {
             flightsLock.readLock().unlock();
         }
         Map<String, Map<String, SeatDto>> planeMap;
         try {
-            publicSeatsLock.readLock();
-            planeMap = seatsToDto(flight.getPlaneSeats());
+            publicSeatsLock.readLock().lock();
+            planeMap = flight.getPlaneSeatsDto();
             if (planeMap.containsKey(rowNumber))
                 return planeMap.get(rowNumber);
         } finally {
@@ -80,22 +80,22 @@ public class SeatMapService implements SeatMapServiceInterface {
     public Map<String, Map<String, SeatDto>> peekCategorySeats(String flightCode, SeatCategory category) throws RemoteException {
         Flight flight;
         try {
-            flightsLock.readLock();
+            flightsLock.readLock().lock();
             flight = existsFlight(flightCode);
         } finally {
             flightsLock.readLock().unlock();
         }
         Map<String, Map<String, SeatDto>> planeMap;
         try {
-            publicSeatsLock.readLock();
-            planeMap = seatsToDto(flight.getPlaneSeats());
+            publicSeatsLock.readLock().lock();
+            planeMap = flight.getPlaneSeatsDto();
         } finally {
             publicSeatsLock.readLock().unlock();
         }
         Map<String, Map<String, SeatDto>> categoryMap = new HashMap<>();
         boolean found = false;
         try {
-            publicSeatsLock.writeLock();
+            publicSeatsLock.writeLock().lock();
             for (String row : planeMap.keySet().stream().sorted().collect(Collectors.toList())) {
                 if (flight.getRowCategory(row).equals(category)) {
                     found = true;
@@ -112,40 +112,4 @@ public class SeatMapService implements SeatMapServiceInterface {
 
         throw new RemoteException("Error: Category " + category.getMessage() + " does not exist in flight " + flightCode);
     }
-
-    private Map<String, Map<String, SeatDto>> seatsToDto(Map<String, Map<String, Seat>> seats) {
-        Map<String, Map<String, SeatDto>> publicSeatsDto = new HashMap<>();
-        seats.forEach((key, value) -> {
-            Map<String, SeatDto> seatsDto;
-            try {
-                publicSeatsLock.readLock();
-                seatsDto = rowSeatDtoMap(value);
-            } finally {
-                publicSeatsLock.readLock().unlock();
-            }
-            try {
-                publicSeatsLock.writeLock();
-                publicSeatsDto.put(key, seatsDto);
-            } finally {
-                publicSeatsLock.writeLock().unlock();
-            }
-        });
-        return publicSeatsDto;
-    }
-
-    private Map<String, SeatDto> rowSeatDtoMap(Map<String, Seat> seatMap) {
-        Map<String, SeatDto> rowSeatsToDto = new HashMap<>();
-        seatMap.forEach((key, seat) -> {
-            SeatDto seatDto = seat.toSeatDto();
-            try {
-                publicSeatsLock.writeLock();
-                rowSeatsToDto.put(key, seatDto);
-            } finally {
-                publicSeatsLock.writeLock().unlock();
-            }
-        });
-        return rowSeatsToDto;
-    }
-
-
 }
