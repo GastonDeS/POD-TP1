@@ -26,7 +26,6 @@ public class NotificationClient {
 
     private static void subscribe(NotificationServiceInterface notificationService, String flightNumber, String name) {
 
-
         NotificationCallbackHandlerImpl handler = new NotificationCallbackHandlerImpl();
 
         try {

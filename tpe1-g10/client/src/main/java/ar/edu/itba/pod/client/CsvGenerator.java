@@ -20,7 +20,7 @@ public class CsvGenerator {
 
     public static void main(String[] args) throws Exception {
         generateCsvForCreateFlight(20);
-//        generateCsvForCreatePlanes();
+        generateCsvForCreatePlanes();
     }
 
     public static void generateCsvForCreatePlanes() throws IOException {

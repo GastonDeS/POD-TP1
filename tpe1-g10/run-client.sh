@@ -7,5 +7,5 @@ sh ./run-admin -DserverAddress=127.0.0.1:1099 -Daction=FLIGHTS -DinPath=`pwd`/..
 
 sh ./run-seatMap -DserverAddress=127.0.0.1:1099 -DflightCode=AA100 -DoutPath=`pwd`/../../src/main/resources/filesCsv/output.csv
 
-sh ./run-notification -DserverAddress=127.0.0.1:1099 -Dflight=AA100 -Dpassenger=Flor0
+sh ./run-notification -DserverAddress=127.0.0.1:1099 -Dflight=AA100 -Dpassenger=Flor00
 
