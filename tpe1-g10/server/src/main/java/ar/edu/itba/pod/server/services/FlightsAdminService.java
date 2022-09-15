@@ -63,12 +63,13 @@ public class FlightsAdminService implements FlightAdminServiceInterface {
             planesLock.readLock().lock();
             plane = this.planes.get(planeName);
         } finally {
-            planesLock.readLock().lock();
+            planesLock.readLock().unlock();
         }
         if (plane == null) throw new RemoteException("Error: flight with code " + planeName + " does not exist");
         return plane;
     }
 
+    // we need to catch this shit on the other places or dont even catch it
     public Flight getFlight(String code) throws RemoteException {
         Flight flight;
         try {
@@ -83,19 +84,14 @@ public class FlightsAdminService implements FlightAdminServiceInterface {
 
     public void createPlane(String name, Map<SeatCategory, PlaneData> planeDataMap) throws RemoteException {
         try {
-            planesLock.readLock().lock();
+            planesLock.writeLock().lock();
             if (this.planes.containsKey(name)) {
                 throw new RemoteException("Error: plane " + name + " already exists");
             }
-        } finally {
-            planesLock.readLock().unlock();
-        }
-        try {
-            planesLock.writeLock().lock();
             Plane plane = new Plane(name, planeDataMap);
             this.planes.put(plane.getName(), plane);
         } finally {
-            planesLock.writeLock().lock();
+            planesLock.writeLock().unlock();
         }
     }
 
@@ -132,7 +128,6 @@ public class FlightsAdminService implements FlightAdminServiceInterface {
         try {
             flightsLock.readLock().lock();
             Flight flight = getFlight(code);
-            if (flight == null) throw new RemoteException("Error: flight " + code + "does not exist");
             return flight.getStatus();
         } finally {
             flightsLock.readLock().unlock();
@@ -145,6 +140,7 @@ public class FlightsAdminService implements FlightAdminServiceInterface {
         try {
             flightsLock.readLock().lock();
             flight = getFlight(code);
+            // add Sync
             flight.chargePendingStatus(FlightStatus.CONFIRMED);
         } finally {
             flightsLock.readLock().unlock();
@@ -158,8 +154,6 @@ public class FlightsAdminService implements FlightAdminServiceInterface {
         try {
             flightsLock.readLock().lock();
             flight = getFlight(code);
-            if (flight == null)
-                throw new RemoteException("Error: flight " + code + "does not exist");
             flight.chargePendingStatus(FlightStatus.CANCELLED);
         } finally {
             flightsLock.readLock().unlock();
@@ -175,7 +169,7 @@ public class FlightsAdminService implements FlightAdminServiceInterface {
             flightsLock.readLock().lock();
             cancelledFlights = getCancelledFlights();
         } finally {
-            flightsLock.readLock().lock();
+            flightsLock.readLock().unlock();
         }
         int totalTickets = 0;
         List<TicketDto> notChangedTickets = new ArrayList<>();
@@ -190,8 +184,6 @@ public class FlightsAdminService implements FlightAdminServiceInterface {
         }
 
         return new ChangedTicketsDto(notChangedTickets, totalTickets);
-
-
     }
 
 
@@ -268,13 +260,11 @@ public class FlightsAdminService implements FlightAdminServiceInterface {
     }
 
     private List<Flight> getCancelledFlights() {
-        List<Flight> flights;
         try {
             flightsLock.readLock().lock();
-            flights = new ArrayList<>(this.flights.values());
+            return this.flights.values().stream().filter(flight -> flight.getStatus() == FlightStatus.CANCELLED).collect(Collectors.toList());
         } finally {
             flightsLock.readLock().unlock();
         }
-        return flights.stream().filter(flight -> flight.getStatus() == FlightStatus.CANCELLED).collect(Collectors.toList());
     }
 }
