@@ -12,7 +12,7 @@ $ sudo apt-get install maven
 
 ## Correr el programa
 
-Para correr el programa, primero hay que ejecutar un script. Desde la carpeta raiz se debe ejecutar:
+Para correr el programa, primero hay que ejecutar un script. Desde la carpeta tpe1-g10 se debe ejecutar:
 ````
 $ ./run.sh
 ````
@@ -73,8 +73,7 @@ $ ./run-notifcations -DserverAddress={ip}:{puerto} -Dflight={flightCode} -Dpasse
 ````
 $ ./run-seatMap -DserverAddress={ip}:{puerto} -Dflight={flightCode} [ -Dcategory={catName} | -Drow={rowNumber} ] -DoutPath={output.csv}
 ````
-#####Consideraciones
-1- Si se desea consultar o cambiar un vuelo 
+
 
 # Integrantes
 

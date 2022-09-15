@@ -91,7 +91,7 @@ public class FlightCrewClient {
                     logger.error("There must be a valid flight code");
                     return;
                 }
-                Map<String, SeatDto> rowPlaneMap = handle.peekRowSeats(flightCodeInput, Integer.valueOf(rowInput)); // TODO flor check
+                Map<String, SeatDto> rowPlaneMap = handle.peekRowSeats(flightCodeInput, Integer.parseInt(rowInput));
                 writeOutputRowResults(rowPlaneMap, rowInput);
             }
         } catch (Exception e) {

@@ -29,7 +29,7 @@ public class Server {
             final SeatsAssignmentServiceInterface seatsAssignmentService = SeatsAssignmentService.getInstance();
             final NotificationServiceInterface notificationService = NotificationService.getInstance();
 
-            final Registry registry = LocateRegistry.createRegistry(1099);
+            final Registry registry = LocateRegistry.getRegistry(1099);
             final Remote remoteFlightsAdmin = UnicastRemoteObject.exportObject(flightsAdminService, 0);
             final Remote remoteSeatsAssignment = UnicastRemoteObject.exportObject(seatsAssignmentService, 0);
             final Remote remoteMapQuery = UnicastRemoteObject.exportObject(seatMapService, 0);
