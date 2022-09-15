@@ -1,7 +1,7 @@
 package ar.edu.itba.pod.interfaces;
 
 
-import ar.edu.itba.pod.models.ChangedTicketsDto;
+import ar.edu.itba.pod.models.AdminClientResponse;
 import ar.edu.itba.pod.constants.FlightStatus;
 import ar.edu.itba.pod.models.PlaneData;
 import ar.edu.itba.pod.models.TicketDto;
@@ -11,6 +11,7 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.List;
 import java.util.Map;
+import ar.edu.itba.pod.models.AdminClientResponse;
 
 public interface FlightAdminServiceInterface extends Remote {
 
@@ -24,7 +25,7 @@ public interface FlightAdminServiceInterface extends Remote {
 
     void cancelPendingFlight(String code) throws RemoteException;
 
-    ChangedTicketsDto findNewSeatsForCancelledFlights() throws RemoteException;
+    AdminClientResponse<TicketDto> findNewSeatsForCancelledFlights() throws RemoteException;
 
 }
 

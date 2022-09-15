@@ -4,7 +4,7 @@ import ar.edu.itba.pod.constants.ActionsFlightsAdmin;
 import ar.edu.itba.pod.constants.FlightStatus;
 import ar.edu.itba.pod.constants.SeatCategory;
 import ar.edu.itba.pod.interfaces.FlightAdminServiceInterface;
-import ar.edu.itba.pod.models.ChangedTicketsDto;
+import ar.edu.itba.pod.models.AdminClientResponse;
 import ar.edu.itba.pod.models.PlaneData;
 import ar.edu.itba.pod.models.TicketDto;
 import org.slf4j.Logger;
@@ -64,15 +64,15 @@ public class FlightsAdminClient {
     }
 
     private static void reticketingMethod(FlightAdminServiceInterface service) {
-        ChangedTicketsDto ticketDto = new ChangedTicketsDto(new ArrayList<>(), 0);
+        AdminClientResponse<TicketDto> ticketDto;
         try {
             ticketDto = service.findNewSeatsForCancelledFlights();
         } catch (RemoteException ex) {
             logger.error("The reticketing could not be completed");
             return;
         }
-        logger.info(ticketDto.getTicketsChangedAmount() + " tickets were changed\n");
-        ticketDto.getTicketDtoList().forEach(ticket -> {
+        logger.info(ticketDto.getSuccessAmount() + " tickets were changed\n");
+        ticketDto.getErrorList().forEach(ticket -> {
             logger.info("Cannot find alternative flight for " + ticket.getName() + " with Ticket " + ticket.getFlightCode() + "\n");
 
         });
@@ -84,12 +84,18 @@ public class FlightsAdminClient {
             Reader fileReader = new FileReader(fileCsv);
             BufferedReader br = new BufferedReader(fileReader);
             String line = br.readLine(); // skip first line
+            int modelsAdded =0;
             while ((line = br.readLine()) != null) {
                 String[] values = line.split(";");
                 Map<SeatCategory, PlaneData> planeData = parseRowData(values[1].split(","));
-                service.createPlane(values[0], planeData);
+                try {
+                    service.createPlane(values[0], planeData);
+                    modelsAdded++;
+                } catch (RemoteException rex) {
+                    logger.info("Cannot add model "+values[0]+".");
+                }
             }
-
+            logger.info(modelsAdded+ " models added.");
         } catch (Exception ex) {
             logger.error("File cannot be opened");
         }
@@ -111,15 +117,21 @@ public class FlightsAdminClient {
             Reader fileReader = new FileReader(fileCsv);
             BufferedReader br = new BufferedReader(fileReader);
             String line = br.readLine(); // skip first line
+            int flightAddedCount = 0;
             while ((line = br.readLine()) != null) {
                 String[] values = line.split(";");
                 String[] ticketsString = values.length > 3 ? values[3].split(",") : new String[]{};
                 List<TicketDto> tickets = parseTickets(ticketsString, values[1]);
-                service.createFlight(values[0], values[1], values[2], tickets);
+                try {
+                    service.createFlight(values[0], values[1], values[2], tickets);
+                    flightAddedCount++;
+                } catch (RemoteException ex) {
+                    logger.info("Cannot add flight "+values[1]+".");
+                }
             }
-
+            logger.info(flightAddedCount+" flights added.");
         } catch (Exception ex) {
-            logger.error("File: "+fileName+" cannot be opened ");
+            logger.error("File: "+fileName+" cannot be opened or was invalid");
         }
     }
 

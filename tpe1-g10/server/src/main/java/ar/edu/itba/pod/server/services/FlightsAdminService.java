@@ -1,6 +1,6 @@
 package ar.edu.itba.pod.server.services;
 
-import ar.edu.itba.pod.models.ChangedTicketsDto;
+import ar.edu.itba.pod.models.AdminClientResponse;
 import ar.edu.itba.pod.constants.FlightStatus;
 import ar.edu.itba.pod.constants.NotificationCategory;
 import ar.edu.itba.pod.constants.SeatCategory;
@@ -162,7 +162,7 @@ public class FlightsAdminService implements FlightAdminServiceInterface {
 
     }
 
-    public ChangedTicketsDto findNewSeatsForCancelledFlights() throws RemoteException{
+    public AdminClientResponse<TicketDto> findNewSeatsForCancelledFlights() throws RemoteException{
         if (notificationService == null) init();
         List<Flight> cancelledFlights;
         try {
@@ -180,7 +180,7 @@ public class FlightsAdminService implements FlightAdminServiceInterface {
             notChangedTickets.addAll(flight.getTicketDtoList());
         }
 
-        return new ChangedTicketsDto(notChangedTickets, totalTickets);
+        return new AdminClientResponse<>(notChangedTickets, totalTickets);
     }
 
 

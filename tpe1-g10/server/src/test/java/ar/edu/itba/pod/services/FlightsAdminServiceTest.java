@@ -6,7 +6,7 @@ import ar.edu.itba.pod.models.PlaneData;
 import ar.edu.itba.pod.models.TicketDto;
 import ar.edu.itba.pod.server.services.FlightsAdminService;
 import ar.edu.itba.pod.services.utils.TestUtils;
-import ar.edu.itba.pod.models.ChangedTicketsDto;
+import ar.edu.itba.pod.models.AdminClientResponse;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -77,7 +77,7 @@ public class FlightsAdminServiceTest {
         flightsAdminService.createFlight(PLANE_2, "AB", "BA", new ArrayList<>());
 
         flightsAdminService.cancelPendingFlight("AA");
-        ChangedTicketsDto response = flightsAdminService.findNewSeatsForCancelledFlights();
+        AdminClientResponse response = flightsAdminService.findNewSeatsForCancelledFlights();
 
 
         // Checks that all tickets has been swapped
